@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Manual Edits" href="EDITING.html" /><link rel="prev" title="Output files" href="OUTPUT_FILES.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2024.01.29 -->
-        <title>Introduction - FastSurfer</title>
+        <title>Installation - FastSurfer</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -136,7 +136,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -163,11 +163,10 @@
 <li class="toctree-l2"><a class="reference internal" href="README.html#surface-reconstruction">Surface reconstruction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#requirements-to-input-images">Requirements to input images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="README.html#getting-started">Getting started</a></li>
-<li class="toctree-l2"><a class="reference internal" href="FLAGS.html">FastSurfer_Flags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="FLAGS.html">FastSurfer Flags</a></li>
 <li class="toctree-l2"><a class="reference internal" href="EXAMPLES.html">Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="OUTPUT_FILES.html">Output files</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="EDITING.html">Manual Edits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="SECURITY.html">Security Policy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="CODE_OF_CONDUCT.html">Contributor Covenant Code of Conduct</a></li>
@@ -301,20 +300,17 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          <section id="introduction">
-<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">#</a></h1>
+          <section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h1>
 <p>FastSurfer is a pipeline for the segmentation of human brain MRI data. It consists of two main components: the networks for the fast segmentation of an MRI (FastSurferVINN, CerebNet) and the recon_surf script for the efficient creation of surfaces and most files and statistics that also FreeSurfer provides.</p>
 <p>The preferred way of installing and running FastSurfer is via Singularity or Docker containers. We provide pre-build images at Dockerhub for various application cases: i) for only the segmentation (both GPU and CPU), ii) for only the CPU-based recon-surf pipeline, and iii) for the full pipeline (GPU or CPU).</p>
 <p>We also provide information on a native install on some operating systems, but since dependencies may vary, this can produce results different from our testing environment and we may not be able to support you if things don’t work. Our testing is performed on Ubuntu 20.04 via our provided Docker images.</p>
-</section>
-<section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h1>
 <section id="linux">
 <h2>Linux<a class="headerlink" href="#linux" title="Permalink to this heading">#</a></h2>
 <p>Recommended System Spec: 8 GB system memory, NVIDIA GPU with 8 GB graphics memory.</p>
@@ -608,8 +604,56 @@ pip3<span class="w"> </span>install<span class="w"> </span>--no-binary<span clas
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#linux">Linux</a><ul>
+<li><a class="reference internal" href="#singularity">Singularity</a></li>
+<li><a class="reference internal" href="#docker">Docker</a></li>
+<li><a class="reference internal" href="#native-ubuntu-20-04-or-ubuntu-22-04">Native (Ubuntu 20.04 or Ubuntu 22.04)</a><ul>
+<li><a class="reference internal" href="#system-packages">1. System Packages</a></li>
+<li><a class="reference internal" href="#conda-for-python">2. Conda for python</a></li>
+<li><a class="reference internal" href="#fastsurfer">3. FastSurfer</a></li>
+<li><a class="reference internal" href="#python-environment">4. Python environment</a></li>
+<li><a class="reference internal" href="#freesurfer">5. FreeSurfer</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#amd-gpus-experimental">AMD GPUs (experimental)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#macos">MacOS</a><ul>
+<li><a class="reference internal" href="#docker-currently-only-supported-for-intel-cpus">Docker (currently only supported for Intel CPUs)</a></li>
+<li><a class="reference internal" href="#native">Native</a><ul>
+<li><a class="reference internal" href="#git-and-bash">1. Git and Bash</a></li>
+<li><a class="reference internal" href="#python">2. Python</a></li>
+<li><a class="reference internal" href="#fastsurfer-and-requirements">3. FastSurfer and Requirements</a></li>
+<li><a class="reference internal" href="#apple-ai-accelerator-support">4. Apple AI Accelerator support</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#windows">Windows</a><ul>
+<li><a class="reference internal" href="#docker-cpu-version">Docker (CPU version)</a></li>
+<li><a class="reference internal" href="#docker-gpu-version">Docker (GPU version)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
