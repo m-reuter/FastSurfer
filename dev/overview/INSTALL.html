@@ -1,11 +1,11 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="">
+<html class="no-js" lang="en" data-content_root="../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Manual Edits" href="EDITING.html" /><link rel="prev" title="Output files" href="OUTPUT_FILES.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Examples" href="EXAMPLES.html" /><link rel="prev" title="Introduction to FastSurfer" href="intro.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2024.01.29 -->
+    <!-- Generated with Sphinx 7.3.5 and Furo 2024.01.29 -->
         <title>Installation - FastSurfer</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
@@ -157,28 +157,36 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Overview</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Overview</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="README.html">Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="README.html#segmentation-modules">Segmentation Modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="README.html#surface-reconstruction">Surface reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="README.html#requirements-to-input-images">Requirements to input images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="README.html#getting-started">Getting started</a></li>
-<li class="toctree-l2"><a class="reference internal" href="FLAGS.html">FastSurfer Flags</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EXAMPLES.html">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="OUTPUT_FILES.html">Output files</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">User Guide</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="intro.html">Introduction to FastSurfer</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EXAMPLES.html">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="FLAGS.html">Flags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="OUTPUT_FILES.html">Output files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker.html">Docker Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="singularity.html">Singularity Support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="EDITING.html">Manual Edits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="SECURITY.html">Security Policy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="CODE_OF_CONDUCT.html">Contributor Covenant Code of Conduct</a></li>
 <li class="toctree-l2"><a class="reference internal" href="CONTRIBUTING.html">Contributing to FastSurfer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="license.html">FastSurfer License</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../scripts/index.html">Scripts</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Scripts</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../scripts/slurm.html">SLURM: srun_fastsurfer.sh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scripts/fastsurfercnn.html">FastSurferCNN: run_prediction.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scripts/cerebnet.html">CerebNet: run_prediction.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scripts/recon_surf.html">Surface pipeline: recon-surf.sh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scripts/SLURM.html">SLURM: srun_fastsurfer.sh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scripts/segstats.html">FastSurferCNN: segstats.py</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/util.html">FastSurfer Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of FastSurfer Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../scripts/fastsurfercnn.generate_hdf5.html">FastSurferCNN: generate_hdf5.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../scripts/fastsurfercnn.run_model.html">FastSurferCNN: run_model.py</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">FastSurfer API</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of FastSurfer API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../api/FastSurferCNN.html">API References</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of API References</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">FastSurfer API</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of FastSurfer API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/FastSurferCNN.html">FastSurferCNN</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of FastSurferCNN</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.download_checkpoints.html">FastSurferCNN.download_checkpoints</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.generate_hdf5.html">FastSurferCNN.generate_hdf5</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.inference.html">FastSurferCNN.inference</a></li>
@@ -189,14 +197,22 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.version.html">FastSurferCNN.version</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../api/FastSurferCNN.models.html">API models References</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of API models References</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/FastSurferCNN.data_loader.html">FastSurferCNN.data_loader</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of FastSurferCNN.data_loader</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.data_loader.augmentation.html">FastSurferCNN.data_loader.augmentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.data_loader.conform.html">FastSurferCNN.data_loader.conform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.data_loader.data_utils.html">FastSurferCNN.data_loader.data_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.data_loader.dataset.html">FastSurferCNN.data_loader.dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.data_loader.loader.html">FastSurferCNN.data_loader.loader</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/FastSurferCNN.models.html">FastSurferCNN.models</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of FastSurferCNN.models</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.models.interpolation_layer.html">FastSurferCNN.models.interpolation_layer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.models.losses.html">FastSurferCNN.models.losses</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.models.networks.html">FastSurferCNN.models.networks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.models.sub_module.html">FastSurferCNN.models.sub_module</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../api/FastSurferCNN.utils.html">API utils References</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of API utils References</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/FastSurferCNN.utils.html">FastSurferCNN.utils</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of FastSurferCNN.utils</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.utils.arg_types.html">FastSurferCNN.utils.arg_types</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.utils.checkpoint.html">FastSurferCNN.utils.checkpoint</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.utils.common.html">FastSurferCNN.utils.common</a></li>
@@ -212,15 +228,41 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.utils.threads.html">FastSurferCNN.utils.threads</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../api/FastSurferCNN.data_loader.html">API data_loader References</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of API data_loader References</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.data_loader.augmentation.html">FastSurferCNN.data_loader.augmentation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.data_loader.conform.html">FastSurferCNN.data_loader.conform</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.data_loader.data_utils.html">FastSurferCNN.data_loader.data_utils</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.data_loader.dataset.html">FastSurferCNN.data_loader.dataset</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/FastSurferCNN.data_loader.loader.html">FastSurferCNN.data_loader.loader</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/CerebNet.html">CerebNet</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of CerebNet</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.apply_warp.html">CerebNet.apply_warp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.inference.html">CerebNet.inference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.run_prediction.html">CerebNet.run_prediction</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../api/recon_surf.html">API recon_surf References</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of API recon_surf References</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/CerebNet_dataloader.html">CerebNet.dataloader</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of CerebNet.dataloader</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.data_loader.augmentation.html">CerebNet.data_loader.augmentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.data_loader.data_utils.html">CerebNet.data_loader.data_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.data_loader.dataset.html">CerebNet.data_loader.dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.data_loader.loader.html">CerebNet.data_loader.loader</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/CerebNet_datasets.html">CerebNet.datasets</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of CerebNet.datasets</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.datasets.generate_hdf5.html">CerebNet.datasets.generate_hdf5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.datasets.load_data.html">CerebNet.datasets.load_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.datasets.utils.html">CerebNet.datasets.utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.datasets.wm_merge_clean.html">CerebNet.datasets.wm_merge_clean</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/CerebNet_models.html">CerebNet_models</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle navigation of CerebNet_models</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.models.networks.html">CerebNet.models.networks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.models.sub_module.html">CerebNet.models.sub_module</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/CerebNet_utils.html">CerebNet.utils</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of CerebNet.utils</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.utils.checkpoint.html">CerebNet.utils.checkpoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.utils.load_config.html">CerebNet.utils.load_config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.utils.lr_scheduler.html">CerebNet.utils.lr_scheduler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.utils.meters.html">CerebNet.utils.meters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.utils.metrics.html">CerebNet.utils.metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.utils.misc.html">CerebNet.utils.misc</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/recon_surf.html">recon_surf</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle navigation of recon_surf</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/recon_surf.align_points.html">recon_surf.align_points</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/recon_surf.align_seg.html">recon_surf.align_seg</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/recon_surf.create_annotation.html">recon_surf.create_annotation</a></li>
@@ -234,40 +276,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/recon_surf.sample_parc.html">recon_surf.sample_parc</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/recon_surf.smooth_aparc.html">recon_surf.smooth_aparc</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/recon_surf.spherically_project_wrapper.html">recon_surf.spherically_project_wrapper</a></li>
-</ul>
-</li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../api/CerebNet.html">API CerebNet References</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of API CerebNet References</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.apply_warp.html">CerebNet.apply_warp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.inference.html">CerebNet.inference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.run_prediction.html">CerebNet.run_prediction</a></li>
-</ul>
-</li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../api/CerebNet_dataloader.html">API CerebNet_dataloader References</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of API CerebNet_dataloader References</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.data_loader.augmentation.html">CerebNet.data_loader.augmentation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.data_loader.data_utils.html">CerebNet.data_loader.data_utils</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.data_loader.dataset.html">CerebNet.data_loader.dataset</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.data_loader.loader.html">CerebNet.data_loader.loader</a></li>
-</ul>
-</li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../api/CerebNet_datasets.html">API CerebNet_datasets References</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of API CerebNet_datasets References</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.datasets.generate_hdf5.html">CerebNet.datasets.generate_hdf5</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.datasets.load_data.html">CerebNet.datasets.load_data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.datasets.utils.html">CerebNet.datasets.utils</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.datasets.wm_merge_clean.html">CerebNet.datasets.wm_merge_clean</a></li>
-</ul>
-</li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../api/CerebNet_models.html">API CerebNet_models References</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle navigation of API CerebNet_models References</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.models.networks.html">CerebNet.models.networks</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.models.sub_module.html">CerebNet.models.sub_module</a></li>
-</ul>
-</li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../api/CerebNet_utils.html">API CerebNet_utils References</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of API CerebNet_utils References</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.utils.checkpoint.html">CerebNet.utils.checkpoint</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.utils.load_config.html">CerebNet.utils.load_config</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.utils.lr_scheduler.html">CerebNet.utils.lr_scheduler</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.utils.meters.html">CerebNet.utils.meters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.utils.metrics.html">CerebNet.utils.metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/CerebNet.utils.misc.html">CerebNet.utils.misc</a></li>
 </ul>
 </li>
 </ul>
@@ -307,37 +315,37 @@
         </div>
         <article role="main">
           <section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h1>
+<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h1>
 <p>FastSurfer is a pipeline for the segmentation of human brain MRI data. It consists of two main components: the networks for the fast segmentation of an MRI (FastSurferVINN, CerebNet) and the recon_surf script for the efficient creation of surfaces and most files and statistics that also FreeSurfer provides.</p>
 <p>The preferred way of installing and running FastSurfer is via Singularity or Docker containers. We provide pre-build images at Dockerhub for various application cases: i) for only the segmentation (both GPU and CPU), ii) for only the CPU-based recon-surf pipeline, and iii) for the full pipeline (GPU or CPU).</p>
 <p>We also provide information on a native install on some operating systems, but since dependencies may vary, this can produce results different from our testing environment and we may not be able to support you if things don’t work. Our testing is performed on Ubuntu 20.04 via our provided Docker images.</p>
 <section id="linux">
-<h2>Linux<a class="headerlink" href="#linux" title="Permalink to this heading">#</a></h2>
+<h2>Linux<a class="headerlink" href="#linux" title="Link to this heading">¶</a></h2>
 <p>Recommended System Spec: 8 GB system memory, NVIDIA GPU with 8 GB graphics memory.</p>
 <p>Minimum System Spec: 8 GB system memory (this requires running FastSurfer on the CPU only, which is much slower)</p>
 <p>Non-NVIDIA GPU architectures (Apple M1, AMD) are not officially supported, but experimental.</p>
 <section id="singularity">
-<h3>Singularity<a class="headerlink" href="#singularity" title="Permalink to this heading">#</a></h3>
+<h3>Singularity<a class="headerlink" href="#singularity" title="Link to this heading">¶</a></h3>
 <p>Assuming you have singularity installed already (by a system admin), you can build an image easily from our Dockerhub images. Run this command from a directory where you want to store singularity images:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>singularity<span class="w"> </span>build<span class="w"> </span>fastsurfer-gpu.sif<span class="w"> </span>docker://deepmi/fastsurfer:latest
 </pre></div>
 </div>
-<p>Additionally, <a class="reference internal" href="#Singularity/README.md"><span class="xref myst">the Singularity README</span></a> contains detailed directions for building your own Singularity images from Docker.</p>
-<p>Our <a class="reference internal" href="README.html#example-2--fastsurfer-singularity"><span class="std std-ref">README</span></a> explains how to run FastSurfer (for the full pipeline you will also need a FreeSurfer .license file!) and you can find details on how to build your own images here: <a class="reference internal" href="#Docker/README.md"><span class="xref myst">Docker</span></a> and <a class="reference internal" href="#Singularity/README.md"><span class="xref myst">Singularity</span></a>.</p>
+<p>Additionally, <a class="reference internal" href="singularity.html"><span class="std std-ref">the Singularity README</span></a> contains detailed directions for building your own Singularity images from Docker.</p>
+<p><a class="reference internal" href="EXAMPLES.html#example-2-fastsurfer-singularity"><span class="std std-ref">Example 2</span></a> explains how to run FastSurfer (for the full pipeline you will also need a FreeSurfer .license file!) and you can find details on how to build your own images here: <a class="reference internal" href="docker.html"><span class="std std-ref">Docker</span></a> and <a class="reference internal" href="singularity.html"><span class="std std-ref">Singularity</span></a>.</p>
 </section>
 <section id="docker">
-<h3>Docker<a class="headerlink" href="#docker" title="Permalink to this heading">#</a></h3>
+<h3>Docker<a class="headerlink" href="#docker" title="Link to this heading">¶</a></h3>
 <p>This is very similar to Singularity. Assuming you have Docker installed (by a system admin) you just need to pull one of our pre-build Docker images from dockerhub:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>pull<span class="w"> </span>deepmi/fastsurfer:latest
 </pre></div>
 </div>
-<p>Our <a class="reference internal" href="README.html#example-1--fastsurfer-docker"><span class="std std-ref">README</span></a> explains how to run FastSurfer (for the full pipeline you will also need a FreeSurfer .license file!) and you can find details on how to <a class="reference internal" href="#Docker/README.md"><span class="xref myst">build your own image</span></a>.</p>
+<p><a class="reference internal" href="EXAMPLES.html#example-1-fastsurfer-docker"><span class="std std-ref">Example 1</span></a> explains how to run FastSurfer (for the full pipeline you will also need a FreeSurfer .license file!) and you can find details on how to <a class="reference external" href="https://github.com/Deep-MI/FastSurfer/blob/dev/Docker/README.md">build your own image</a>.</p>
 </section>
 <section id="native-ubuntu-20-04-or-ubuntu-22-04">
-<h3>Native (Ubuntu 20.04 or Ubuntu 22.04)<a class="headerlink" href="#native-ubuntu-20-04-or-ubuntu-22-04" title="Permalink to this heading">#</a></h3>
+<h3>Native (Ubuntu 20.04 or Ubuntu 22.04)<a class="headerlink" href="#native-ubuntu-20-04-or-ubuntu-22-04" title="Link to this heading">¶</a></h3>
 <p>In a native install you need to install all dependencies (distro packages, FreeSurfer in the supported version, python dependencies) yourself. Here we will walk you through what you need.</p>
 <section id="system-packages">
-<h4>1. System Packages<a class="headerlink" href="#system-packages" title="Permalink to this heading">#</a></h4>
+<h4>1. System Packages<a class="headerlink" href="#system-packages" title="Link to this heading">¶</a></h4>
 <p>You will need a few additional packages that may be missing on your system (for this you need sudo access or ask a system admin):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>update<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>--no-install-recommends<span class="w"> </span><span class="se">\</span>
 <span class="w">      </span>wget<span class="w"> </span><span class="se">\</span>
@@ -356,7 +364,7 @@ sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> <
 <p>If you are using pip, make sure pip is updated as older versions will fail.</p>
 </section>
 <section id="conda-for-python">
-<h4>2. Conda for python<a class="headerlink" href="#conda-for-python" title="Permalink to this heading">#</a></h4>
+<h4>2. Conda for python<a class="headerlink" href="#conda-for-python" title="Link to this heading">¶</a></h4>
 <p>We recommend to install conda as your python environment. If you don’t have conda on your system, an admin needs to install it:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget<span class="w"> </span>--no-check-certificate<span class="w"> </span>-qO<span class="w"> </span>~/miniconda.sh<span class="w"> </span>https://repo.continuum.io/miniconda/Miniconda3-py38_4.11.0-Linux-x86_64.sh
 chmod<span class="w"> </span>+x<span class="w"> </span>~/miniconda.sh
@@ -366,7 +374,7 @@ rm<span class="w"> </span>~/miniconda.sh<span class="w"> </span>
 </div>
 </section>
 <section id="fastsurfer">
-<h4>3. FastSurfer<a class="headerlink" href="#fastsurfer" title="Permalink to this heading">#</a></h4>
+<h4>3. FastSurfer<a class="headerlink" href="#fastsurfer" title="Link to this heading">¶</a></h4>
 <p>Get FastSurfer from GitHub. Here you can decide if you want to install the current experimental “dev” version (which can be broken) or the “stable” branch (that has been tested thoroughly):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>--branch<span class="w"> </span>stable<span class="w"> </span>https://github.com/Deep-MI/FastSurfer.git
 <span class="nb">cd</span><span class="w"> </span>FastSurfer
@@ -374,7 +382,7 @@ rm<span class="w"> </span>~/miniconda.sh<span class="w"> </span>
 </div>
 </section>
 <section id="python-environment">
-<h4>4. Python environment<a class="headerlink" href="#python-environment" title="Permalink to this heading">#</a></h4>
+<h4>4. Python environment<a class="headerlink" href="#python-environment" title="Link to this heading">¶</a></h4>
 <p>Create a new environment and install FastSurfer dependencies:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span>-f<span class="w"> </span>./env/fastsurfer.yml<span class="w"> </span>
 conda<span class="w"> </span>activate<span class="w"> </span>fastsurfer
@@ -394,22 +402,22 @@ If you only want to run the surface pipeline, use <code class="docutils literal 
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>FastSurferCNN/download_checkpoints.py<span class="w"> </span>--all
 </pre></div>
 </div>
-<p>Once all dependencies are installed, you are ready to run the FastSurfer segmentation-only (!!) pipeline by calling <code class="docutils literal notranslate"><span class="pre">./run_fastsurfer.sh</span> <span class="pre">--seg_only</span> <span class="pre">....</span></code> , see the <a class="reference internal" href="README.html#example-3--native-fastsurfer-on-subjectx--with-parallel-processing-of-hemis-"><span class="std std-ref">README</span></a> for command line flags.</p>
+<p>Once all dependencies are installed, you are ready to run the FastSurfer segmentation-only (!!) pipeline by calling <code class="docutils literal notranslate"><span class="pre">./run_fastsurfer.sh</span> <span class="pre">--seg_only</span> <span class="pre">....</span></code> , see <a class="reference internal" href="EXAMPLES.html#example-3-native-fastsurfer-on-subjectx-with-parallel-processing-of-hemis"><span class="std std-ref">Example 3</span></a> for command line flags.</p>
 </section>
 <section id="freesurfer">
-<h4>5. FreeSurfer<a class="headerlink" href="#freesurfer" title="Permalink to this heading">#</a></h4>
+<h4>5. FreeSurfer<a class="headerlink" href="#freesurfer" title="Link to this heading">¶</a></h4>
 <p>To run the full pipeline, you will need to install FreeSurfer (we recommend and support version 7.3.2) according to their <a class="reference external" href="https://surfer.nmr.mgh.harvard.edu/fswiki/rel7downloads">Instructions</a>. There is a freesurfer email list, if you run into problems during this step.</p>
 <p>Make sure, the <code class="docutils literal notranslate"><span class="pre">${FREESURFER_HOME}</span></code> environment variable is set, so FastSurfer finds the FreeSurfer binaries.</p>
 </section>
 </section>
 <section id="amd-gpus-experimental">
-<h3>AMD GPUs (experimental)<a class="headerlink" href="#amd-gpus-experimental" title="Permalink to this heading">#</a></h3>
+<h3>AMD GPUs (experimental)<a class="headerlink" href="#amd-gpus-experimental" title="Link to this heading">¶</a></h3>
 <p>We have successfully run the segmentation on an AMD GPU (Radeon Pro W6600) using ROCm. For this to work you need to make sure you are using a supported (or semi-supported) GPU and the correct kernel version. AMD kernel modules need to be installed on the host system according to ROCm installation instructions and additional groups need to be setup and your user added to them, see https://docs.amd.com/bundle/ROCm-Installation-Guide-v5.2.3/page/Introduction_to_AMD_ROCm_Installation_Guide_for_Linux.html .</p>
 <p>Build the Docker container with ROCm support.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>Docker/build.py<span class="w"> </span>--device<span class="w"> </span>rocm<span class="w"> </span>--tag<span class="w"> </span>my_fastsurfer:rocm
 </pre></div>
 </div>
-<p>You will need to add a couple of flags to your docker run command for AMD, see <a class="reference internal" href="README.html#example-1--fastsurfer-docker"><span class="std std-ref">the Readme</span></a> for <code class="docutils literal notranslate"><span class="pre">**other-docker-flags**</span></code> or <code class="docutils literal notranslate"><span class="pre">**fastsurfer-flags**</span></code>:</p>
+<p>You will need to add a couple of flags to your docker run command for AMD, see <a class="reference internal" href="EXAMPLES.html#example-1-fastsurfer-docker"><span class="std std-ref">Example 1</span></a> for <code class="docutils literal notranslate"><span class="pre">**other-docker-flags**</span></code> or <code class="docutils literal notranslate"><span class="pre">**fastsurfer-flags**</span></code>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>--cap-add<span class="o">=</span>SYS_PTRACE<span class="w"> </span>--security-opt<span class="w"> </span><span class="nv">seccomp</span><span class="o">=</span>unconfined<span class="w"> </span>--device<span class="o">=</span>/dev/kfd<span class="w"> </span><span class="se">\</span>
 <span class="w">        </span>--device<span class="o">=</span>/dev/dri<span class="w"> </span>--group-add<span class="w"> </span>video<span class="w"> </span>--ipc<span class="o">=</span>host<span class="w"> </span>--shm-size<span class="w"> </span>8G<span class="w"> </span><span class="se">\</span>
 <span class="w">        </span>**other-docker-flags**<span class="w"> </span>my_fastsurfer:rocm<span class="w"> </span><span class="se">\</span>
@@ -420,12 +428,12 @@ If you only want to run the surface pipeline, use <code class="docutils literal 
 </section>
 </section>
 <section id="macos">
-<h2>MacOS<a class="headerlink" href="#macos" title="Permalink to this heading">#</a></h2>
+<h2>MacOS<a class="headerlink" href="#macos" title="Link to this heading">¶</a></h2>
 <p>Processing on Mac CPUs is possible. On Apple Silicon, you can even use the GPU (experimental) by passing <code class="docutils literal notranslate"><span class="pre">--device</span> <span class="pre">mps</span></code>.</p>
 <p>Recommended System Spec: Mac with Apple Silicon M-Chip and 16 GB system memory.</p>
 <p>For older Intel CPUs, we only support cpu-only, which will be 2-4 times slower.</p>
 <section id="docker-currently-only-supported-for-intel-cpus">
-<h3>Docker (currently only supported for Intel CPUs)<a class="headerlink" href="#docker-currently-only-supported-for-intel-cpus" title="Permalink to this heading">#</a></h3>
+<h3>Docker (currently only supported for Intel CPUs)<a class="headerlink" href="#docker-currently-only-supported-for-intel-cpus" title="Link to this heading">¶</a></h3>
 <p>Docker can be used on Intel Macs as it should be similarly fast as a native install there. It would allow you to run the full pipeline.</p>
 <p>First, install <a class="reference external" href="https://docs.docker.com/get-docker/">Docker Desktop for Mac</a>.
 Start it and set Memory to 15 GB under Preferences -&gt; Resources (or the largest you have, if you are below 15GB, it may fail).</p>
@@ -433,13 +441,13 @@ Start it and set Memory to 15 GB under Preferences -&gt; Resources (or the large
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>pull<span class="w"> </span>deepmi/fastsurfer:latest
 </pre></div>
 </div>
-<p>Continue with the example in our <a class="reference internal" href="README.html#example-1--fastsurfer-docker"><span class="std std-ref">README</span></a>.</p>
+<p>Continue with the example in <a class="reference internal" href="EXAMPLES.html#example-1-fastsurfer-docker"><span class="std std-ref">Example 1</span></a>.</p>
 </section>
 <section id="native">
-<h3>Native<a class="headerlink" href="#native" title="Permalink to this heading">#</a></h3>
+<h3>Native<a class="headerlink" href="#native" title="Link to this heading">¶</a></h3>
 <p>On modern Macs with the Apple Silicon M1 or M2 ARM-based chips, we recommend a native installation as it runs much faster than Docker in our tests. The experimental support for the built-in AI Accelerator is also only available on native installations. Native installation also supports older Intel chips.</p>
 <section id="git-and-bash">
-<h4>1. Git and Bash<a class="headerlink" href="#git-and-bash" title="Permalink to this heading">#</a></h4>
+<h4>1. Git and Bash<a class="headerlink" href="#git-and-bash" title="Link to this heading">¶</a></h4>
 <p>If you do not have git and a recent bash (version &gt; 4.0 required!) installed, install them via the packet manager, e.g. brew.
 This installs brew and then bash:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>/bin/bash<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh<span class="k">)</span><span class="s2">&quot;</span>
@@ -449,7 +457,7 @@ brew<span class="w"> </span>install<span class="w"> </span>bash
 <p>Make sure you use this bash and not the older one provided with MacOS!</p>
 </section>
 <section id="python">
-<h4>2. Python<a class="headerlink" href="#python" title="Permalink to this heading">#</a></h4>
+<h4>2. Python<a class="headerlink" href="#python" title="Link to this heading">¶</a></h4>
 <p>Create a python environment, activate it, and upgrade pip. Here we use pip, but you should also be able to use conda for python:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span><span class="nv">$HOME</span>/python-envs/fastsurfer<span class="w"> </span>
 <span class="nb">source</span><span class="w"> </span><span class="nv">$HOME</span>/python-envs/fastsurfer/bin/activate
@@ -458,7 +466,7 @@ python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </s
 </div>
 </section>
 <section id="fastsurfer-and-requirements">
-<h4>3. FastSurfer and Requirements<a class="headerlink" href="#fastsurfer-and-requirements" title="Permalink to this heading">#</a></h4>
+<h4>3. FastSurfer and Requirements<a class="headerlink" href="#fastsurfer-and-requirements" title="Link to this heading">¶</a></h4>
 <p>Clone FastSurfer:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>--branch<span class="w"> </span>stable<span class="w"> </span>https://github.com/Deep-MI/FastSurfer.git
 <span class="nb">cd</span><span class="w"> </span>FastSurfer
@@ -480,12 +488,12 @@ pip3<span class="w"> </span>install<span class="w"> </span>--no-binary<span clas
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>FastSurferCNN/download_checkpoints.py<span class="w"> </span>--all
 </pre></div>
 </div>
-<p>Once all dependencies are installed, run the FastSurfer segmentation only (!!) by calling <code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">./run_fastsurfer.sh</span> <span class="pre">--seg_only</span> <span class="pre">....</span></code> with the appropriate command line flags, see the <a class="reference internal" href="README.html#usage"><span class="std std-ref">README</span></a>.</p>
+<p>Once all dependencies are installed, run the FastSurfer segmentation only (!!) by calling <code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">./run_fastsurfer.sh</span> <span class="pre">--seg_only</span> <span class="pre">....</span></code> with the appropriate command line flags, see the <a class="reference internal" href="../index.html"><span class="std std-ref">commandline documentation</span></a>.</p>
 <p>Note: You may always need to prepend the command with <code class="docutils literal notranslate"><span class="pre">bash</span></code> (i.e. <code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">run_fastsurfer.sh</span> <span class="pre">&lt;...&gt;</span></code>) to ensure that bash 4.0 is used instead of the system default.</p>
 <p>To run the full pipeline, install and source also the supported FreeSurfer version according to their <a class="reference external" href="https://surfer.nmr.mgh.harvard.edu/fswiki/rel7downloads">Instructions</a>. There is a freesurfer email list, if you run into problems during this step.</p>
 </section>
 <section id="apple-ai-accelerator-support">
-<h4>4. Apple AI Accelerator support<a class="headerlink" href="#apple-ai-accelerator-support" title="Permalink to this heading">#</a></h4>
+<h4>4. Apple AI Accelerator support<a class="headerlink" href="#apple-ai-accelerator-support" title="Link to this heading">¶</a></h4>
 <p>You can also try the experimental support for the Apple Silicon AI Accelerator by setting <code class="docutils literal notranslate"><span class="pre">PYTORCH_ENABLE_MPS_FALLBACK</span></code> and passing <code class="docutils literal notranslate"><span class="pre">--device</span> <span class="pre">mps</span></code>:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PYTORCH_ENABLE_MPS_FALLBACK</span><span class="o">=</span><span class="m">1</span>
 ./run_fastsurfer.sh<span class="w"> </span>--seg_only<span class="w"> </span>--device<span class="w"> </span>mps<span class="w"> </span>....
@@ -496,9 +504,9 @@ pip3<span class="w"> </span>install<span class="w"> </span>--no-binary<span clas
 </section>
 </section>
 <section id="windows">
-<h2>Windows<a class="headerlink" href="#windows" title="Permalink to this heading">#</a></h2>
+<h2>Windows<a class="headerlink" href="#windows" title="Link to this heading">¶</a></h2>
 <section id="docker-cpu-version">
-<h3>Docker (CPU version)<a class="headerlink" href="#docker-cpu-version" title="Permalink to this heading">#</a></h3>
+<h3>Docker (CPU version)<a class="headerlink" href="#docker-cpu-version" title="Link to this heading">¶</a></h3>
 <p>In order to run FastSurfer on your Windows system using docker make sure that you have:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://learn.microsoft.com/en-us/windows/wsl/install">WSL2</a></p></li>
@@ -509,7 +517,7 @@ pip3<span class="w"> </span>install<span class="w"> </span>--no-binary<span clas
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>pull<span class="w"> </span>deepmi/fastsurfer:cpu-latest
 </pre></div>
 </div>
-<p>Now you can run Fastsurfer the same way as described in our <a class="reference internal" href="README.html#example-1--fastsurfer-docker"><span class="std std-ref">README</span></a> for the CPU build, for example:</p>
+<p>Now you can run Fastsurfer the same way as described in <a class="reference internal" href="EXAMPLES.html#example-1-fastsurfer-docker"><span class="std std-ref">Example 1</span></a> for the CPU build, for example:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>-v<span class="w"> </span>C:/Users/user/my_mri_data:/data<span class="w"> </span><span class="se">\</span>
 <span class="w">           </span>-v<span class="w"> </span>C:/Users/user/my_fastsurfer_analysis:/output<span class="w"> </span><span class="se">\</span>
 <span class="w">           </span>-v<span class="w"> </span>C:/Users/user/my_fs_license_dir:/fs_license<span class="w"> </span><span class="se">\</span>
@@ -525,7 +533,7 @@ pip3<span class="w"> </span>install<span class="w"> </span>--no-binary<span clas
 <p>This was tested using Windows 10 Pro version 21H1 and the WSL Ubuntu 20.04  distribution</p>
 </section>
 <section id="docker-gpu-version">
-<h3>Docker (GPU version)<a class="headerlink" href="#docker-gpu-version" title="Permalink to this heading">#</a></h3>
+<h3>Docker (GPU version)<a class="headerlink" href="#docker-gpu-version" title="Link to this heading">¶</a></h3>
 <p>In addition to the requirements from the CPU version, you also need to make sure that you have:</p>
 <ul class="simple">
 <li><p>Windows 11 or Windows 10 21H2 or greater,</p></li>
@@ -538,7 +546,7 @@ pip3<span class="w"> </span>install<span class="w"> </span>--no-binary<span clas
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>pull<span class="w"> </span>deepmi/fastsurfer:latest
 </pre></div>
 </div>
-<p>Now you can run Fastsurfer the same way as described in our <a class="reference internal" href="README.html#example-1--fastsurfer-docker"><span class="std std-ref">README</span></a>, for example:</p>
+<p>Now you can run Fastsurfer the same way as described in <a class="reference internal" href="EXAMPLES.html#example-1-fastsurfer-docker"><span class="std std-ref">Example 1</span></a>, for example:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>--gpus<span class="w"> </span>all
 <span class="w">           </span>-v<span class="w"> </span>C:/Users/user/my_mri_data:/data<span class="w"> </span><span class="se">\</span>
 <span class="w">           </span>-v<span class="w"> </span>C:/Users/user/my_fastsurfer_analysis:/output<span class="w"> </span><span class="se">\</span>
@@ -560,23 +568,23 @@ pip3<span class="w"> </span>install<span class="w"> </span>--no-binary<span clas
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="EDITING.html">
+          <a class="next-page" href="EXAMPLES.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Manual Edits</div>
+                <div class="title">Examples</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="OUTPUT_FILES.html">
+          <a class="prev-page" href="intro.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Output files</div>
+                <div class="title">Introduction to FastSurfer</div>
                 
               </div>
             </a>
@@ -658,9 +666,9 @@ pip3<span class="w"> </span>install<span class="w"> </span>--no-binary<span clas
       
     </aside>
   </div>
-</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b3ba4146"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
