@@ -632,22 +632,28 @@ FLAGS:
                             that segmentations produced otherwise are conformed.
                             Requires an ABSOLUTE Path! Default location:
                             $SUBJECTS_DIR/$sid/mri/aparc.DKTatlas+aseg.deep.mgz
-  --fstess                Switch on mri_tesselate for surface creation
+  --fstess                Revert to FreeSurfer mri_tesselate for surface creation
                             (default: mri_mc)
-  --fsqsphere             Use FreeSurfer iterative inflation for qsphere
+  --fsqsphere             Revert to FreeSurfer iterative inflation for qsphere
                             (default: spectral spherical projection)
   --fsaparc               Additionally create FS aparc segmentations and ribbon.
                             Skipped by default (--&gt; DL prediction is used which
-                            is faster, and usually these mapped ones are fine)
+                            is faster, and usually these mapped ones are fine).
+                            Note, if you switch this on it will create all cortical
+                            parcellations with FreeSurfer&#39;s spherical atlases and
+                            also map these into the aparc+aseg file instead of
+                            the FastSurfer ones. FastSurfer&#39;s cortical DKT atlas
+                            results can still be found in:
+                            &lt;hemi&gt;.aparc.DKTatlas.mapped.stats
   --3T                    Use the 3T atlas for talairach registration (gives better
-                            etiv estimates for 3T MR images, default: 1.5T atlas).
+                            eTIV estimates for 3T MR images, default: 1.5T atlas).
   --parallel              Run both hemispheres in parallel
   --threads &lt;int&gt;         Set openMP and ITK threads to &lt;int&gt;
   --py &lt;python_cmd&gt;       Command for python, default python3.10
   --fs_license &lt;license&gt;  Path to FreeSurfer license key file. Register at
                             https://surfer.nmr.mgh.harvard.edu/registration.html
                             for free to obtain it if you do not have FreeSurfer
-                            installed already
+                            installed already.
   -h --help               Print Help
 
 Dev Flags:
@@ -658,9 +664,9 @@ Dev Flags:
                             standard FreeSurfer output) and create brainmask.mgz
                             directly from norm.mgz instead. Saves 1:30 min.
   --no_surfreg            Do not run Surface registration with FreeSurfer (for
-                            cross-subject correspondence), Not recommended, but
-                            speeds up processing if you e.g. just need the
-                            segmentation stats
+                            cross-subject correspondence). Not recommended, but
+                            speeds up processing if you just need the stats and
+                            don&#39;t want to do thickness analysis on the cortex.
   --allow_root            Allow execution as root user
 
 REFERENCES:
