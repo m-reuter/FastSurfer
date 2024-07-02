@@ -237,11 +237,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/hypvinn.html">HypVINN: run_prediction.py</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/recon_surf.html">Surface pipeline: recon-surf.sh</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/segstats.html">FastSurferCNN: segstats.py</a></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../scripts/util.html">FastSurfer Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of FastSurfer Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../scripts/fastsurfercnn.generate_hdf5.html">FastSurferCNN: generate_hdf5.py</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../scripts/fastsurfercnn.run_model.html">FastSurferCNN: run_model.py</a></li>
 </ul>
 </li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../scripts/util.html">FastSurfer Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of FastSurfer Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../scripts/fastsurfercnn.generate_hdf5.html">FastSurferCNN: generate_hdf5.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../scripts/fastsurfercnn.run_model.html">FastSurferCNN: run_model.py</a></li>
 </ul>
 </li>
 </ul>
@@ -398,9 +398,15 @@
         <article role="main" id="furo-main-content">
           <section id="module-FastSurferCNN.data_loader.conform">
 <span id="fastsurfercnn-data-loader-conform"></span><h1>FastSurferCNN.data_loader.conform<a class="headerlink" href="#module-FastSurferCNN.data_loader.conform" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="FastSurferCNN.data_loader.conform.Criteria">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">Criteria</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L60-L64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.Criteria" title="Link to this definition">¶</a></dt>
+<dd><p>An enumeration.</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="FastSurferCNN.data_loader.conform.check_affine_in_nifti">
-<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">check_affine_in_nifti</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L739-L810"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.check_affine_in_nifti" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">check_affine_in_nifti</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L897-L968"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.check_affine_in_nifti" title="Link to this definition">¶</a></dt>
 <dd><p>Check the affine in nifti Image.</p>
 <p>Sets affine with qform, if it exists and differs from sform.
 If qform does not exist, voxel sizes between header information and information
@@ -426,47 +432,8 @@ stdout (for None).</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="FastSurferCNN.data_loader.conform.conform">
-<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">conform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conform_vox_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conform_to_1mm_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L464-L577"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.conform" title="Link to this definition">¶</a></dt>
-<dd><p>Python version of mri_convert -c.</p>
-<p>mri_convert -c by default turns image intensity values
-into UCHAR, reslices images to standard position, fills up slices to standard
-256x256x256 format and enforces 1mm or minimum isotropic voxel sizes.</p>
-<dl class="field-list">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt><strong>img</strong><span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nib.analyze.SpatialImage</span></code></span></dt><dd><p>Loaded source image.</p>
-</dd>
-<dt><strong>order</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Interpolation order (0=nearest,1=linear(default),2=quadratic,3=cubic).</p>
-</dd>
-<dt><strong>conform_vox_size</strong><span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VoxSizeOption</span></code></span></dt><dd><p>Conform image the image to voxel size 1. (default), a
-specific smaller voxel size (0-1, for high-res), or automatically
-determine the ‘minimum voxel size’ from the image (value ‘min’).
-This assumes the smallest of the three voxel sizes.</p>
-</dd>
-<dt><strong>dtype</strong><span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">Type</span></code>]</span></dt><dd><p>The dtype to enforce in the image (default: UCHAR, as mri_convert -c).</p>
-</dd>
-<dt><strong>conform_to_1mm_threshold</strong><span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">float</span></code></a>]</span></dt><dd><p>The threshold above which the image is conformed to 1mm
-(default: ignore).</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">nib.MGHImage</span></code></dt><dd><p>Conformed image.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<p>Unlike mri_convert -c, we first interpolate (float image), and then rescale
-to uchar. mri_convert is doing it the other way around. However, we compute
-the scale factor from the input to increase similarity.</p>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="FastSurferCNN.data_loader.conform.find_img_size_by_fov">
-<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">find_img_size_by_fov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vox_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L423-L461"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.find_img_size_by_fov" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">find_img_size_by_fov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vox_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L479-L517"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.find_img_size_by_fov" title="Link to this definition">¶</a></dt>
 <dd><p>Find the cube dimension (&gt;= 256) to cover the field of view of img.</p>
 <p>If vox_size is one, the img_size MUST always be min_dim (the FreeSurfer standard).</p>
 <dl class="field-list">
@@ -493,7 +460,7 @@ the scale factor from the input to increase similarity.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="FastSurferCNN.data_loader.conform.find_min_size">
-<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">find_min_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L396-L420"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.find_min_size" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">find_min_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L452-L476"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.find_min_size" title="Link to this definition">¶</a></dt>
 <dd><p>Find minimal voxel size &lt;= 1mm.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -517,7 +484,7 @@ the scale factor from the input to increase similarity.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="FastSurferCNN.data_loader.conform.get_conformed_vox_img_size">
-<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">get_conformed_vox_img_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conform_vox_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conform_to_1mm_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L690-L736"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.get_conformed_vox_img_size" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">get_conformed_vox_img_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conform_vox_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conform_to_1mm_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L853-L894"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.get_conformed_vox_img_size" title="Link to this definition">¶</a></dt>
 <dd><p>Extract the voxel size and the image size.</p>
 <p>This function only needs the header (not the data).</p>
 <dl class="field-list">
@@ -530,7 +497,7 @@ the scale factor from the input to increase similarity.</p>
 size).</p>
 </dd>
 <dt><strong>conform_to_1mm_threshold</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">float</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">optional</span></code></span></dt><dd><p>The threshold for which image voxel size should be conformed to 1mm instead of
-conformed to the smallest voxel size (default: None = 1.0, never apply).</p>
+conformed to the smallest voxel size (default: None, never apply).</p>
 </dd>
 </dl>
 </dd>
@@ -547,8 +514,8 @@ conformed to the smallest voxel size (default: None = 1.0, never apply).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="FastSurferCNN.data_loader.conform.getscale">
-<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">getscale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_low</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_high</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.999</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L217-L321"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.getscale" title="Link to this definition">¶</a></dt>
-<dd><p>Get offset and scale of image intensities to robustly rescale to range dst_min..dst_max.</p>
+<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">getscale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_low</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_high</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.999</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L273-L377"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.getscale" title="Link to this definition">¶</a></dt>
+<dd><p>Get offset and scale of image intensities to robustly rescale to dst_min..dst_max.</p>
 <p>Equivalent to how mri_convert conforms images.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -559,9 +526,9 @@ conformed to the smallest voxel size (default: None = 1.0, never apply).</p>
 </dd>
 <dt><strong>dst_max</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">float</span></code></a></span></dt><dd><p>Future maximal intensity value.</p>
 </dd>
-<dt><strong>f_low</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">float</span></code></a></span></dt><dd><p>Robust cropping at low end (0.0 no cropping, default).</p>
+<dt><strong>f_low</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">float</span></code></a>, default=0.0</span></dt><dd><p>Robust cropping at low end (0.0=no cropping).</p>
 </dd>
-<dt><strong>f_high</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">float</span></code></a></span></dt><dd><p>Robust cropping at higher end (0.999 crop one thousandth of high intensity voxels, default).</p>
+<dt><strong>f_high</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">float</span></code></a>, default=0.999</span></dt><dd><p>Robust cropping at higher end (0.999=crop one thousandth of highest intensity).</p>
 </dd>
 </dl>
 </dd>
@@ -577,51 +544,55 @@ conformed to the smallest voxel size (default: None = 1.0, never apply).</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="FastSurferCNN.data_loader.conform.is_conform">
-<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">is_conform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conform_vox_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conform_to_1mm_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L580-L687"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.is_conform" title="Link to this definition">¶</a></dt>
-<dd><p>Check if an image is already conformed or not.</p>
-<p>Dimensions: 256x256x256, Voxel size: 1x1x1, LIA orientation, and data type UCHAR.</p>
+<dt class="sig sig-object py" id="FastSurferCNN.data_loader.conform.is_lia">
+<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">is_lia</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">affine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L817-L850"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.is_lia" title="Link to this definition">¶</a></dt>
+<dd><p>Checks whether the affine is LIA-oriented.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>img</strong><span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nib.analyze.SpatialImage</span></code></span></dt><dd><p>Loaded source image.</p>
+<dt><strong>affine</strong><span class="classifier"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">np.ndarray</span></code></a></span></dt><dd><p>The affine to check.</p>
 </dd>
-<dt><strong>conform_vox_size</strong><span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VoxSizeOption</span></code></span></dt><dd><p>Which voxel size to conform to. Can either be a float between 0.0 and
-1.0 or ‘min’ check, whether the image is conformed to the minimal voxels size, i.e.
-conforming to smaller, but isotropic voxel sizes for high-res (default: 1.0).</p>
+<dt><strong>strict</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">bool</span></code></a>, default=True</span></dt><dd><p>Whether the orientation should be “exactly” LIA or just similar to LIA (i.e.
+it is more LIA than other directions).</p>
 </dd>
-<dt><strong>eps</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">float</span></code></a></span></dt><dd><p>Allowed deviation from zero for LIA orientation check (default: 1e-06).
-Small inaccuracies can occur through the inversion operation. Already conformed
-images are thus sometimes not correctly recognized. The epsilon accounts for
-these small shifts.</p>
-</dd>
-<dt><strong>check_dtype</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">bool</span></code></a></span></dt><dd><p>Specifies whether the UCHAR dtype condition is checked for;
-this is not done when the input is a segmentation (default: True).</p>
-</dd>
-<dt><strong>dtype</strong><span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">Type</span></code>]</span></dt><dd><p>Specifies the intended target dtype (default: uint8 = UCHAR).</p>
-</dd>
-<dt><strong>verbose</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">bool</span></code></a></span></dt><dd><p>If True, details of which conformance conditions are violated (if any)
-are displayed (default: True).</p>
-</dd>
-<dt><strong>conform_to_1mm_threshold</strong><span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">float</span></code></a>]</span></dt><dd><p>The threshold above which the image is conformed to 1mm
-(default: ignore).</p>
+<dt><strong>eps</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">float</span></code></a>, default=1e-6</span></dt><dd><p>The threshold in strict mode.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>bool:</dt><dd><p>Whether the image is already conformed.</p>
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">bool</span></code></a></dt><dd><p>Whether the affine is LIA-oriented.</p>
 </dd>
 </dl>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>This function only needs the header (not the data).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="FastSurferCNN.data_loader.conform.is_resampling_vox2vox">
+<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">is_resampling_vox2vox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vox2vox</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L680-L701"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.is_resampling_vox2vox" title="Link to this definition">¶</a></dt>
+<dd><p>Check whether the affine is resampling or just reordering.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>vox2vox</strong><span class="classifier"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">np.ndarray</span></code></a></span></dt><dd><p>The affine matrix.</p>
+</dd>
+<dt><strong>eps</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">float</span></code></a>, default=1e-6</span></dt><dd><p>The epsilon for the affine check.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">bool</span></code></a></dt><dd><p>The result.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="FastSurferCNN.data_loader.conform.map_image">
-<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">map_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_affine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ras2ras</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L142-L214"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.map_image" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">map_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_affine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ras2ras</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L193-L270"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.map_image" title="Link to this definition">¶</a></dt>
 <dd><p>Map image to new voxel space (RAS orientation).</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -632,11 +603,12 @@ are displayed (default: True).</p>
 </dd>
 <dt><strong>out_shape</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">int</span></code></a>, …], <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">np.ndarray</span></code></a></span></dt><dd><p>The trg shape information.</p>
 </dd>
-<dt><strong>ras2ras</strong><span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">np.ndarray</span></code></a>]</span></dt><dd><p>An additional mapping that should be applied (default=id to just reslice).</p>
+<dt><strong>ras2ras</strong><span class="classifier"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">np.ndarray</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">optional</span></code></span></dt><dd><p>An additional mapping that should be applied (default=id to just reslice).</p>
 </dd>
-<dt><strong>order</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">int</span></code></a></span></dt><dd><p>Order of interpolation (0=nearest,1=linear(default),2=quadratic,3=cubic).</p>
+<dt><strong>order</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">int</span></code></a>, default=1</span></dt><dd><p>Order of interpolation (0=nearest,1=linear,2=quadratic,3=cubic).</p>
 </dd>
-<dt><strong>dtype</strong><span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">Type</span></code>]</span></dt><dd><p>Target dtype of the resulting image (relevant for reorientation, default=same as img).</p>
+<dt><strong>dtype</strong><span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Type</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">optional</span></code></span></dt><dd><p>Target dtype of the resulting image (relevant for reorientation,
+default=keep dtype of img).</p>
 </dd>
 </dl>
 </dd>
@@ -651,7 +623,7 @@ are displayed (default: True).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="FastSurferCNN.data_loader.conform.options_parse">
-<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">options_parse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L55-L139"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.options_parse" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">options_parse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L76-L190"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.options_parse" title="Link to this definition">¶</a></dt>
 <dd><p>Command line option parser.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -665,7 +637,7 @@ are displayed (default: True).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="FastSurferCNN.data_loader.conform.rescale">
-<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">rescale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_low</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_high</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.999</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L363-L393"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.rescale" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">rescale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_low</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_high</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.999</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L419-L449"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.rescale" title="Link to this definition">¶</a></dt>
 <dd><p>Rescale image intensity values (0-255).</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -676,9 +648,9 @@ are displayed (default: True).</p>
 </dd>
 <dt><strong>dst_max</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">float</span></code></a></span></dt><dd><p>Future maximal intensity value.</p>
 </dd>
-<dt><strong>f_low</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">float</span></code></a></span></dt><dd><p>Robust cropping at low end (0.0 no cropping, default).</p>
+<dt><strong>f_low</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">float</span></code></a>, default=0.0</span></dt><dd><p>Robust cropping at low end (0.0=no cropping).</p>
 </dd>
-<dt><strong>f_high</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">float</span></code></a></span></dt><dd><p>Robust cropping at higher end (0.999 crop one thousandth of high intensity voxels, default).</p>
+<dt><strong>f_high</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">float</span></code></a>, default=0.999</span></dt><dd><p>Robust cropping at higher end (0.999=crop one thousandth of highest intensity).</p>
 </dd>
 </dl>
 </dd>
@@ -693,7 +665,7 @@ are displayed (default: True).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="FastSurferCNN.data_loader.conform.scalecrop">
-<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">scalecrop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L324-L360"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.scalecrop" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">FastSurferCNN.data_loader.conform.</span></span><span class="sig-name descname"><span class="pre">scalecrop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/FastSurferCNN/data_loader/conform.py#L380-L416"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#FastSurferCNN.data_loader.conform.scalecrop" title="Link to this definition">¶</a></dt>
 <dd><p>Crop the intensity ranges to specific min and max values.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -783,13 +755,14 @@ are displayed (default: True).</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">FastSurferCNN.data_loader.conform</a><ul>
+<li><a class="reference internal" href="#FastSurferCNN.data_loader.conform.Criteria"><code class="docutils literal notranslate"><span class="pre">Criteria</span></code></a></li>
 <li><a class="reference internal" href="#FastSurferCNN.data_loader.conform.check_affine_in_nifti"><code class="docutils literal notranslate"><span class="pre">check_affine_in_nifti()</span></code></a></li>
-<li><a class="reference internal" href="#FastSurferCNN.data_loader.conform.conform"><code class="docutils literal notranslate"><span class="pre">conform()</span></code></a></li>
 <li><a class="reference internal" href="#FastSurferCNN.data_loader.conform.find_img_size_by_fov"><code class="docutils literal notranslate"><span class="pre">find_img_size_by_fov()</span></code></a></li>
 <li><a class="reference internal" href="#FastSurferCNN.data_loader.conform.find_min_size"><code class="docutils literal notranslate"><span class="pre">find_min_size()</span></code></a></li>
 <li><a class="reference internal" href="#FastSurferCNN.data_loader.conform.get_conformed_vox_img_size"><code class="docutils literal notranslate"><span class="pre">get_conformed_vox_img_size()</span></code></a></li>
 <li><a class="reference internal" href="#FastSurferCNN.data_loader.conform.getscale"><code class="docutils literal notranslate"><span class="pre">getscale()</span></code></a></li>
-<li><a class="reference internal" href="#FastSurferCNN.data_loader.conform.is_conform"><code class="docutils literal notranslate"><span class="pre">is_conform()</span></code></a></li>
+<li><a class="reference internal" href="#FastSurferCNN.data_loader.conform.is_lia"><code class="docutils literal notranslate"><span class="pre">is_lia()</span></code></a></li>
+<li><a class="reference internal" href="#FastSurferCNN.data_loader.conform.is_resampling_vox2vox"><code class="docutils literal notranslate"><span class="pre">is_resampling_vox2vox()</span></code></a></li>
 <li><a class="reference internal" href="#FastSurferCNN.data_loader.conform.map_image"><code class="docutils literal notranslate"><span class="pre">map_image()</span></code></a></li>
 <li><a class="reference internal" href="#FastSurferCNN.data_loader.conform.options_parse"><code class="docutils literal notranslate"><span class="pre">options_parse()</span></code></a></li>
 <li><a class="reference internal" href="#FastSurferCNN.data_loader.conform.rescale"><code class="docutils literal notranslate"><span class="pre">rescale()</span></code></a></li>

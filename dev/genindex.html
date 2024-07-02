@@ -235,11 +235,11 @@
 <li class="toctree-l3"><a class="reference internal" href="scripts/hypvinn.html">HypVINN: run_prediction.py</a></li>
 <li class="toctree-l3"><a class="reference internal" href="scripts/recon_surf.html">Surface pipeline: recon-surf.sh</a></li>
 <li class="toctree-l3"><a class="reference internal" href="scripts/segstats.html">FastSurferCNN: segstats.py</a></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="scripts/util.html">FastSurfer Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of FastSurfer Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l4"><a class="reference internal" href="scripts/fastsurfercnn.generate_hdf5.html">FastSurferCNN: generate_hdf5.py</a></li>
-<li class="toctree-l4"><a class="reference internal" href="scripts/fastsurfercnn.run_model.html">FastSurferCNN: run_model.py</a></li>
 </ul>
 </li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="scripts/util.html">FastSurfer Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of FastSurfer Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="scripts/fastsurfercnn.generate_hdf5.html">FastSurferCNN: generate_hdf5.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="scripts/fastsurfercnn.run_model.html">FastSurferCNN: run_model.py</a></li>
 </ul>
 </li>
 </ul>
@@ -690,8 +690,6 @@
 </li>
         <li><a href="api/generated/FastSurferCNN.utils.common.html#FastSurferCNN.utils.common.SubjectDirectory.conf_name">conf_name (FastSurferCNN.utils.common.SubjectDirectory property)</a>
 </li>
-        <li><a href="api/generated/FastSurferCNN.data_loader.conform.html#FastSurferCNN.data_loader.conform.conform">conform() (in module FastSurferCNN.data_loader.conform)</a>
-</li>
         <li><a href="api/generated/FastSurferCNN.run_prediction.html#FastSurferCNN.run_prediction.RunModelOnData.conform_and_save_orig">conform_and_save_orig() (FastSurferCNN.run_prediction.RunModelOnData method)</a>
 </li>
         <li><a href="api/generated/recon_surf.sample_parc.html#recon_surf.sample_parc.construct_adj_cluster">construct_adj_cluster() (in module recon_surf.sample_parc)</a>
@@ -721,6 +719,8 @@
         <li><a href="api/generated/FastSurferCNN.data_loader.data_utils.html#FastSurferCNN.data_loader.data_utils.create_weight_mask">create_weight_mask() (in module FastSurferCNN.data_loader.data_utils)</a>
 </li>
         <li><a href="api/generated/CerebNet.data_loader.data_utils.html#CerebNet.data_loader.data_utils.create_weight_mask2d">create_weight_mask2d() (in module CerebNet.data_loader.data_utils)</a>
+</li>
+        <li><a href="api/generated/FastSurferCNN.data_loader.conform.html#FastSurferCNN.data_loader.conform.Criteria">Criteria (class in FastSurferCNN.data_loader.conform)</a>
 </li>
         <li><a href="api/generated/FastSurferCNN.segstats.html#FastSurferCNN.segstats.crop_patch_to_mask">crop_patch_to_mask() (in module FastSurferCNN.segstats)</a>
 </li>
@@ -1298,12 +1298,10 @@
 </li>
         <li><a href="api/generated/HypVINN.data_loader.data_utils.html#HypVINN.data_loader.data_utils.hypo_map_subseg_2_fsseg">hypo_map_subseg_2_fsseg() (in module HypVINN.data_loader.data_utils)</a>
 </li>
-        <li><a href="api/generated/HypVINN.data_loader.dataset.html#HypVINN.data_loader.dataset.HypoVINN_dataset">HypoVINN_dataset (class in HypVINN.data_loader.dataset)</a>
+        <li><a href="api/generated/HypVINN.models.networks.html#HypVINN.models.networks.HypVINN">HypVINN (class in HypVINN.models.networks)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="api/generated/HypVINN.models.networks.html#HypVINN.models.networks.HypVINN">HypVINN (class in HypVINN.models.networks)</a>
-</li>
         <li>
     HypVINN.data_loader.data_utils
 
@@ -1339,6 +1337,8 @@
           <li><a href="api/generated/HypVINN.run_prediction.html#module-HypVINN.run_prediction">module</a>
 </li>
         </ul></li>
+        <li><a href="api/generated/HypVINN.data_loader.dataset.html#HypVINN.data_loader.dataset.HypVINNDataset">HypVINNDataset (class in HypVINN.data_loader.dataset)</a>
+</li>
     </ul></td>
   </tr></table>
 </section>
@@ -1363,19 +1363,21 @@
 </li>
         <li><a href="api/generated/FastSurferCNN.utils.arg_types.html#FastSurferCNN.utils.arg_types.int_ge_zero">int_ge_zero() (in module FastSurferCNN.utils.arg_types)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/generated/FastSurferCNN.utils.arg_types.html#FastSurferCNN.utils.arg_types.int_gt_zero">int_gt_zero() (in module FastSurferCNN.utils.arg_types)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/generated/FastSurferCNN.utils.metrics.html#FastSurferCNN.utils.metrics.iou_score">iou_score() (in module FastSurferCNN.utils.metrics)</a>
 </li>
         <li><a href="api/generated/FastSurferCNN.utils.mapper.html#FastSurferCNN.utils.mapper.Mapper.is_bijective">is_bijective() (FastSurferCNN.utils.mapper.Mapper method)</a>
 </li>
         <li><a href="api/generated/CerebNet.utils.checkpoint.html#CerebNet.utils.checkpoint.is_checkpoint_epoch">is_checkpoint_epoch() (in module CerebNet.utils.checkpoint)</a>
 </li>
-        <li><a href="api/generated/FastSurferCNN.data_loader.conform.html#FastSurferCNN.data_loader.conform.is_conform">is_conform() (in module FastSurferCNN.data_loader.conform)</a>
-</li>
         <li><a href="api/generated/FastSurferCNN.utils.mapper.html#FastSurferCNN.utils.mapper.is_int">is_int() (in module FastSurferCNN.utils.mapper)</a>
+</li>
+        <li><a href="api/generated/FastSurferCNN.data_loader.conform.html#FastSurferCNN.data_loader.conform.is_lia">is_lia() (in module FastSurferCNN.data_loader.conform)</a>
+</li>
+        <li><a href="api/generated/FastSurferCNN.data_loader.conform.html#FastSurferCNN.data_loader.conform.is_resampling_vox2vox">is_resampling_vox2vox() (in module FastSurferCNN.data_loader.conform)</a>
 </li>
         <li><a href="api/generated/FastSurferCNN.utils.common.html#FastSurferCNN.utils.common.iterate">iterate() (in module FastSurferCNN.utils.common)</a>
 </li>

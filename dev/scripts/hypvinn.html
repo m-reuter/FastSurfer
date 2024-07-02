@@ -237,11 +237,11 @@
 <li class="toctree-l3 current current-page"><a class="current reference internal" href="#">HypVINN: run_prediction.py</a></li>
 <li class="toctree-l3"><a class="reference internal" href="recon_surf.html">Surface pipeline: recon-surf.sh</a></li>
 <li class="toctree-l3"><a class="reference internal" href="segstats.html">FastSurferCNN: segstats.py</a></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="util.html">FastSurfer Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of FastSurfer Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l4"><a class="reference internal" href="fastsurfercnn.generate_hdf5.html">FastSurferCNN: generate_hdf5.py</a></li>
-<li class="toctree-l4"><a class="reference internal" href="fastsurfercnn.run_model.html">FastSurferCNN: run_model.py</a></li>
 </ul>
 </li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="util.html">FastSurfer Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of FastSurfer Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="fastsurfercnn.generate_hdf5.html">FastSurferCNN: generate_hdf5.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fastsurfercnn.run_model.html">FastSurferCNN: run_model.py</a></li>
 </ul>
 </li>
 </ul>
@@ -409,7 +409,7 @@ situations, it will be called from <code class="xref py py-obj docutils literal 
 </p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">HypVINN</span><span class="o">/</span><span class="n">run_prediction</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">sd</span> <span class="n">OUT_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">sid</span> <span class="n">SID</span><span class="p">]</span>
                                  <span class="p">[</span><span class="o">--</span><span class="n">seg_log</span> <span class="n">LOG_NAME</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">t1</span> <span class="n">ORIG_NAME</span><span class="p">]</span>
-                                 <span class="p">[</span><span class="o">--</span><span class="n">t2</span> <span class="n">T2</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">qc_snap</span> <span class="n">QC_SNAPSHOTS</span><span class="p">]</span>
+                                 <span class="p">[</span><span class="o">--</span><span class="n">t2</span> <span class="n">T2</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">qc_snap</span><span class="p">]</span>
                                  <span class="p">[</span><span class="o">--</span><span class="n">reg_mode</span> <span class="p">{</span><span class="n">none</span><span class="p">,</span><span class="n">coreg</span><span class="p">,</span><span class="n">robust</span><span class="p">}]</span>
                                  <span class="p">[</span><span class="o">--</span><span class="n">hypo_segfile</span> <span class="n">HYPO_SEGFILE</span><span class="p">]</span>
                                  <span class="p">[</span><span class="o">--</span><span class="n">device</span> <span class="n">DEVICE</span><span class="p">]</span>
@@ -443,7 +443,7 @@ situations, it will be called from <code class="xref py py-obj docutils literal 
 </dd>
 <dt><kbd>--qc_snap</kbd></dt>
 <dd><p>Create qc snapshots in &lt;sd&gt;/&lt;sid&gt;/qc_snapshots.</p>
-<p>Default: “store_true”</p>
+<p>Default: False</p>
 </dd>
 <dt><kbd>--reg_mode</kbd></dt>
 <dd><p>Possible choices: none, coreg, robust</p>
@@ -451,8 +451,8 @@ situations, it will be called from <code class="xref py py-obj docutils literal 
 <p>Default: “coreg”</p>
 </dd>
 <dt><kbd>--hypo_segfile</kbd></dt>
-<dd><p>File pattern on where to save the hypothalamus segmentation file (default: mri/hypothalamus.HypVINN.nii.gz).</p>
-<p>Default: mri/hypothalamus.HypVINN.nii.gz</p>
+<dd><p>File pattern on where to save the hypothalamus segmentation file (default: hypothalamus.HypVINN.nii.gz).</p>
+<p>Default: “hypothalamus.HypVINN.nii.gz”</p>
 </dd>
 </dl>
 </section>

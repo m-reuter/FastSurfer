@@ -237,11 +237,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/hypvinn.html">HypVINN: run_prediction.py</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/recon_surf.html">Surface pipeline: recon-surf.sh</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/segstats.html">FastSurferCNN: segstats.py</a></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../scripts/util.html">FastSurfer Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of FastSurfer Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../scripts/fastsurfercnn.generate_hdf5.html">FastSurferCNN: generate_hdf5.py</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../scripts/fastsurfercnn.run_model.html">FastSurferCNN: run_model.py</a></li>
 </ul>
 </li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../scripts/util.html">FastSurfer Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of FastSurfer Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../scripts/fastsurfercnn.generate_hdf5.html">FastSurferCNN: generate_hdf5.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../scripts/fastsurfercnn.run_model.html">FastSurferCNN: run_model.py</a></li>
 </ul>
 </li>
 </ul>
@@ -399,8 +399,8 @@
           <section id="module-HypVINN.data_loader.dataset">
 <span id="hypvinn-data-loader-dataset"></span><h1>HypVINN.data_loader.dataset<a class="headerlink" href="#module-HypVINN.data_loader.dataset" title="Link to this heading">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="HypVINN.data_loader.dataset.HypoVINN_dataset">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">HypVINN.data_loader.dataset.</span></span><span class="sig-name descname"><span class="pre">HypoVINN_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modalities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orig_zoom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'t1t2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/HypVINN/data_loader/dataset.py#L31-L226"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#HypVINN.data_loader.dataset.HypoVINN_dataset" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="HypVINN.data_loader.dataset.HypVINNDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">HypVINN.data_loader.dataset.</span></span><span class="sig-name descname"><span class="pre">HypVINNDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modalities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orig_zoom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'t1t2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/deep-mi/FastSurfer/blob/dev/HypVINN/data_loader/dataset.py#L31-L226"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#HypVINN.data_loader.dataset.HypVINNDataset" title="Link to this definition">¶</a></dt>
 <dd><p>Class to load MRI-Image and process it to correct format for HypVINN network inference.</p>
 <p>The HypVINN Dataset passed during Inference the input images,the scale factor for the VINN layer and a weight factor
 (wT1,wT2).
@@ -494,7 +494,7 @@ on the learned modality weights (mode = t1t2).</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">HypVINN.data_loader.dataset</a><ul>
-<li><a class="reference internal" href="#HypVINN.data_loader.dataset.HypoVINN_dataset"><code class="docutils literal notranslate"><span class="pre">HypoVINN_dataset</span></code></a></li>
+<li><a class="reference internal" href="#HypVINN.data_loader.dataset.HypVINNDataset"><code class="docutils literal notranslate"><span class="pre">HypVINNDataset</span></code></a></li>
 </ul>
 </li>
 </ul>
