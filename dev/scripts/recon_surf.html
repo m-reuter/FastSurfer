@@ -463,7 +463,7 @@ available in the subjectX/mri directory (e.g. <code class="docutils literal notr
 <section id="example-2-recon-surf-inside-singularity">
 <h3>Example 2: recon-surf inside Singularity<a class="headerlink" href="#example-2-recon-surf-inside-singularity" title="Link to this heading">¶</a></h3>
 <p>Singularity can be used instead of Docker to run the full pipeline or individual modules. In this example we change the entrypoint to <code class="docutils literal notranslate"><span class="pre">recon-surf.sh</span></code> instead of the standard
-<code class="docutils literal notranslate"><span class="pre">run_fastsurfer.sh</span></code>. Usually it is recomended to just use the default, so this is for expert users who may want to try out specific flags that are not passed to the wrapper.
+<code class="docutils literal notranslate"><span class="pre">run_fastsurfer.sh</span></code>. Usually it is recommended to just use the default, so this is for expert users who may want to try out specific flags that are not passed to the wrapper.
 Given you already ran the segmentation pipeline, and want to just run
 the surface pipeline on top of it (i.e. on a different cluster), the following command can be used:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Build the singularity image (if it does not exist)</span>
