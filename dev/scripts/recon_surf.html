@@ -7,7 +7,7 @@
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
         <title>Surface pipeline: recon-surf.sh - FastSurfer</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
@@ -205,7 +205,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../overview/intro.html">Introduction to FastSurfer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../overview/INSTALL.html">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../overview/EXAMPLES.html">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../overview/FLAGS.html">Flags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview/FLAGS.html">FastSurfer Flags</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../overview/OUTPUT_FILES.html">Output files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../overview/docker.html">Docker Support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../overview/singularity.html">Singularity Support</a></li>
@@ -628,6 +628,12 @@ FLAGS:
                             that segmentations produced otherwise are conformed.
                             Requires an ABSOLUTE Path! Default location:
                             $SUBJECTS_DIR/$sid/mri/aparc.DKTatlas+aseg.deep.mgz
+  --mask_name &lt;mask_file&gt; Path to the brain mask file to use. Default location:
+                            $SUBJECTS_DIR/$sid/mri/mask.mgz
+  --edits                 Disable the check for existing recon-surf.sh run, replace
+                            &lt;asegdkt_segfile&gt; by its manedit-suffixed version,
+                            includes wm.mgz and brain.finalsurfs.mgz edits,
+                            and enables FreeSurfer-style WM control points.
   --fstess                Revert to FreeSurfer mri_tesselate for surface creation
                             (default: mri_mc)
   --fsqsphere             Revert to FreeSurfer iterative inflation for qsphere
@@ -667,7 +673,6 @@ Dev Flags:
                             cross-subject correspondence). Not recommended, but
                             speeds up processing if you just need the stats and
                             don&#39;t want to do thickness analysis on the cortex.
-  --allow_root            Allow execution as root user
 
 REFERENCES:
 

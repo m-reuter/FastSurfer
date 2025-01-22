@@ -7,7 +7,7 @@
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
         <title>SLURM: srun_fastsurfer.sh - FastSurfer</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
@@ -205,7 +205,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../overview/intro.html">Introduction to FastSurfer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../overview/INSTALL.html">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../overview/EXAMPLES.html">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../overview/FLAGS.html">Flags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview/FLAGS.html">FastSurfer Flags</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../overview/OUTPUT_FILES.html">Output files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../overview/docker.html">Docker Support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../overview/singularity.html">Singularity Support</a></li>
@@ -426,7 +426,7 @@ Data- and subject-related options:
   Note: files will be copied here only after all jobs have finished, so most IO happens on
   a work directory, which can use IO-optimized cluster storage (see --work).
 --work: directory with fast filesystem on cluster
-  (default: $HPCWORK/fastsurfer-processing/20241012-201536)
+  (default: $HPCWORK/fastsurfer-processing/20250122-131314)
   NOTE: THIS SCRIPT considers this directory to be owned by this script and job!
   No modifications should be made to the directory after the job is started until it is
   finished (if the job fails, cleanup of this directory may be necessary) and it should be
@@ -490,7 +490,7 @@ SLURM-related options:
      (one of the above).
   default: slurm default partition
 --time: a per-subject time limit for individual steps, must be number in minutes:
-   --time seg=&lt;timelimit&gt;: time limit for the segmentation pipeline (per subject), default: seg=5 (5min).
+   --time seg=&lt;timelimit&gt;: time limit for the segmentation pipeline (per subject), default: seg=10 (10min).
    --time surf=&lt;timelimit&gt;: time limit for the surface reconstruction (per subject), default: surf=180 (180min)
 --email: email address to send slurm status updates.
 

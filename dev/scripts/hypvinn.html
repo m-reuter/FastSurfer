@@ -7,7 +7,7 @@
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
         <title>HypVINN: run_prediction.py - FastSurfer</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
@@ -205,7 +205,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../overview/intro.html">Introduction to FastSurfer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../overview/INSTALL.html">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../overview/EXAMPLES.html">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../overview/FLAGS.html">Flags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview/FLAGS.html">FastSurfer Flags</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../overview/OUTPUT_FILES.html">Output files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../overview/docker.html">Docker Support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../overview/singularity.html">Singularity Support</a></li>
@@ -404,10 +404,10 @@ situations, it will be called from <code class="xref py py-obj docutils literal 
                                  <span class="p">[</span><span class="o">--</span><span class="n">device</span> <span class="n">DEVICE</span><span class="p">]</span>
                                  <span class="p">[</span><span class="o">--</span><span class="n">viewagg_device</span> <span class="n">VIEWAGG_DEVICE</span><span class="p">]</span>
                                  <span class="p">[</span><span class="o">--</span><span class="n">threads</span> <span class="n">THREADS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">batch_size</span> <span class="n">BATCH_SIZE</span><span class="p">]</span>
-                                 <span class="p">[</span><span class="o">--</span><span class="n">async_io</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">allow_root</span><span class="p">]</span>
-                                 <span class="p">[</span><span class="o">--</span><span class="n">ckpt_ax</span> <span class="n">CKPT_AX</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ckpt_cor</span> <span class="n">CKPT_COR</span><span class="p">]</span>
-                                 <span class="p">[</span><span class="o">--</span><span class="n">ckpt_sag</span> <span class="n">CKPT_SAG</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">cfg_cor</span> <span class="n">CFG_COR</span><span class="p">]</span>
-                                 <span class="p">[</span><span class="o">--</span><span class="n">cfg_ax</span> <span class="n">CFG_AX</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">cfg_sag</span> <span class="n">CFG_SAG</span><span class="p">]</span>
+                                 <span class="p">[</span><span class="o">--</span><span class="n">async_io</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ckpt_ax</span> <span class="n">CKPT_AX</span><span class="p">]</span>
+                                 <span class="p">[</span><span class="o">--</span><span class="n">ckpt_cor</span> <span class="n">CKPT_COR</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ckpt_sag</span> <span class="n">CKPT_SAG</span><span class="p">]</span>
+                                 <span class="p">[</span><span class="o">--</span><span class="n">cfg_cor</span> <span class="n">CFG_COR</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">cfg_ax</span> <span class="n">CFG_AX</span><span class="p">]</span>
+                                 <span class="p">[</span><span class="o">--</span><span class="n">cfg_sag</span> <span class="n">CFG_SAG</span><span class="p">]</span>
 </pre></div>
 </div>
 <section id="HypVINN.run_prediction-option_parse-named-arguments">
@@ -466,10 +466,6 @@ situations, it will be called from <code class="xref py py-obj docutils literal 
 </dd>
 <dt><kbd>--async_io</kbd></dt>
 <dd><p>Allow asynchronous file operations (default: off). Note, this may impact the order of messages in the log, but speed up the segmentation specifically for slow file systems.</p>
-<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
-</dd>
-<dt><kbd>--allow_root</kbd></dt>
-<dd><p>Allow execution as root user.</p>
 <p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
 </dd>
 <dt><kbd>--ckpt_ax</kbd></dt>

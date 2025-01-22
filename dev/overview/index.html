@@ -7,7 +7,7 @@
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
         <title>User Guide - FastSurfer</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
@@ -205,7 +205,7 @@
 <li class="toctree-l2"><a class="reference internal" href="intro.html">Introduction to FastSurfer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="INSTALL.html">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="EXAMPLES.html">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="FLAGS.html">Flags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="FLAGS.html">FastSurfer Flags</a></li>
 <li class="toctree-l2"><a class="reference internal" href="OUTPUT_FILES.html">Output files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="docker.html">Docker Support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="singularity.html">Singularity Support</a></li>
@@ -390,8 +390,6 @@
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction to FastSurfer</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#getting-started">Getting started</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#requirements-to-input-images">Requirements to input images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="intro.html#system-requirements">System Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="intro.html#expert-usage">Expert usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="intro.html#freesurfer-downstream-modules">FreeSurfer Downstream Modules</a></li>
@@ -415,12 +413,12 @@
 <li class="toctree-l2"><a class="reference internal" href="EXAMPLES.html#example-6-running-fastsurfer-on-a-slurm-cluster-via-singularity">Example 6: Running FastSurfer on a SLURM cluster via Singularity</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="FLAGS.html">Flags</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="FLAGS.html">FastSurfer Flags</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="FLAGS.html#required-arguments">Required arguments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="FLAGS.html#required-for-docker-when-running-surface-module">Required for docker when running surface module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="FLAGS.html#required-for-docker-when-running-surface-module">Required for Docker when running surface module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="FLAGS.html#segmentation-pipeline-arguments-optional">Segmentation pipeline arguments (optional)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="FLAGS.html#surface-pipeline-arguments-optional">Surface pipeline arguments (optional)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="FLAGS.html#other">Other</a></li>
+<li class="toctree-l2"><a class="reference internal" href="FLAGS.html#some-other-flags-optional">Some other flags (optional)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="OUTPUT_FILES.html">Output files</a><ul>
@@ -444,11 +442,19 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="EDITING.html">Manual Edits</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="EDITING.html#pipeline">Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDITING.html#what-are-edits">What are Edits?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDITING.html#what-can-be-edited">What can be edited?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDITING.html#pipeline-overview">Pipeline overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="EDITING.html#possible-edits">Possible Edits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EDITING.html#t1-pre-processing">1. T1 Pre-Processing:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EDITING.html#segmentation-edits">2. Segmentation Edits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EDITING.html#brainmask-edits">3. Brainmask Edits:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDITING.html#general-process">General process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDITING.html#bias-field-correction">Bias field correction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDITING.html#asegdkt-segfile">asegdkt_segfile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDITING.html#talairach-registration">Talairach registration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDITING.html#white-matter-segmentation">White matter segmentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDITING.html#pial-surface-placement">Pial surface placement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDITING.html#side-effects-of-edits">Side effects of edits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDITING.html#guide-for-experienced-freesurfer-users">Guide for experienced FreeSurfer users</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDITING.html#what-not-to-do">What NOT to do</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="SECURITY.html">Security Policy</a><ul>
