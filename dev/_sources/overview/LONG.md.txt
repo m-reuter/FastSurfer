@@ -38,11 +38,11 @@ $FASTSURFER_HOME/long_fastsurfer.sh \
     --tpids <tID1> <tID2> ...
 ```
 
-Here `<templateID>` is a name you assign to this individual person and will be used in the output directory (`$SUBJECTS_DIR`) for the directory containing the within-subject template (e.g. "--tid bert"). The `<T1_1> <T1_2>` etc are the gloal paths to the input full head T1w images for each time point (do not need to be bias corrected) in nifti or mgz format. The `<tID1> <tID2>` etc are the ID names for each time point and corresponding directories will be created in the output directory  (`$SUBJECTS_DIR`) , e.g. "--tpids martin_1 martin_2". These directories will contain the final results for each time point. 
+Here `<templateID>` is a name you assign to this individual person and will be used in the output directory (`$SUBJECTS_DIR`) for the directory containing the within-subject template (e.g. "`--tid bert`"). The `<T1_1> <T1_2>` etc. are the global paths to the input full head T1w images for each time point (do not need to be bias corrected) in nifti or mgz format. The `<tID1> <tID2>` etc. are the ID names for each time point. Corresponding directories will be created in the output directory  (`$SUBJECTS_DIR`) , e.g. "`--tpids bert_1 bert_2`". These directories will contain the final results for each time point for downstream analysis.
 
 Note, with a few exceptions, you can add additional flags that can be understood by `run_fastsurfer.sh`, which will be passed through, e.g. the `--3T` when working with 3T images. 
 
-The above command will of course be slightly different when using the preferred installation way Singularity (or Docker). For example for Singularity:
+The above command will, of course, be slightly different when using the preferred installation way Singularity (or Docker). For example for Singularity:
 
 ```bash
 singularity exec --nv \
@@ -80,34 +80,34 @@ Internally we use `brun_fastsurfer.sh` as a helper script to process multiple ti
 
 ## Final Statistics:
 
-The final results will be located in `$SUBJECTS_DIR/tID1` ... for each time point. These directories will have the same structure as a regular FastSurfer/FreeSurfer output directory. Therefore, you can use the regular downstream analysis tools, e.g. to extract statistics from the stats files. Note, that the surfaces are already in vertex-correspondence across time for each participant. For group analysis one would still need to map thickness estimates to fsaverage spherical template (this is usually done with `mris_preproc`). For longitudinal statistics using the (recommended) linear mixed effects models see our R toolbox [FS LME R](https://github.com/Deep-MI/fslmer), which can also analyze the mass-univariate situation for e.g. cortical thickness maps. Alternatively use this Matlab package: [LME Matlab](https://github.com/NeuroStats/lme) or our matlab tools for time-to-even (survival) analysis: [Survival](https://github.com/NeuroStats/Survival).
+The final results will be located in `$SUBJECTS_DIR/tID1` ... for each time point. These directories will have the same structure as a regular FastSurfer/FreeSurfer output directory. Therefore, you can use the regular downstream analysis tools, e.g. to extract statistics from the stats files. Note, that the surfaces are already in vertex-correspondence across time for each participant. For group analysis one would still need to map thickness estimates to fsaverage spherical template (this is usually done with `mris_preproc`). For longitudinal statistics using the (recommended) linear mixed effects models see our R toolbox [FS LME R](https://github.com/Deep-MI/fslmer), which can also analyze the mass-univariate situation for e.g. cortical thickness maps. Alternatively use this Matlab package: [LME Matlab](https://github.com/NeuroStats/lme) and our matlab tools for time-to-even (survival) analysis: [Survival](https://github.com/NeuroStats/Survival).
 
 ## References
 
 - Reuter, Schmansky, Rosas, Fischl
   Within-subject template estimation for unbiased longitudinal image analysis.
   NeuroImage 61(4):1402-1418
-  https://doi.org/10.1016/j.neuroimage.2012.02.084
+  [https://doi.org/10.1016/j.neuroimage.2012.02.084](https://doi.org/10.1016/j.neuroimage.2012.02.084)
 - Reuter, Fischl (2011).
   Avoiding asymmetry-induced bias in longitudinal image processing.
   NeuroImage 57(1):19-21
-  https://doi.org/10.1016/j.neuroimage.2011.02.076
+  [https://doi.org/10.1016/j.neuroimage.2011.02.076](https://doi.org/10.1016/j.neuroimage.2011.02.076)
 - Reuter, Rosas, Fischl (2010). 
   Highly accurate inverse consistent registration: a robust approach. 
   NeuroImage 53(4):1181-1196
-  https://doi.org/10.1016/j.neuroimage.2012.02.084
+  [https://doi.org/10.1016/j.neuroimage.2012.02.084](https://doi.org/10.1016/j.neuroimage.2012.02.084)
 - Diers, Reuter
   FreeSurfer and FastSurfer Linear Mixed Effects tools for R.
-  https://github.com/Deep-MI/fslmer
+  [https://github.com/Deep-MI/fslmer](https://github.com/Deep-MI/fslmer)
 - Sabuncu, Bernal-Rusiel, Greve, Reuter, Fischl (2014).
   Event time analysis of longitudinal neuroimage data.
   Neuroimage 97, 9-18
-  https://doi.org/10.1016/j.neuroimage.2014.04.015
+  [https://doi.org/10.1016/j.neuroimage.2014.04.015](https://doi.org/10.1016/j.neuroimage.2014.04.015)
 - Bernal-Rusiel, Greve, Reuter, Fischl, Sabuncu (2013).
   Spatiotemporal Linear Mixed Effects Modeling for the Mass-univariate Analysis of Longitudinal Neuroimage Data.
   NeuroImage 81, 358-370
-  https://doi.org/10.1016/j.neuroimage.2013.05.049
+  [https://doi.org/10.1016/j.neuroimage.2013.05.049](https://doi.org/10.1016/j.neuroimage.2013.05.049)
 - Bernal-Rusiel, Greve, Reuter, Fischl, Sabuncu (2012).
   Statistical Analysis of Longitudinal Neuroimage Data with Linear Mixed Effects Models.
   Neuroimage 66, 249-260
-  https://doi.org/10.1016/j.neuroimage.2012.10.065
+  [https://doi.org/10.1016/j.neuroimage.2012.10.065](https://doi.org/10.1016/j.neuroimage.2012.10.065)

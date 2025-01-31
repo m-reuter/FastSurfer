@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="FastSurferCNN: download_checkpoints.py" href="fastsurfercnn.download_checkpoints.html" /><link rel="prev" title="FastSurferCNN: segstats.py" href="segstats.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="FastSurferCNN: generate_hdf5.py" href="fastsurfercnn.generate_hdf5.html" /><link rel="prev" title="FastSurfer Utilities" href="util.html" />
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
-        <title>FastSurfer Utilities - FastSurfer</title>
+        <title>FastSurferCNN: download_checkpoints.py - FastSurfer</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -180,7 +180,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -229,8 +229,8 @@
 <li class="toctree-l3"><a class="reference internal" href="segstats.html">FastSurferCNN: segstats.py</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current has-children current-page"><a class="current reference internal" href="#">FastSurfer Utilities</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of FastSurfer Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="fastsurfercnn.download_checkpoints.html">FastSurferCNN: download_checkpoints.py</a></li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="util.html">FastSurfer Utilities</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of FastSurfer Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">FastSurferCNN: download_checkpoints.py</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fastsurfercnn.generate_hdf5.html">FastSurferCNN: generate_hdf5.py</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fastsurfercnn.run_model.html">FastSurferCNN: run_model.py</a></li>
 </ul>
@@ -368,7 +368,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="../_sources/scripts/util.rst.txt" title="View this page">
+  <a class="muted-link" href="../_sources/scripts/fastsurfercnn.download_checkpoints.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -382,38 +382,61 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="fastsurfer-utilities">
-<h1>FastSurfer Utilities<a class="headerlink" href="#fastsurfer-utilities" title="Link to this heading">¶</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="fastsurfercnn.download_checkpoints.html">FastSurferCNN: download_checkpoints.py</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="fastsurfercnn.download_checkpoints.html#full-commandline-interface-of-fastsurfercnn-download-checkpoints-py">Full commandline interface of FastSurferCNN/download_checkpoints.py</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="fastsurfercnn.generate_hdf5.html">FastSurferCNN: generate_hdf5.py</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="fastsurfercnn.generate_hdf5.html#full-commandline-interface-of-fastsurfercnn-generate-hdf5-py">Full commandline interface of FastSurferCNN/generate_hdf5.py</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="fastsurfercnn.run_model.html">FastSurferCNN: run_model.py</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="fastsurfercnn.run_model.html#model-options">Model options</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fastsurfercnn.run_model.html#optimizer-options">Optimizer options</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fastsurfercnn.run_model.html#data-options">Data options</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fastsurfercnn.run_model.html#training-options">Training options</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fastsurfercnn.run_model.html#misc-options">Misc. Options</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fastsurfercnn.run_model.html#example-command-training-default-fastsurfervinn">Example Command: Training Default FastSurferVINN</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fastsurfercnn.run_model.html#example-command-training-fastsurfervinn-single-resolution">Example Command: Training FastSurferVINN (Single Resolution)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fastsurfercnn.run_model.html#example-command-training-fastsurfercnn">Example Command: Training FastSurferCNN</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fastsurfercnn.run_model.html#full-commandline-interface-of-fastsurfercnn-run-model-py">Full commandline interface of FastSurferCNN/run_model.py</a></li>
-</ul>
-</li>
-</ul>
+          <section id="fastsurfercnn-download-checkpoints-py">
+<h1>FastSurferCNN: download_checkpoints.py<a class="headerlink" href="#fastsurfercnn-download-checkpoints-py" title="Link to this heading">¶</a></h1>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_checkpoints</span></code> is a script is a script to download the checkpoint files for all the various neural networks in FastSurfer. It can be used to install them during a native install. Otherwise checkpoints will be loaded during the first run of FastSurfer automatically.</p>
+<section id="full-commandline-interface-of-fastsurfercnn-download-checkpoints-py">
+<h2>Full commandline interface of FastSurferCNN/download_checkpoints.py<a class="headerlink" href="#full-commandline-interface-of-fastsurfercnn-download-checkpoints-py" title="Link to this heading">¶</a></h2>
+<p><p>Check and Download Network Checkpoints</p>
+</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">FastSurferCNN</span><span class="o">/</span><span class="n">download_checkpoints</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">vinn</span><span class="p">]</span>
+                                             <span class="p">[</span><span class="o">--</span><span class="n">cerebnet</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">hypvinn</span><span class="p">]</span>
+                                             <span class="p">[</span><span class="o">--</span><span class="n">url</span> <span class="n">URL</span><span class="p">]</span>
+                                             <span class="p">[</span><span class="n">files</span> <span class="o">...</span><span class="p">]</span>
+</pre></div>
 </div>
+<section id="FastSurferCNN.download_checkpoints-make_parser-positional-arguments">
+<h3>Positional Arguments<a class="headerlink" href="#FastSurferCNN.download_checkpoints-make_parser-positional-arguments" title="Link to this heading">¶</a></h3>
+<dl class="option-list">
+<dt><kbd>files</kbd></dt>
+<dd><p>Checkpoint file paths to download, e.g. checkpoints/aparc_vinn_axial_v2.0.0.pkl …</p>
+</dd>
+</dl>
+</section>
+<section id="FastSurferCNN.download_checkpoints-make_parser-named-arguments">
+<h3>Named Arguments<a class="headerlink" href="#FastSurferCNN.download_checkpoints-make_parser-named-arguments" title="Link to this heading">¶</a></h3>
+<dl class="option-list">
+<dt><kbd>--all</kbd></dt>
+<dd><p>Check and download all default checkpoints</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt><kbd>--vinn</kbd></dt>
+<dd><p>Check and download VINN default checkpoints</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt><kbd>--cerebnet</kbd></dt>
+<dd><p>Check and download CerebNet default checkpoints</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt><kbd>--hypvinn</kbd></dt>
+<dd><p>Check and download HypVinn default checkpoints</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt><kbd>--url</kbd></dt>
+<dd><p>Specify you own base URL. This is applied to all models.
+Default for VINN: [’<a class="reference external" href="https://zenodo.org/records/10390573/files">https://zenodo.org/records/10390573/files</a>’, ‘<a class="reference external" href="https://b2share.fz-juelich.de/api/files/a423a576-220d-47b0-9e0c-b5b32d45fc59">https://b2share.fz-juelich.de/api/files/a423a576-220d-47b0-9e0c-b5b32d45fc59</a>’]
+Default for CerebNet: [’<a class="reference external" href="https://zenodo.org/records/10390742/files">https://zenodo.org/records/10390742/files</a>’, ‘<a class="reference external" href="https://b2share.fz-juelich.de/api/files/c6cf7bc6-2ae5-4d0e-814d-2a3cf0e1a8c5">https://b2share.fz-juelich.de/api/files/c6cf7bc6-2ae5-4d0e-814d-2a3cf0e1a8c5</a>’]
+Default for HypVINN: [’<a class="reference external" href="https://zenodo.org/records/11184216/files">https://zenodo.org/records/11184216/files</a>’, ‘<a class="reference external" href="https://b2share.fz-juelich.de/api/files/d9e37247-5455-4c83-853d-21e31fb5bea5">https://b2share.fz-juelich.de/api/files/d9e37247-5455-4c83-853d-21e31fb5bea5</a>’]</p>
+</dd>
+</dl>
+</section>
+</section>
 </section>
 
         </article>
@@ -421,23 +444,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="fastsurfercnn.download_checkpoints.html">
+          <a class="next-page" href="fastsurfercnn.generate_hdf5.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">FastSurferCNN: download_checkpoints.py</div>
+                <div class="title">FastSurferCNN: generate_hdf5.py</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="segstats.html">
+          <a class="prev-page" href="util.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">FastSurferCNN: segstats.py</div>
+                <div class="title">FastSurfer Utilities</div>
                 
               </div>
             </a>
@@ -465,8 +488,31 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">FastSurferCNN: download_checkpoints.py</a><ul>
+<li><a class="reference internal" href="#full-commandline-interface-of-fastsurfercnn-download-checkpoints-py">Full commandline interface of FastSurferCNN/download_checkpoints.py</a><ul>
+<li><a class="reference internal" href="#FastSurferCNN.download_checkpoints-make_parser-positional-arguments">Positional Arguments</a></li>
+<li><a class="reference internal" href="#FastSurferCNN.download_checkpoints-make_parser-named-arguments">Named Arguments</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

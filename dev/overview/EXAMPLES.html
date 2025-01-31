@@ -203,6 +203,7 @@
   <ul class="current">
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">User Guide</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="intro.html">Introduction to FastSurfer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="QUICKSTART.html">Quick Start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="INSTALL.html">Installation</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="FLAGS.html">FastSurfer Flags</a></li>
@@ -229,6 +230,7 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/util.html">FastSurfer Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of FastSurfer Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../scripts/fastsurfercnn.download_checkpoints.html">FastSurferCNN: download_checkpoints.py</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../scripts/fastsurfercnn.generate_hdf5.html">FastSurferCNN: generate_hdf5.py</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../scripts/fastsurfercnn.run_model.html">FastSurferCNN: run_model.py</a></li>
 </ul>
@@ -554,12 +556,7 @@ Prepare the subjects_list file as follows (one line subject per line; delimited 
 </section>
 <section id="flags">
 <h3>Flags<a class="headerlink" href="#flags" title="Link to this heading">¶</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">brun_fastsurfer.sh</span></code> script accepts almost all <code class="docutils literal notranslate"><span class="pre">run_fastsurfer.sh</span></code> flags (exceptions are <code class="docutils literal notranslate"><span class="pre">--t1</span></code> and <code class="docutils literal notranslate"><span class="pre">--sid</span></code>). In addition,</p>
-<ul class="simple">
-<li><p>the <code class="docutils literal notranslate"><span class="pre">--parallel_subjects</span></code> runs all subjects in parallel (experimental, parameter may change in future releases). This is particularly useful for surfaces computation <code class="docutils literal notranslate"><span class="pre">--surf_only</span></code>.</p></li>
-<li><p>to run segmentation in series, but surfaces in parallel, you may use <code class="docutils literal notranslate"><span class="pre">--parallel_subjects</span> <span class="pre">surf</span></code>.</p></li>
-<li><p>these options are in contrast (and in addition) to <code class="docutils literal notranslate"><span class="pre">--parallel</span></code>, which just parallelizes the hemispheres of one case.</p></li>
-</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">brun_fastsurfer.sh</span></code> script accepts almost all <code class="docutils literal notranslate"><span class="pre">run_fastsurfer.sh</span></code> flags (exceptions are <code class="docutils literal notranslate"><span class="pre">--t1</span></code> and <code class="docutils literal notranslate"><span class="pre">--sid</span></code>). In addition, it has <a class="reference internal" href="../scripts/BATCH.html#parallelization-with-brun-fastsurfer-sh"><span class="std std-ref">powerful parallelization options</span></a>.</p>
 </section>
 </section>
 <section id="example-5-quick-segmentation">
@@ -568,7 +565,7 @@ Prepare the subjects_list file as follows (one line subject per line; delimited 
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./run_fastsurfer.sh<span class="w"> </span>--t1<span class="w"> </span><span class="nv">$datadir</span>/subject1/t1-weighted.nii.gz<span class="w"> </span><span class="se">\</span>
 <span class="w">                    </span>--asegdkt_segfile<span class="w"> </span><span class="nv">$outputdir</span>/subject1/aparc.DKTatlas+aseg.deep.mgz<span class="w"> </span><span class="se">\</span>
 <span class="w">                    </span>--conformed_name<span class="w"> </span><span class="nv">$outputdir</span>/subject1/conformed.mgz<span class="w"> </span><span class="se">\</span>
-<span class="w">                    </span>--threads<span class="w"> </span><span class="m">4</span><span class="w"> </span>--seg_only<span class="w"> </span>--no_cereb
+<span class="w">                    </span>--threads<span class="w"> </span><span class="m">4</span><span class="w"> </span>--seg_only<span class="w"> </span>--no_cereb<span class="w"> </span>--no_hypothal
 </pre></div>
 </div>
 <p>This will produce the segmentation in a conformed space (just as FreeSurfer would do). It also writes the conformed image that fits the segmentation.

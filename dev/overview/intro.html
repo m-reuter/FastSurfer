@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Installation" href="INSTALL.html" /><link rel="prev" title="User Guide" href="index.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Quick Start" href="QUICKSTART.html" /><link rel="prev" title="User Guide" href="index.html" />
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
         <title>Introduction to FastSurfer - FastSurfer</title>
@@ -203,6 +203,7 @@
   <ul class="current">
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">User Guide</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Introduction to FastSurfer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="QUICKSTART.html">Quick Start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="INSTALL.html">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="EXAMPLES.html">Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="FLAGS.html">FastSurfer Flags</a></li>
@@ -229,6 +230,7 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/util.html">FastSurfer Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of FastSurfer Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../scripts/fastsurfercnn.download_checkpoints.html">FastSurferCNN: download_checkpoints.py</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../scripts/fastsurfercnn.generate_hdf5.html">FastSurferCNN: generate_hdf5.py</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../scripts/fastsurfercnn.run_model.html">FastSurferCNN: run_model.py</a></li>
 </ul>
@@ -406,9 +408,7 @@ recommended Docker or Singularity images. But first let us tell you why we think
 <p>So, there is really no reason why you should not try this out!</p>
 <section id="system-requirements">
 <h2>System Requirements<a class="headerlink" href="#system-requirements" title="Link to this heading">¶</a></h2>
-<p>Recommendation: At least 8 GB system memory and 8 GB NVIDIA graphics memory <code class="docutils literal notranslate"><span class="pre">--viewagg_device</span> <span class="pre">gpu</span></code></p>
-<p>Minimum: 7 GB system memory and 2 GB graphics memory <code class="docutils literal notranslate"><span class="pre">--viewagg_device</span> <span class="pre">cpu</span> <span class="pre">--vox_size</span> <span class="pre">1</span></code></p>
-<p>Minimum CPU-only: 8 GB system memory (much slower, not recommended) <code class="docutils literal notranslate"><span class="pre">--device</span> <span class="pre">cpu</span> <span class="pre">--vox_size</span> <span class="pre">1</span></code></p>
+<p><strong>Recommendation: At least 8 GB system memory and 8 GB NVIDIA graphics memory</strong></p>
 <section id="minimum-requirements">
 <h3>Minimum Requirements:<a class="headerlink" href="#minimum-requirements" title="Link to this heading">¶</a></h3>
 <div class="table-wrapper colwidths-auto docutils container">
@@ -431,16 +431,6 @@ recommended Docker or Singularity images. But first let us tell you why we think
 <td class="text-right"><p>2</p></td>
 <td class="text-right"><p>7</p></td>
 </tr>
-<tr class="row-even"><td class="text-left"><p>0.8mm</p></td>
-<td><p>gpu</p></td>
-<td class="text-right"><p>8</p></td>
-<td class="text-right"><p>6</p></td>
-</tr>
-<tr class="row-odd"><td class="text-left"><p>0.8mm</p></td>
-<td><p>cpu</p></td>
-<td class="text-right"><p>3</p></td>
-<td class="text-right"><p>9</p></td>
-</tr>
 <tr class="row-even"><td class="text-left"><p>0.7mm</p></td>
 <td><p>gpu</p></td>
 <td class="text-right"><p>8</p></td>
@@ -451,9 +441,15 @@ recommended Docker or Singularity images. But first let us tell you why we think
 <td class="text-right"><p>3</p></td>
 <td class="text-right"><p>9</p></td>
 </tr>
+<tr class="row-even"><td class="text-left"><p>0.7mm</p></td>
+<td><p>–device cpu</p></td>
+<td class="text-right"><p>0</p></td>
+<td class="text-right"><p>9</p></td>
+</tr>
 </tbody>
 </table>
 </div>
+<p>The default device is the GPU. The view-aggregation device can be switched to CPU and requires less GPU memory. CPU-only processing <code class="docutils literal notranslate"><span class="pre">--device</span> <span class="pre">cpu</span></code> is much slower and not recommended.</p>
 </section>
 </section>
 <section id="expert-usage">
@@ -497,12 +493,12 @@ This is documented in READMEs in subfolders, for example: <a class="reference in
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="INSTALL.html">
+          <a class="next-page" href="QUICKSTART.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Installation</div>
+                <div class="title">Quick Start</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
