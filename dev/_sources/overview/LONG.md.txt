@@ -57,7 +57,7 @@ singularity exec --nv \
                  --t1s <T1_1> <T1_2> ... \
                  --tpids <tID1> <tID2> ...
                  --sd /output \
-                 --parallel --3T
+                 --3T
 ```
 
 ## Behind the Scenes:
@@ -74,9 +74,11 @@ singularity exec --nv \
 2. Next, the template image will be segmented via a call to `run_fastsurfer.sh --sid <templateID> --base --seg_only ...` where the `--base` flag indicates that the input image will be taken from the already existing template directory. 
 3. This is followed by the surface processing of the template  `run_fastsurfer.sh --sid <templateID> --base --surf_only ...`, which can be combined with the previous step.
 4. Next, the segmentations of each time points, which can theoretically run in parallel with the previous two steps, is performed `run_fastsurfer.sh --sid <tIDn> --long <templateID> --seg_only ...`,
-5. again followed by the surface processing for each time point: `run_fastsurfer.sh --<id <tIDn> --long <templateID> --surf_only`. This step needs to wait until 3. and 4. are finished. 
+5. Again followed by the surface processing for each time point: `run_fastsurfer.sh --<id <tIDn> --long <templateID> --surf_only`. This step needs to wait until 3. and 4. are finished.
+<!-- Maybe reorganize 2. and 3. into 2.A and 2.B and 4. and 5. into 3.A and 3.B -->
 
-Internally we use `brun_fastsurfer.sh` as a helper script to process multiple time points (in 4. and 5.) in parallel (if experimental `--parallel_long` is passed to `long_fastsurfer.sh`). 
+<!-- TODO: update this section to better explain the parallelization effects, --parallel_seg is parallelization of segmentation steps, --parallel_surf is the parallelization of surface steps, which is the more impactful option for logitudinal processing explicitly, because parallel segmentation may run into GPU memory limitations. -->
+Internally we use `brun_fastsurfer.sh` as a helper script to process multiple time points (in 4. and 5.) in parallel (if experimental `--parallel_surf` is passed to `long_fastsurfer.sh`). 
 
 ## Final Statistics:
 

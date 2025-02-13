@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="SLURM: srun_fastsurfer.sh" href="SLURM.html" /><link rel="prev" title="Scripts" href="index.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="SLURM: srun_fastsurfer.sh" href="SLURM.html" /><link rel="prev" title="LONG: long_fastsurfer.sh" href="long_fastsurfer.html" />
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
         <title>BATCH: brun_fastsurfer.sh - FastSurfer</title>
@@ -219,6 +219,7 @@
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Scripts</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Scripts</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="long_fastsurfer.html">LONG: long_fastsurfer.sh</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">BATCH: brun_fastsurfer.sh</a></li>
 <li class="toctree-l2"><a class="reference internal" href="SLURM.html">SLURM: srun_fastsurfer.sh</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="advanced.html">Advanced scripts</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Advanced scripts</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -403,7 +404,7 @@ OR
 brun_fastsurfer.sh [other options]
 
 Other options:
-brun_fastsurfer.sh [...] [--batch &quot;&lt;i&gt;/&lt;n&gt;&quot;] [--parallel_subjects [surf=][&lt;N&gt;]]
+brun_fastsurfer.sh [...] [--batch &quot;&lt;i&gt;/&lt;n&gt;&quot;] [--parallel &lt;N&gt;|max] [--parallel_seg &lt;N&gt;|max] [--parallel_surf &lt;N&gt;|max]
     [--run_fastsurfer &lt;script to run fastsurfer&gt;] [--statusfile &lt;filename&gt;] [--debug] [--help]
     [&lt;additional run_fastsurfer.sh options&gt;]
 
@@ -427,24 +428,25 @@ iii. a list of subjects directly passed (this does not support subject-specific 
   Note, brun_fastsurfer.sh will also automatically detect being run in a SLURM JOBARRAY and split
   according to $SLURM_ARRAY_TASK_ID and $SLURM_ARRAY_TASK_COUNT (unless values are specifically
   assigned with the --batch argument).
---parallel_subjects [surf=|seg=][&lt;n&gt;]: parallel execution multiple subjects.
-  * --parallel_subjects [&lt;n&gt;]: a total of n parallel processes (or num_subjects, if &lt;n&gt; is not
-    provided). The default is serial execution, or &#39;--parallel_subjects 1&#39;.
-  * --parallel_subjects seg=[&lt;m&gt;]: activate parallel execution of segmentation.
-  * --parallel_subjects surf=[&lt;n&gt;]: activate parallel execution of surface reconstruction.
-    Note, to avoid out-of-memory errors when parallelizing the segmentation using
-    --parallel_subjects on gpus, calculate the &quot;safe&quot; number of concurrent segmentations and
-    specify &quot;&lt;m&gt;&quot; with the flag &#39;--parallel_subjects seg=&lt;m&gt;&#39; in addition to
-    &#39;--parallel_subjects surf=&lt;n&gt;&#39; (together max. m+n processes will run, n/m may be &quot;max&quot;).
-  Logfiles unchanged, console output for individual subjects is interleaved with subject_id prepended.
+--parallel &lt;n&gt;|max: parallel execution of run_fastsurfer for &lt;n&gt; images. Creates &lt;n&gt; processes with
+  each process performing segmentation and surface reconstruction. The default is this serial execution
+  mode with n=1: &#39;--parallel 1&#39;.
+--parallel_seg &lt;n&gt;|max and
+--parallel_surf &lt;m&gt;|max: activate independent segmentation and surface reconstruction pipelines.
+  Segmentation and Surface reconstruction have independent processing queues. After successful
+  segmentation (&lt;n&gt; parallel processes), cases are transferred into the surface queue (&lt;m&gt; parallel
+  processes). Together max. m+n processes will run. Logfiles unchanged, console output for individual
+  subjects is interleaved with subject_id prepended.
 --run_fastsurfer &lt;path/command&gt;: This option enables the startup of fastsurfer in a more controlled
   manner, for example to delegate the fastsurfer run to container:
-  --run_fastsurfer &quot;singularity exec --nv --no-home -B &lt;dir&gt;:/data /fastsurfer/run_fastsurfer.sh&quot;
+  --run_fastsurfer &quot;singularity exec --nv --no-mount home,cwd -e -B &lt;dir&gt;:/data /fastsurfer/run_fastsurfer.sh&quot;
   Note, paths to files and --sd have to be defined in the container file system in this case.
 --statusfile &lt;filename&gt;: a file to document which subject ran successfully. Also used to skip
   surface recon, if the previous segmentation failed.
---threads &lt;n&gt;|seg=&lt;n&gt;|surf=&lt;n&gt;: specify number of threads for each parallel &quot;processes&quot;, e.g.
-  --parallel_subjects seg=2 --threads seg=2 will start 2 parallel processes with 2 threads each.
+--threads &lt;n&gt;,
+--threads_seg &lt;n&gt;, and
+--threads_surf &lt;n&gt;: specify number of threads for each parallel &quot;process&quot;, i.e.
+  total_threads=num_seg_processes * num_seg_threads + num_surf_processes * num_surf_threads.
 --debug: Additional debug output.
 --help: print this help.
 
@@ -478,47 +480,46 @@ options are optional and enable passing options different to the “general opti
 <section id="parallelization-with-brun-fastsurfer-sh">
 <h2>Parallelization with <code class="docutils literal notranslate"><span class="pre">brun_fastsurfer.sh</span></code><a class="headerlink" href="#parallelization-with-brun-fastsurfer-sh" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">brun_fastsurfer.sh</span></code> has powerful builtin parallel processing capabilities. These are hidden underneath the
-<code class="docutils literal notranslate"><span class="pre">--parallel_subjects</span> <span class="pre">[seg=|surf=][&lt;n&gt;]</span></code> and the <code class="docutils literal notranslate"><span class="pre">--device</span> <span class="pre">&lt;device&gt;</span></code> as well as <code class="docutils literal notranslate"><span class="pre">--viewagg_device</span> <span class="pre">&lt;device&gt;</span></code> flags.
+<code class="docutils literal notranslate"><span class="pre">--parallel*</span> <span class="pre">&lt;n&gt;|max</span></code> and the <code class="docutils literal notranslate"><span class="pre">--device</span> <span class="pre">&lt;device&gt;</span></code> as well as <code class="docutils literal notranslate"><span class="pre">--viewagg_device</span> <span class="pre">&lt;device&gt;</span></code> flags.
 One of the core properties of FastSurfer is the split into the segmentation (which uses Deep Learning and therefore
 benefits from GPUs) and the surface pipeline (which does not benefit from GPUs). For ideal batch processing, we want
 different resource scheduling.</p>
-<p><code class="docutils literal notranslate"><span class="pre">--parallel_subjects</span></code> allows three parallel batch processing modes: serial, single parallel pipeline and dual parallel
-pipeline.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--parallel*</span></code> allows three parallel batch processing modes: serial, single parallel pipeline and dual parallel pipeline.</p>
 <section id="serial-processing-default">
 <h3>Serial processing (default)<a class="headerlink" href="#serial-processing-default" title="Link to this heading">¶</a></h3>
 <p>Each case/image is processed after the other fully, i.e. surface reconstruction of case 1 is fully finished before
-segmentation of case 2 is started. This setting is the default and represents the manual flags <code class="docutils literal notranslate"><span class="pre">--parallel_subjects</span> <span class="pre">1</span></code>.</p>
+segmentation of case 2 is started. This setting is the default and represents the manual flags <code class="docutils literal notranslate"><span class="pre">--parallel</span> <span class="pre">1</span></code>.</p>
 </section>
 <section id="single-parallel-pipeline">
 <h3>Single parallel pipeline<a class="headerlink" href="#single-parallel-pipeline" title="Link to this heading">¶</a></h3>
 <p>This mode is ideal for CPU-based processing for segmentation. It will process segmentations and surfaces in series
 in the same process, but multiple cases are processed at the same time.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">$FASTSURFER_HOME</span>/brun_fastsurfer.sh<span class="w"> </span>--parallel_subjects<span class="w"> </span><span class="m">4</span><span class="w"> </span>--threads<span class="w"> </span><span class="m">2</span><span class="w"> </span>--parallel
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">$FASTSURFER_HOME</span>/brun_fastsurfer.sh<span class="w"> </span>--parallel<span class="w"> </span><span class="m">4</span><span class="w"> </span>--threads<span class="w"> </span><span class="m">2</span>
 </pre></div>
 </div>
 <p>will start 4 segmentations (and surface reconstructions) at the same time, and will start a fifth, when the surface
-processing of one of the four first cases is finished (<code class="docutils literal notranslate"><span class="pre">--parallel_subjects</span> <span class="pre">4</span></code>). It will try to use 2 threads per case
-(<code class="docutils literal notranslate"><span class="pre">--threads</span> <span class="pre">2</span></code>) and perform reconstruction of left and right hemispheres in parallel (<code class="docutils literal notranslate"><span class="pre">--parallel</span></code>).
-<code class="docutils literal notranslate"><span class="pre">--parallel_subjects</span> <span class="pre">max</span></code> or <code class="docutils literal notranslate"><span class="pre">--parallel_subjects</span></code> will remove the limit and start all cases at the same time (each with
-the target number of threads given in <code class="docutils literal notranslate"><span class="pre">--threads</span></code>).</p>
+processing of one of the four first cases is finished (<code class="docutils literal notranslate"><span class="pre">--parallel</span> <span class="pre">4</span></code>). It will try to use 2 threads per case
+(<code class="docutils literal notranslate"><span class="pre">--threads</span> <span class="pre">2</span></code>) and perform reconstruction of left and right hemispheres in parallel (<code class="docutils literal notranslate"><span class="pre">--threads</span> <span class="pre">2</span></code>, 2 &gt;= 2).
+<code class="docutils literal notranslate"><span class="pre">--parallel</span> <span class="pre">max</span></code> will remove the limit and start all cases at the same time (each with the target number of threads
+given by <code class="docutils literal notranslate"><span class="pre">--threads</span></code>).</p>
 </section>
 <section id="dual-parallel-pipeline">
 <h3>Dual parallel pipeline<a class="headerlink" href="#dual-parallel-pipeline" title="Link to this heading">¶</a></h3>
 <p>This is ideal for GPU-based processing for segmentation. It will process segmentations and surfaces in separate
 pipelines, which is useful for optimized GPU loading. Multiple cases may be processed at the same time.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">$FASTSURFER_HOME</span>/brun_fastsurfer.sh<span class="w"> </span>--device<span class="w"> </span>cuda:0-1<span class="w"> </span>--parallel_subjects<span class="w"> </span><span class="nv">seg</span><span class="o">=</span><span class="m">2</span><span class="w"> </span>--parallel_subjects<span class="w"> </span><span class="nv">surf</span><span class="o">=</span>max<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--threads<span class="w"> </span><span class="nv">seg</span><span class="o">=</span><span class="m">8</span><span class="w"> </span>--threads<span class="w"> </span><span class="nv">surf</span><span class="o">=</span><span class="m">2</span><span class="w"> </span>--parallel
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">$FASTSURFER_HOME</span>/brun_fastsurfer.sh<span class="w"> </span>--device<span class="w"> </span>cuda:0-1<span class="w"> </span>--parallel_seg<span class="w"> </span><span class="m">2</span><span class="w"> </span>--parallel_surf<span class="w"> </span>max<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--threads_seg<span class="w"> </span><span class="m">8</span><span class="w"> </span>--threads_surf<span class="w"> </span><span class="m">4</span>
 </pre></div>
 </div>
-<p>will start 2 parallel segmentations (<code class="docutils literal notranslate"><span class="pre">--parallel_subjects</span> <span class="pre">seg=2</span></code>) using GPU 0 for case 1 and GPU for case 2
-(<code class="docutils literal notranslate"><span class="pre">--device</span> <span class="pre">cuda:0-1</span></code> – same as <code class="docutils literal notranslate"><span class="pre">--device</span> <span class="pre">cuda:0,1</span></code>). After one of these segmentations 1 is finished, segmentation of
+<p>will start 2 parallel segmentations (<code class="docutils literal notranslate"><span class="pre">--parallel_seg</span> <span class="pre">2</span></code>) using GPU 0 for case 1 and GPU 1 for case 2
+(<code class="docutils literal notranslate"><span class="pre">--device</span> <span class="pre">cuda:0-1</span></code> – same as <code class="docutils literal notranslate"><span class="pre">--device</span> <span class="pre">cuda:0,1</span></code>). After one of these segmentations is finished, the segmentation of
 case 3 will start on that same device as well as the surface reconstruction (without putting a limit on parallel
-surface reconstructions, <code class="docutils literal notranslate"><span class="pre">--parallel_subjects</span> <span class="pre">surf=max</span></code>). Each segmentation process will aim to use 8 threads/cores
-(<code class="docutils literal notranslate"><span class="pre">--threads</span> <span class="pre">seg=8</span></code>) and each surface reconstruction process will aim to use 2 threads (<code class="docutils literal notranslate"><span class="pre">--threads</span> <span class="pre">surf=2</span></code>) with both
-hemispheres processed in parallel (<code class="docutils literal notranslate"><span class="pre">--parallel</span></code>).</p>
+surface reconstructions, <code class="docutils literal notranslate"><span class="pre">--parallel_surf</span> <span class="pre">max</span></code>). Each segmentation process will aim to use 8 threads/cores
+(<code class="docutils literal notranslate"><span class="pre">--threads_seg</span> <span class="pre">8</span></code>) and each surface reconstruction process will aim to use 4 threads (<code class="docutils literal notranslate"><span class="pre">--threads_surf</span> <span class="pre">4</span></code>) with both
+hemispheres processed in parallel (<code class="docutils literal notranslate"><span class="pre">--threads_surf</span> <span class="pre">4</span></code>, 4 &gt;= 2, so right hemisphere will use 2 threads and left as well).</p>
 <p>Note, if your GPU has sufficient <a class="reference internal" href="../overview/intro.html#system-requirements"><span class="std std-ref">video memory</span></a>, two parallel segmentations
 can run on the same GPU, but the script cannot schedule more than one process per GPU for multiple GPUs, i.e.
-<code class="docutils literal notranslate"><span class="pre">--device</span> <span class="pre">cuda:0,1</span> <span class="pre">--parallel_subjects</span> <span class="pre">seg=4</span></code> is not supported.</p>
+<code class="docutils literal notranslate"><span class="pre">--device</span> <span class="pre">cuda:0,1</span> <span class="pre">--parallel_seg</span> <span class="pre">4</span></code> is not supported.</p>
 </section>
 </section>
 <section id="questions">
@@ -545,14 +546,14 @@ can run on the same GPU, but the script cannot schedule more than one process pe
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="index.html">
+          <a class="prev-page" href="long_fastsurfer.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Scripts</div>
+                <div class="title">LONG: long_fastsurfer.sh</div>
                 
               </div>
             </a>

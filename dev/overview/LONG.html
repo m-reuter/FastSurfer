@@ -219,6 +219,7 @@
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../scripts/index.html">Scripts</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Scripts</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../scripts/long_fastsurfer.html">LONG: long_fastsurfer.sh</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../scripts/BATCH.html">BATCH: brun_fastsurfer.sh</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../scripts/SLURM.html">SLURM: srun_fastsurfer.sh</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/advanced.html">Advanced scripts</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Advanced scripts</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -442,7 +443,7 @@
 <span class="w">                 </span>--t1s<span class="w"> </span>&lt;T1_1&gt;<span class="w"> </span>&lt;T1_2&gt;<span class="w"> </span>...<span class="w"> </span><span class="se">\</span>
 <span class="w">                 </span>--tpids<span class="w"> </span>&lt;tID1&gt;<span class="w"> </span>&lt;tID2&gt;<span class="w"> </span>...
 <span class="w">                 </span>--sd<span class="w"> </span>/output<span class="w"> </span><span class="se">\</span>
-<span class="w">                 </span>--parallel<span class="w"> </span>--3T
+<span class="w">                 </span>--3T
 </pre></div>
 </div>
 </section>
@@ -462,9 +463,11 @@
 <li><p>Next, the template image will be segmented via a call to <code class="docutils literal notranslate"><span class="pre">run_fastsurfer.sh</span> <span class="pre">--sid</span> <span class="pre">&lt;templateID&gt;</span> <span class="pre">--base</span> <span class="pre">--seg_only</span> <span class="pre">...</span></code> where the <code class="docutils literal notranslate"><span class="pre">--base</span></code> flag indicates that the input image will be taken from the already existing template directory.</p></li>
 <li><p>This is followed by the surface processing of the template  <code class="docutils literal notranslate"><span class="pre">run_fastsurfer.sh</span> <span class="pre">--sid</span> <span class="pre">&lt;templateID&gt;</span> <span class="pre">--base</span> <span class="pre">--surf_only</span> <span class="pre">...</span></code>, which can be combined with the previous step.</p></li>
 <li><p>Next, the segmentations of each time points, which can theoretically run in parallel with the previous two steps, is performed <code class="docutils literal notranslate"><span class="pre">run_fastsurfer.sh</span> <span class="pre">--sid</span> <span class="pre">&lt;tIDn&gt;</span> <span class="pre">--long</span> <span class="pre">&lt;templateID&gt;</span> <span class="pre">--seg_only</span> <span class="pre">...</span></code>,</p></li>
-<li><p>again followed by the surface processing for each time point: <code class="docutils literal notranslate"><span class="pre">run_fastsurfer.sh</span> <span class="pre">--&lt;id</span> <span class="pre">&lt;tIDn&gt;</span> <span class="pre">--long</span> <span class="pre">&lt;templateID&gt;</span> <span class="pre">--surf_only</span></code>. This step needs to wait until 3. and 4. are finished.</p></li>
+<li><p>Again followed by the surface processing for each time point: <code class="docutils literal notranslate"><span class="pre">run_fastsurfer.sh</span> <span class="pre">--&lt;id</span> <span class="pre">&lt;tIDn&gt;</span> <span class="pre">--long</span> <span class="pre">&lt;templateID&gt;</span> <span class="pre">--surf_only</span></code>. This step needs to wait until 3. and 4. are finished.</p></li>
 </ol>
-<p>Internally we use <code class="docutils literal notranslate"><span class="pre">brun_fastsurfer.sh</span></code> as a helper script to process multiple time points (in 4. and 5.) in parallel (if experimental <code class="docutils literal notranslate"><span class="pre">--parallel_long</span></code> is passed to <code class="docutils literal notranslate"><span class="pre">long_fastsurfer.sh</span></code>).</p>
+<!-- Maybe reorganize 2. and 3. into 2.A and 2.B and 4. and 5. into 3.A and 3.B -->
+<!-- TODO: update this section to better explain the parallelization effects, --parallel_seg is parallelization of segmentation steps, --parallel_surf is the parallelization of surface steps, which is the more impactful option for logitudinal processing explicitly, because parallel segmentation may run into GPU memory limitations. -->
+<p>Internally we use <code class="docutils literal notranslate"><span class="pre">brun_fastsurfer.sh</span></code> as a helper script to process multiple time points (in 4. and 5.) in parallel (if experimental <code class="docutils literal notranslate"><span class="pre">--parallel_surf</span></code> is passed to <code class="docutils literal notranslate"><span class="pre">long_fastsurfer.sh</span></code>).</p>
 </section>
 <section id="final-statistics">
 <h2>Final Statistics:<a class="headerlink" href="#final-statistics" title="Link to this heading">¶</a></h2>

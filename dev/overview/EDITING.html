@@ -219,6 +219,7 @@
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../scripts/index.html">Scripts</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Scripts</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../scripts/long_fastsurfer.html">LONG: long_fastsurfer.sh</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../scripts/BATCH.html">BATCH: brun_fastsurfer.sh</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../scripts/SLURM.html">SLURM: srun_fastsurfer.sh</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/advanced.html">Advanced scripts</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Advanced scripts</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -470,7 +471,7 @@ Finally, you would check in another quality inspection, if the quality issues ar
 <span class="w">    </span>--sd<span class="w"> </span><span class="nv">$SUBJECTS_DIR</span><span class="w"> </span>--sid<span class="w"> </span>case_with_edits<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--t1<span class="w"> </span><span class="nv">$SUBJECTS_DIR</span>/case_with_edits/mri/orig/001.mgz<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--fs_license<span class="w"> </span><span class="nv">$FREESURFER_HOME</span>/.license<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--edits<span class="w"> </span><span class="c1"># more flags as needed, e.g. --parallel --3T --threads 4</span>
+<span class="w">    </span>--edits<span class="w"> </span><span class="c1"># more flags as needed, e.g. --3T --threads 4</span>
 </pre></div>
 </div>
 <p>Note, a re-run of the segmentation pipeline, as in the command above, should not be harmful, but is only required if the <a class="reference internal" href="#asegdkt-segfile"><span class="std std-ref">asegdkt_segfile</span></a> was edited.
@@ -482,7 +483,7 @@ Therefore, in most cases, we can skip the segmentation step with</p>
 <span class="w">    </span>--sd<span class="w"> </span><span class="nv">$SUBJECTS_DIR</span><span class="w"> </span>--sid<span class="w"> </span>case_with_edits<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--t1<span class="w"> </span><span class="nv">$SUBJECTS_DIR</span>/case_with_edits/mri/orig/001.mgz<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--fs_license<span class="w"> </span><span class="nv">$FREESURFER_HOME</span>/.license<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--edits<span class="w"> </span>--surf_only<span class="w"> </span><span class="c1"># more flags as needed, e.g. --parallel --3T --threads 4</span>
+<span class="w">    </span>--edits<span class="w"> </span>--surf_only<span class="w"> </span><span class="c1"># more flags as needed, e.g. --3T --threads 4</span>
 </pre></div>
 </div>
 </section>
@@ -519,7 +520,7 @@ Run FastSurfer as a new run on this new input file.</p>
 <span class="nv">$FASTSURFER_HOME</span>/run_fastsurfer.sh<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--sd<span class="w"> </span><span class="nv">$SUBJECTS_DIR</span><span class="w"> </span>--sid<span class="w"> </span>case_bias_corrected<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--t1<span class="w"> </span><span class="nv">$SUBJECTS_DIR</span>/case_bias_only/mri/orig_nu.mgz<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--fs_license<span class="w"> </span><span class="nv">$FREESURFER_HOME</span>/.license<span class="w"> </span><span class="c1"># more flags as needed, e.g. --parallel --3T --threads 4</span>
+<span class="w">    </span>--fs_license<span class="w"> </span><span class="nv">$FREESURFER_HOME</span>/.license<span class="w"> </span><span class="c1"># more flags as needed, e.g. --3T --threads 4</span>
 </pre></div>
 </div>
 </li>

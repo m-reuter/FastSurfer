@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Introduction to FastSurfer" href="intro.html" /><link rel="prev" title="Welcome to FastSurfer!" href="../index.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="BATCH: brun_fastsurfer.sh" href="BATCH.html" /><link rel="prev" title="Scripts" href="index.html" />
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
-        <title>User Guide - FastSurfer</title>
+        <title>LONG: long_fastsurfer.sh - FastSurfer</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -180,7 +180,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -201,39 +201,39 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">User Guide</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="intro.html">Introduction to FastSurfer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="QUICKSTART.html">Quick Start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="INSTALL.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EXAMPLES.html">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="FLAGS.html">FastSurfer Flags</a></li>
-<li class="toctree-l2"><a class="reference internal" href="OUTPUT_FILES.html">Output files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="docker.html">Docker Support</a></li>
-<li class="toctree-l2"><a class="reference internal" href="singularity.html">Singularity Support</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EDITING.html">Manual Edits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="LONG.html">Longitudinal Processing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="SECURITY.html">Security Policy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="CODE_OF_CONDUCT.html">Contributor Covenant Code of Conduct</a></li>
-<li class="toctree-l2"><a class="reference internal" href="CONTRIBUTING.html">Contributing to FastSurfer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="license.html">FastSurfer License</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../overview/index.html">User Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../overview/intro.html">Introduction to FastSurfer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview/QUICKSTART.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview/INSTALL.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview/EXAMPLES.html">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview/FLAGS.html">FastSurfer Flags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview/OUTPUT_FILES.html">Output files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview/docker.html">Docker Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview/singularity.html">Singularity Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview/EDITING.html">Manual Edits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview/LONG.html">Longitudinal Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview/SECURITY.html">Security Policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview/CODE_OF_CONDUCT.html">Contributor Covenant Code of Conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview/CONTRIBUTING.html">Contributing to FastSurfer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview/license.html">FastSurfer License</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../scripts/index.html">Scripts</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Scripts</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../scripts/long_fastsurfer.html">LONG: long_fastsurfer.sh</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../scripts/BATCH.html">BATCH: brun_fastsurfer.sh</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../scripts/SLURM.html">SLURM: srun_fastsurfer.sh</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/advanced.html">Advanced scripts</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Advanced scripts</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../scripts/fastsurfercnn.html">FastSurferCNN: run_prediction.py</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../scripts/cerebnet.html">CerebNet: run_prediction.py</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../scripts/hypvinn.html">HypVINN: run_prediction.py</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../scripts/recon_surf.html">Surface pipeline: recon-surf.sh</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../scripts/segstats.html">FastSurferCNN: segstats.py</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Scripts</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Scripts</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">LONG: long_fastsurfer.sh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BATCH.html">BATCH: brun_fastsurfer.sh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SLURM.html">SLURM: srun_fastsurfer.sh</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="advanced.html">Advanced scripts</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Advanced scripts</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="fastsurfercnn.html">FastSurferCNN: run_prediction.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cerebnet.html">CerebNet: run_prediction.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hypvinn.html">HypVINN: run_prediction.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="recon_surf.html">Surface pipeline: recon-surf.sh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="segstats.html">FastSurferCNN: segstats.py</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/util.html">FastSurfer Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of FastSurfer Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../scripts/fastsurfercnn.download_checkpoints.html">FastSurferCNN: download_checkpoints.py</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../scripts/fastsurfercnn.generate_hdf5.html">FastSurferCNN: generate_hdf5.py</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../scripts/fastsurfercnn.run_model.html">FastSurferCNN: run_model.py</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="util.html">FastSurfer Utilities</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of FastSurfer Utilities</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="fastsurfercnn.download_checkpoints.html">FastSurferCNN: download_checkpoints.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fastsurfercnn.generate_hdf5.html">FastSurferCNN: generate_hdf5.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fastsurfercnn.run_model.html">FastSurferCNN: run_model.py</a></li>
 </ul>
 </li>
 </ul>
@@ -369,7 +369,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="../_sources/overview/index.rst.txt" title="View this page">
+  <a class="muted-link" href="../_sources/scripts/long_fastsurfer.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -383,125 +383,90 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="user-guide">
-<h1>User Guide<a class="headerlink" href="#user-guide" title="Link to this heading">¶</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction to FastSurfer</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#system-requirements">System Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#expert-usage">Expert usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#freesurfer-downstream-modules">FreeSurfer Downstream Modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#intended-use">Intended Use</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#references">References</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#acknowledgements">Acknowledgements</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="QUICKSTART.html">Quick Start</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="QUICKSTART.html#singularity-or-docker">Singularity or Docker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="QUICKSTART.html#google-colab">Google Colab</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="INSTALL.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="INSTALL.html#linux">Linux</a></li>
-<li class="toctree-l2"><a class="reference internal" href="INSTALL.html#macos">MacOS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="INSTALL.html#windows">Windows</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="EXAMPLES.html">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="EXAMPLES.html#example-1-fastsurfer-docker">Example 1: FastSurfer Docker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EXAMPLES.html#example-2-fastsurfer-singularity">Example 2: FastSurfer Singularity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EXAMPLES.html#example-3-native-fastsurfer-on-subjectx-with-parallel-processing-of-hemis">Example 3: Native FastSurfer on subjectX with parallel processing of hemis</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EXAMPLES.html#example-4-fastsurfer-on-multiple-subjects">Example 4: FastSurfer on multiple subjects</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EXAMPLES.html#example-5-quick-segmentation">Example 5: Quick Segmentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EXAMPLES.html#example-6-running-fastsurfer-on-a-slurm-cluster-via-singularity">Example 6: Running FastSurfer on a SLURM cluster via Singularity</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="FLAGS.html">FastSurfer Flags</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="FLAGS.html#required-arguments">Required arguments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="FLAGS.html#required-for-docker-when-running-surface-module">Required for Docker when running surface module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="FLAGS.html#segmentation-pipeline-arguments-optional">Segmentation pipeline arguments (optional)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="FLAGS.html#surface-pipeline-arguments-optional">Surface pipeline arguments (optional)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="FLAGS.html#some-other-flags-optional">Some other flags (optional)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="FLAGS.html#full-list-of-flags">Full list of flags</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="OUTPUT_FILES.html">Output files</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="OUTPUT_FILES.html#segmentation-module">Segmentation module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="OUTPUT_FILES.html#cerebnet-module">Cerebnet module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="OUTPUT_FILES.html#hypvinn-module">HypVINN module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="OUTPUT_FILES.html#surface-module">Surface module</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="docker.html">Docker Support</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="docker.html#pull-fastsurfer-from-dockerhub">Pull FastSurfer from DockerHub</a></li>
-<li class="toctree-l2"><a class="reference internal" href="docker.html#fastsurfer-docker-image-creation">FastSurfer Docker Image Creation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="docker.html#build-docker-image-with-attestation-and-provenance">Build docker image with attestation and provenance</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="singularity.html">Singularity Support</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="singularity.html#singularity-with-the-official-fastsurfer-image">Singularity with the official FastSurfer Image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="singularity.html#building-your-own-fastsurfer-singularity-image">Building your own FastSurfer Singularity Image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="singularity.html#fastsurfer-singularity-image-usage">FastSurfer Singularity Image Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="singularity.html#singularity-best-practice">Singularity Best Practice</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="EDITING.html">Manual Edits</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="EDITING.html#what-are-edits">What are Edits?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EDITING.html#what-can-be-edited">What can be edited?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EDITING.html#pipeline-overview">Pipeline overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EDITING.html#possible-edits">Possible Edits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EDITING.html#general-process">General process</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EDITING.html#bias-field-correction">Bias field correction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EDITING.html#asegdkt-segfile">asegdkt_segfile</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EDITING.html#talairach-registration">Talairach registration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EDITING.html#white-matter-segmentation">White matter segmentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EDITING.html#pial-surface-placement">Pial surface placement</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EDITING.html#side-effects-of-edits">Side effects of edits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EDITING.html#guide-for-experienced-freesurfer-users">Guide for experienced FreeSurfer users</a></li>
-<li class="toctree-l2"><a class="reference internal" href="EDITING.html#what-not-to-do">What NOT to do</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="LONG.html">Longitudinal Processing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="LONG.html#what-is-longitudinal-processing">What is Longitudinal Processing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="LONG.html#how-to-run-your-data">How to Run Your Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="LONG.html#behind-the-scenes">Behind the Scenes:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="LONG.html#final-statistics">Final Statistics:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="LONG.html#references">References</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="SECURITY.html">Security Policy</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="SECURITY.html#supported-versions">Supported Versions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="SECURITY.html#reporting-a-vulnerability">Reporting a Vulnerability</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="CODE_OF_CONDUCT.html">Contributor Covenant Code of Conduct</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="CODE_OF_CONDUCT.html#our-pledge">Our Pledge</a></li>
-<li class="toctree-l2"><a class="reference internal" href="CODE_OF_CONDUCT.html#our-standards">Our Standards</a></li>
-<li class="toctree-l2"><a class="reference internal" href="CODE_OF_CONDUCT.html#our-responsibilities">Our Responsibilities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="CODE_OF_CONDUCT.html#scope">Scope</a></li>
-<li class="toctree-l2"><a class="reference internal" href="CODE_OF_CONDUCT.html#enforcement">Enforcement</a></li>
-<li class="toctree-l2"><a class="reference internal" href="CODE_OF_CONDUCT.html#attribution">Attribution</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Contributing to FastSurfer</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="CONTRIBUTING.html#reporting-bugs">Reporting Bugs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="CONTRIBUTING.html#suggesting-enhancements">Suggesting Enhancements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="CONTRIBUTING.html#contributing-code">Contributing Code</a></li>
-<li class="toctree-l2"><a class="reference internal" href="CONTRIBUTING.html#attribution">Attribution</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="license.html">FastSurfer License</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="license.html#apache-license">Apache License</a></li>
-</ul>
-</li>
-</ul>
+          <section id="long-long-fastsurfer-sh">
+<h1>LONG: long_fastsurfer.sh<a class="headerlink" href="#long-long-fastsurfer-sh" title="Link to this heading">¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please also see the documentation on <a class="reference internal" href="../overview/LONG.html"><span class="doc">Longitudinal Processing</span></a>.</p>
 </div>
+<section id="usage-help-text">
+<h2>Usage help text<a class="headerlink" href="#usage-help-text" title="Link to this heading">¶</a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ ./long_fastsurfer.sh --help
+Setting ENV variable FASTSURFER_HOME to script directory /home/runner/work/FastSurfer/FastSurfer/src. 
+Change via environment to location of your choice if this is undesired (export FASTSURFER_HOME=/dir/to/FastSurfer)
+
+Usage: long_fastsurfer.sh --tid &lt;tid&gt; --t1s &lt;T1_1&gt; &lt;T1_2&gt; .. --tpids &lt;tID1&gt; &lt;tID2&gt; .. [OPTIONS]
+
+long_fastsurfer.sh takes a list of T1 full head image and sequentially creates:
+     (i)   a template subject directory 
+     (ii)  directories for each processed time point in template space,
+           here you find the final longitudinal results
+
+FLAGS:
+
+  --tid &lt;templateID&gt;        ID for subject template/base directory inside
+                              $SUBJECTS_DIR to be created&quot;
+  --t1s &lt;T1_1&gt; &lt;T1_2&gt; ..    T1 full head inputs for each time point (do not need
+                              to be bias corrected). Requires ABSOLUTE paths!
+  --tpids &lt;tID1&gt; &gt;tID2&gt; ..  IDs for future time points directories inside
+                              $SUBJECTS_DIR to be created later (during --long)
+  --sd  &lt;subjects_dir&gt;      Output directory $SUBJECTS_DIR (or pass via env var)
+  --py &lt;python_cmd&gt;         Command for python, used in both pipelines.
+                              Default: &quot;python3.10 -s&quot;
+                              (-s: do no search for packages in home directory)
+  -h --help                 Print Help
+
+Parallelization options:
+  All of the following options will activate parallel processing of the base and the longitudinal time-point images
+  where possible. Additionally, the number of different processes for segmentation and surface reconstructionis set.
+  --parallel &lt;n&gt;|max        See above, sets the size of the processing pool for segmentation and surface reconstruction
+  --parallel_seg &lt;n&gt;|max    See above, only sets the size of the processing pool for segmentation (default: 1)
+  --parallel_surf &lt;n&gt;|max   See above, only sets the size of the processing pool for surface reconstruction (default: 1)
+
+
+With the exception of --t1, --t2, --sid, --seg_only and --surf_only, all
+run_fastsurfer.sh options are supported, see &#39;run_fastsurfer.sh --help&#39;.
+
+
+REFERENCES:
+
+If you use this for research publications, please cite:
+
+For FastSurfer (both):
+Henschel L, Conjeti S, Estrada S, Diers K, Fischl B, Reuter M, FastSurfer - A
+ fast and accurate deep learning based neuroimaging pipeline, NeuroImage 219
+ (2020), 117012. https://doi.org/10.1016/j.neuroimage.2020.117012
+
+Henschel L*, Kuegler D*, Reuter M. (*co-first). FastSurferVINN: Building
+ Resolution-Independence into Deep Learning Segmentation Methods - A Solution
+ for HighRes Brain MRI. NeuroImage 251 (2022), 118933. 
+ http://dx.doi.org/10.1016/j.neuroimage.2022.118933
+
+And for longitudinal processing:
+Reuter M, Schmansky NJ, Rosas HD, Fischl B. Within-subject template estimation
+ for unbiased longitudinal image analysis, NeuroImage 61:4 (2012).
+ https://doi.org/10.1016/j.neuroimage.2012.02.084
+
+For cerebellum sub-segmentation:
+Faber J*, Kuegler D*, Bahrami E*, et al. (*co-first). CerebNet: A fast and
+ reliable deep-learning pipeline for detailed cerebellum sub-segmentation.
+ NeuroImage 264 (2022), 119703.
+ https://doi.org/10.1016/j.neuroimage.2022.119703
+
+For hypothalamus sub-segemntation:
+Estrada S, Kuegler D, Bahrami E, Xu P, Mousa D, Breteler MMB, Aziz NA, Reuter M.
+ FastSurfer-HypVINN: Automated sub-segmentation of the hypothalamus and adjacent
+ structures on high-resolutional brain MRI. Imaging Neuroscience 2023; 1 1–32.
+ https://doi.org/10.1162/imag_a_00034
+</pre></div>
+</div>
+</section>
 </section>
 
         </article>
@@ -509,23 +474,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="intro.html">
+          <a class="next-page" href="BATCH.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Introduction to FastSurfer</div>
+                <div class="title">BATCH: brun_fastsurfer.sh</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../index.html">
+          <a class="prev-page" href="index.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Home</div>
+                <div class="title">Scripts</div>
                 
               </div>
             </a>
@@ -553,8 +518,27 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">LONG: long_fastsurfer.sh</a><ul>
+<li><a class="reference internal" href="#usage-help-text">Usage help text</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
