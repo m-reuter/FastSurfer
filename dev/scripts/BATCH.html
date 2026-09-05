@@ -473,9 +473,6 @@ brun_fastsurfer.sh [...] [--batch "&lt;i&gt;/&lt;n&gt;"] [--parallel &lt;N&gt;|m
     [--run_fastsurfer &lt;script to run fastsurfer&gt;] [--statusfile &lt;filename&gt;] [--debug] [--help]
     [&lt;additional run_fastsurfer.sh options&gt;]
 
-Author:   David Kügler, david.kuegler@dzne.de
-Date:     Nov 6, 2023
-Version:  1.0
 License:  Apache License, Version 2.0
 
 Documentation of Options:
@@ -487,6 +484,11 @@ i. a list passed through stdin of the format (one subject per line)
 ---
 ii. a subject_list file using the same format (use Ctrl-D to end the input), or
 iii. a list of subjects directly passed (this does not support subject-specific parameters)
+
+A path or parameter that contains a space has to be quoted or escaped as it would be in the shell,
+i.e. '/data/my subject/t1.mgz', "/data/my subject/t1.mgz" or /data/my\ subject/t1.mgz. Single
+quotes are the simplest, because everything inside them is taken literally, including backslashes.
+No expansion is performed in either kind of quotes, so a $ or a ` is just that character.
 
 --batch "&lt;i&gt;/&lt;n&gt;": run the i-th of n batches (starting at 1) of the full list of subjects
   (default: 1/1, == run all). "slurm_task_id" is a valid option for "&lt;i&gt;".
