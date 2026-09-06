@@ -101,7 +101,6 @@ def save_segmentation(
             affine=orig_img.affine,
             header=mask_header,
         )
-        mask_img.set_data_dtype(np.float32)
         LOGGER.info(f"HypVINN Mask after re-orientation: {aff2axcodes(mask_img.affine)}")
         nib.save(mask_img, subject_dir / "mri" / mask_file)
 
@@ -156,7 +155,7 @@ def save_logits(
     orig_img = cast(nibabelImage, nib.load(orig_path))
     LOGGER.info(f"Orig data orientation: {aff2axcodes(orig_img.affine)}")
     header: nibabelHeader = Nifti1Image.header_class.from_header(orig_img.header)
-    header.set_data_type(np.float32)
+    header.set_data_dtype(np.float32)
     reorient = Reorientation.from_target_affine(
         ras_affine,
         orig_img.affine,
