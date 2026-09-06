@@ -43,8 +43,10 @@ from FastSurferCNN.utils import AffineMatrix4x4, Shape1d, logging, nibabelImage
 # Global Vars
 ##
 SUPPORTED_OUTPUT_FILE_FORMATS = ("mgz", "nii", "nii.gz")
-# the integer types an MGH file can store, narrowest first, so the first that fits is the choice
-MGH_INT_DTYPES = (np.uint8, np.uint16, np.int16, np.int32)
+# the integer types to fall back on, narrowest first, so the first that fits is the choice. MGH can
+# also store uint16, but FreeSurfer writes none itself, so int32 is preferred over an odd-looking
+# file; a header that asks for uint16 is still honoured.
+MGH_INT_DTYPES = (np.uint8, np.int16, np.int32)
 LOGGER = logging.getLogger(__name__)
 
 ##
@@ -271,6 +273,52 @@ def fits_dtype(array: np.ndarray, dtype: npt.DTypeLike) -> bool:
     return array.size == 0 or bool(limits.min <= array.min() and array.max() <= limits.max)
 
 
+def choose_dtype(
+        array: np.ndarray,
+        header_dtype: npt.DTypeLike,
+        prefer_dtype: npt.DTypeLike | None = None,
+) -> np.dtype:
+    """
+    The type to store `array` as, never one that would round or clip a value.
+
+    `header_dtype` is what the header asks for, and is used where it holds the data. Where it does
+    not, the narrowest type MGH can store that does is used instead: widening to the array's own
+    type is not enough, since MGH has no int64 and the write would fall back and clip after all.
+
+    Parameters
+    ----------
+    array : np.ndarray
+        The data to store.
+    header_dtype : npt.DTypeLike
+        The type the header asks for.
+    prefer_dtype : npt.DTypeLike, optional
+        A narrower type to use if the data fits it, ignored otherwise.
+
+    Returns
+    -------
+    np.dtype
+        The type to write.
+    """
+    header_dtype = np.dtype(header_dtype)
+    if prefer_dtype is not None and fits_dtype(array, prefer_dtype):
+        return np.dtype(prefer_dtype)
+    if np.issubdtype(array.dtype, np.floating) and np.issubdtype(header_dtype, np.integer):
+        # an integer type would round floating-point data away, as it did to the CC soft labels,
+        # which are probabilities written with the header of the conformed image
+        return np.dtype(np.float32)
+    if fits_dtype(array, header_dtype):
+        return header_dtype
+
+    # integer data the header cannot hold; the range is read once, not once per candidate
+    low, high = (int(array.min()), int(array.max())) if array.size else (0, 0)
+    wider = next(
+        (np.dtype(t) for t in MGH_INT_DTYPES if np.iinfo(t).min <= low and high <= np.iinfo(t).max),
+        np.dtype(np.float32),
+    )
+    LOGGER.warning(f"The data does not fit {header_dtype}, writing {wider} instead to avoid clipping.")
+    return wider
+
+
 def as_mgh_image(
         data: np.ndarray,
         affine: AffineMatrix4x4,
@@ -316,21 +364,8 @@ def as_mgh_image(
     zooms = img.header.get_zooms()
     img.header["fov"] = max(d * z for d, z in zip(img.shape[:3], zooms[:3], strict=True))
 
-    data_dtype = np.dtype(array.dtype if header is None else header.get_data_dtype())
-    if prefer_dtype is not None and fits_dtype(array, prefer_dtype):
-        data_dtype = np.dtype(prefer_dtype)
-    elif np.issubdtype(array.dtype, np.floating) and np.issubdtype(data_dtype, np.integer):
-        # an integer type would round floating-point data away, as it did to the CC soft labels,
-        # which are probabilities written with the header of the conformed image
-        data_dtype = np.dtype(np.float32)
-    elif not fits_dtype(array, data_dtype):
-        # a header narrower than its data would clip it, silently. Widening to the array's own type
-        # is not enough: MGH cannot store int64, and falling back would clip after all.
-        wider = next(
-            (np.dtype(t) for t in MGH_INT_DTYPES if fits_dtype(array, t)), np.dtype(np.float32)
-        )
-        LOGGER.warning(f"The data does not fit {data_dtype}, writing {wider} instead to avoid clipping.")
-        data_dtype = wider
+    header_dtype = array.dtype if header is None else header.get_data_dtype()
+    data_dtype = choose_dtype(array, header_dtype, prefer_dtype)
     try:
         img.set_data_dtype(data_dtype)
     except MGHError:

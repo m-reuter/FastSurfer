@@ -16,7 +16,9 @@ import numpy as np
 import pytest
 
 from FastSurferCNN.data_loader.data_utils import (
+    MGH_INT_DTYPES,
     as_mgh_image,
+    choose_dtype,
     fits_dtype,
     load_maybe_conform,
     save_image,
@@ -114,20 +116,17 @@ def test_integer_data_wider_than_the_header_is_not_clipped(container, tmp_path):
 
 
 @pytest.mark.parametrize(
-    ("values", "expected"),
-    [
-        ([0, 500], np.dtype(">u2")),
-        ([-1, 500], np.dtype(">i2")),
-        ([0, 2 ** 20], np.dtype(">i4")),
-    ],
-    ids=["fits uint16", "needs a sign", "needs int32"],
+    "values", [[0, 500], [-1, 500], [0, 2 ** 20]], ids=["positive", "signed", "large"],
 )
-def test_widening_picks_a_type_mgh_can_store(values, expected, tmp_path):
+def test_widening_picks_a_type_mgh_can_store(values, tmp_path):
     """int64 is the default integer width here, and MGH cannot store it.
 
     Widening to the array's own type therefore hit the MGHError fallback, which handed the type back
     to the narrow header and clipped after all: 500 was written as 255, with two log lines saying
     first that clipping had been avoided and then that it had not.
+
+    The assertion is the contract, not which type is preferred: the values survive, and the type is
+    one an MGH file can hold.
     """
     labels = np.zeros(SHAPE, dtype=np.int64)
     labels[0, 0, 0], labels[0, 0, 1] = values
@@ -137,8 +136,25 @@ def test_widening_picks_a_type_mgh_can_store(values, expected, tmp_path):
     nib.save(as_mgh_image(labels, AFFINE, header), out_file)
 
     written = nib.load(out_file)
-    assert written.get_data_dtype() == expected
     assert set(np.asarray(written.dataobj).flatten().tolist()) == {0, *values}
+    assert written.get_data_dtype().newbyteorder("=") in [np.dtype(t) for t in MGH_INT_DTYPES]
+
+
+def test_choose_dtype():
+    """The decision behind every writer, without going through a file."""
+    labels = np.zeros(SHAPE, np.int16)
+    probabilities = np.zeros(SHAPE, np.float32)
+
+    assert choose_dtype(labels, np.int16) == np.dtype(np.int16), "the header holds it"
+    assert choose_dtype(labels, np.int16, np.uint8) == np.dtype(np.uint8), "narrowed on request"
+    assert choose_dtype(probabilities, np.uint8) == np.dtype(np.float32), "a float is not rounded"
+    assert choose_dtype(probabilities, np.uint8, np.uint8) == np.dtype(np.float32), "nor on request"
+
+    wide = np.full(SHAPE, 500, np.int64)
+    assert choose_dtype(wide, np.uint8) == np.dtype(np.int16), "widened past a header that clips"
+    assert choose_dtype(wide, np.uint8, np.uint8) == np.dtype(np.int16), "a request cannot clip"
+    # narrowest first, so a value needing more range moves up one step at a time
+    assert choose_dtype(np.full(SHAPE, 2 ** 20, np.int64), np.uint8) == np.dtype(np.int32)
 
 
 def test_prefer_dtype_is_ignored_when_it_would_lose_data(tmp_path):
