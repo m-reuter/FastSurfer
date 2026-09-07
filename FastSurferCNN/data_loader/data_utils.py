@@ -237,9 +237,9 @@ def load_maybe_conform(
             src_file, logger=logging.getLogger(__name__ + ".conform"), **conform_kwargs,
         )
 
-        # after conforming, save the conformed file
-        save_image(header, affine, data, dst_file)
-        img = as_mgh_image(data, affine, header)
+        # after conforming, save the conformed file; the image returned is the one written, so a
+        # .nii conf_name is not handed back as an MGHImage and the type is decided only once
+        img = save_image(header, affine, data, dst_file)
     return dst_file, img, data
 
 
@@ -328,9 +328,11 @@ def choose_dtype(
     wanted = np.dtype(header.get_data_dtype() if dtype is None else dtype).newbyteorder("=")
     if not fits_dtype(array, wanted):
         source = "requested" if dtype is not None else "carried by the header"
+        both_integer = np.issubdtype(array.dtype, np.integer) and np.issubdtype(wanted, np.integer)
         raise ValueError(
             f"Refusing to store {array.dtype} data as the {wanted} {source}, because values would "
-            f"be {_damage(array, wanted)}. Convert the data before saving if that is what you want."
+            f"be {'clipped' if both_integer else 'rounded'}. Convert the data before saving if that "
+            f"is what you want."
         )
     if wanted not in tuple(np.dtype(c) for c in candidates):
         offered = ", ".join(np.dtype(c).name for c in candidates)
@@ -339,12 +341,6 @@ def choose_dtype(
             f"write the image in a format that can, or call storable_dtype to pick the closest one."
         )
     return wanted
-
-
-def _damage(array: np.ndarray, dtype: np.dtype) -> str:
-    """What storing `array` as `dtype` would do to it, for the message that refuses to."""
-    both_integer = np.issubdtype(array.dtype, np.integer) and np.issubdtype(dtype, np.integer)
-    return "clipped" if both_integer else "rounded"
 
 
 def storable_dtype(
@@ -449,7 +445,7 @@ def save_image(
         img_array: np.ndarray,
         save_as: str | Path,
         dtype: npt.DTypeLike | None = None
-) -> None:
+) -> nibabelImage:
     """
     Save an image (nibabel MGHImage), according to the desired output file format.
 
@@ -468,6 +464,12 @@ def save_image(
     dtype : npt.DTypeLike, optional
         The type to store, overriding the one the header carries. Neither may lose data nor be one
         the format cannot store, see `choose_dtype`.
+
+    Returns
+    -------
+    nibabelImage
+        The image as it was written, so a caller that also needs it in memory does not have to build
+        it a second time, and gets the container the file actually uses.
 
     Notes
     -----
@@ -498,6 +500,7 @@ def save_image(
         # For correct outputs, nii.gz files should be saved using the nifti1
         # sub-module's save():
         nib.nifti1.save(img, str(save_as))
+    return img
 
 
 # Transformation for mapping

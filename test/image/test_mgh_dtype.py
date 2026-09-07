@@ -8,11 +8,11 @@ four times the size of the uint8 one it asked for, holding nothing but integers.
 Three rules are pinned here.
 
 - The written type does not depend on the container the header came from, nor on the container it is
-  written to. Only where a format cannot store the answer, as MGH cannot store float64, does the
-  file name change what is written.
-- A type that would round or clip the data is refused, not quietly replaced. Narrowing is the
-  caller's to do, deliberately and outside, because only the caller knows whether to cast, to
-  rescale or to refuse.
+  written to. The output format only decides which types are available at all.
+- A type that cannot be honoured is refused, not quietly replaced: neither one that would round or
+  clip the data, nor one the format cannot store. Narrowing is the caller's to do, deliberately and
+  outside, because only the caller knows whether to cast, to rescale or to refuse. The single output
+  whose type is not ours to choose asks for `storable_dtype` on purpose.
 - The aseg files are written as uchar, as FreeSurfer writes them, rather than inheriting the int16
   of the segmentation they are reduced from.
 """
@@ -69,56 +69,56 @@ def test_dtype_depends_on_neither_container(dtype, source, suffix, tmp_path):
     assert written(out_file).get_data_dtype().newbyteorder("=") == np.dtype(dtype)
 
 
-def test_float64_survives_where_the_format_allows_it(tmp_path):
-    """NIfTI can store float64, so nothing is degraded there."""
-    data = np.zeros(SHAPE, dtype=np.float64)
-    data[0, 0, 0] = 0.1 + 0.2  # not representable in float32
+@pytest.mark.parametrize("dtype", [np.int64, np.float64], ids=["int64", "float64"])
+def test_a_wide_type_survives_where_the_format_allows_it(dtype, tmp_path):
+    """NIfTI stores int64 and float64, so neither is narrowed there. The .mgz mirror is below."""
+    data = np.full(SHAPE, 2 ** 40 if dtype is np.int64 else 0.1 + 0.2, dtype=dtype)
 
     out_file = tmp_path / "x.nii.gz"
-    save_image(header_of(np.float64, "nifti"), AFFINE, data, out_file)
+    save_image(header_of(dtype, "nifti"), AFFINE, data, out_file)
 
-    assert written(out_file).get_data_dtype() == np.dtype(np.float64)
-    assert np.asarray(written(out_file).dataobj)[0, 0, 0] == 0.1 + 0.2
+    assert written(out_file).get_data_dtype() == np.dtype(dtype)
+    assert np.asarray(written(out_file).dataobj)[0, 0, 0] == data[0, 0, 0]
 
 
-@pytest.mark.parametrize("container", ["mgh", "nifti"])
+def probabilities():
+    """The CC soft labels: written with the header of the conformed image, which is uchar."""
+    data = np.zeros(SHAPE, dtype=np.float32)
+    data[0, 0, 0] = 0.37
+    return data
+
+
+def label_over_uchar():
+    """A label a uchar cannot hold, which used to be written as 255."""
+    data = np.zeros(SHAPE, dtype=np.int16)
+    data[0, 0, 0] = 500
+    return data
+
+
+@pytest.mark.parametrize(
+    ("data", "header_dtype", "explicit", "damage"),
+    [
+        (probabilities, np.uint8, None, "rounded"),
+        (probabilities, np.int16, np.uint8, "rounded"),
+        (label_over_uchar, np.uint8, None, "clipped"),
+        (label_over_uchar, np.int16, np.uint8, "clipped"),
+    ],
+    ids=["float via header", "float via dtype", "wide via header", "wide via dtype"],
+)
 @BOTH_FORMATS
-def test_float_data_with_an_integer_header_is_refused(container, suffix, tmp_path):
-    """Probabilities must never be rounded into a label type, in either direction.
+def test_a_type_that_would_lose_data_is_refused(data, header_dtype, explicit, damage, suffix, tmp_path):
+    """Both axes, both kinds of loss, both formats.
 
-    The CC module writes its soft labels with the header of the conformed image, which is uchar, so
-    0.37 was stored as 0 and the probability map came back as a binary mask. The module now says
-    float32 at the call site; anything that does not is a bug, and says so.
+    The header axis is how the bugs arrived: 0.37 stored as 0 turned the CC probability map into a
+    binary mask, and a uchar header with a 500 in it wrote 255. The dtype axis is the same rule
+    applied to what a caller asks for, so the knob cannot be used to clip either. `data.astype(...)`
+    at the call site is how you ask for that on purpose.
+
+    The header's own container is not varied, because `test_dtype_depends_on_neither_container`
+    already establishes that it makes no difference.
     """
-    soft_labels = np.zeros(SHAPE, dtype=np.float32)
-    soft_labels[0, 0, 0] = 0.37
-
-    with pytest.raises(ValueError, match="would be rounded"):
-        save_image(header_of(np.uint8, container), AFFINE, soft_labels, tmp_path / f"soft{suffix}")
-
-
-@pytest.mark.parametrize("container", ["mgh", "nifti"])
-@BOTH_FORMATS
-def test_integer_data_wider_than_the_header_is_refused(container, suffix, tmp_path):
-    """The mirror of the float case: a header narrower than its data must not silently clip it.
-
-    A uchar header with int16 data holding 500 wrote 255, losing the label. The NIfTI path escaped
-    the clipping only by rescaling instead, which turns the label into 500.00000059604645.
-    """
-    labels = np.zeros(SHAPE, dtype=np.int16)
-    labels[0, 0, 0] = 500
-
-    with pytest.raises(ValueError, match="would be clipped"):
-        save_image(header_of(np.uint8, container), AFFINE, labels, tmp_path / f"labels{suffix}")
-
-
-def test_explicit_dtype_that_would_lose_data_is_refused(tmp_path):
-    """The knob cannot be used to clip. `data.astype(...)` at the call site is how you ask for that."""
-    labels = np.zeros(SHAPE, dtype=np.int16)
-    labels[0, 0, 0] = 500
-
-    with pytest.raises(ValueError, match="would be clipped"):
-        save_image(header_of(np.int16), AFFINE, labels, tmp_path / "forced.mgz", dtype=np.uint8)
+    with pytest.raises(ValueError, match=f"would be {damage}"):
+        save_image(header_of(header_dtype), AFFINE, data(), tmp_path / f"x{suffix}", dtype=explicit)
 
 
 def test_explicit_dtype_overrides_the_header(tmp_path):
@@ -133,27 +133,41 @@ def test_explicit_dtype_overrides_the_header(tmp_path):
     assert np.asarray(written(out_file).dataobj).max() == 42
 
 
+def int64_of(*values):
+    data = np.zeros(SHAPE, dtype=np.int64)
+    for i, value in enumerate(values):
+        data.flat[i] = value
+    return data
+
+
 @pytest.mark.parametrize(
-    ("values", "expected"),
-    [([0, 250], np.int16), ([-1, 500], np.int16), ([0, 2 ** 20], np.int32)],
-    ids=["small", "signed", "large"],
+    ("data", "expected"),
+    [
+        (lambda: int64_of(0, 250), np.int16),
+        (lambda: int64_of(-1, 500), np.int16),
+        (lambda: int64_of(0, 2 ** 20), np.int32),
+        (lambda: np.full(SHAPE, 0.1 + 0.2, np.float64), np.float32),
+    ],
+    ids=["small", "signed", "large", "float64"],
 )
-def test_storable_dtype_moves_up_one_step_at_a_time(values, expected, tmp_path):
-    """int64 is the default integer width in numpy, and MGH cannot store it.
+def test_storable_dtype_writes_the_archival_copy(data, expected, tmp_path):
+    """mri/orig/001.mgz, whose type belongs to whoever produced the input file.
 
-    An archival copy of such data has to land on a type the format has: the narrowest that holds
-    every value, and signed, because the source was. Values in 0 to 250 would fit uchar, but
-    changing the signedness of someone else's data is a bigger liberty than a wider file.
+    int64 is the default integer width in numpy and float64 is what a scaled NIfTI reads back as,
+    and MGH stores neither. Such data has to land on a type the format has: the narrowest that holds
+    every value, and of the same kind, so a float stays a float and signed stays signed. Values in 0
+    to 250 would fit uchar, but changing the signedness of someone else's data is a bigger liberty
+    than a wider file.
     """
-    labels = np.zeros(SHAPE, dtype=np.int64)
-    labels[0, 0, 0], labels[0, 0, 1] = values
-    out_file = tmp_path / "labels.mgz"
+    array = data()
+    out_file = tmp_path / "001.mgz"
 
-    save_image(header_of(np.int64, "nifti"), AFFINE, labels, out_file,
-               dtype=storable_dtype(labels))
+    save_image(header_of(array.dtype, "nifti"), AFFINE, array, out_file,
+               dtype=storable_dtype(array))
 
-    assert set(np.asarray(written(out_file).dataobj).flatten().tolist()) == {0, *values}
     assert written(out_file).get_data_dtype().newbyteorder("=") == np.dtype(expected)
+    if np.issubdtype(array.dtype, np.integer):
+        assert set(np.asarray(written(out_file).dataobj).flatten().tolist()) == set(array.flatten().tolist())
 
 
 @pytest.mark.parametrize("wanted", [np.int64, np.float64], ids=["int64", "float64"])
@@ -170,14 +184,6 @@ def test_a_type_mgh_cannot_store_is_refused(wanted, tmp_path):
         save_image(header_of(wanted, "nifti"), AFFINE, data, tmp_path / "x.mgz", dtype=wanted)
 
 
-def test_the_exactness_boundary_is_where_the_float_stops_counting():
-    """An integer rounded into a float loses its identity, so a float target has a range too."""
-    fits = np.full(SHAPE, 2 ** 24, dtype=np.int64)
-    assert fits_dtype(fits, np.float32), "float32 counts every integer up to 2**24"
-    assert not fits_dtype(fits + 1, np.float32), "and not the one after it"
-    assert fits_dtype(fits + 1, np.float64), "float64 counts far past it"
-
-
 def test_storable_dtype_keeps_the_kind_and_the_values():
     """The archival copy of the input, whose type was chosen by whoever produced the file."""
     for dtype in (np.uint8, np.int16, np.int32, np.float32):
@@ -192,30 +198,6 @@ def test_storable_dtype_keeps_the_kind_and_the_values():
 
     with pytest.raises(ValueError, match="cannot store"):
         storable_dtype(np.full(SHAPE, 2 ** 40, np.int64))
-
-
-def test_storable_dtype_lets_the_archival_copy_be_written(tmp_path):
-    """The one caller: a float64 or scaled NIfTI input copied to mri/orig/001.mgz."""
-    data = np.zeros(SHAPE, dtype=np.float64)
-    data[0, 0, 0] = 0.1 + 0.2
-
-    out_file = tmp_path / "001.mgz"
-    save_image(header_of(np.float64, "nifti"), AFFINE, data, out_file,
-               dtype=storable_dtype(data))
-
-    assert written(out_file).get_data_dtype() == np.dtype(">f4")
-
-
-def test_int64_survives_where_the_format_allows_it(tmp_path):
-    """NIfTI can store int64, so the same data keeps its type there."""
-    labels = np.zeros(SHAPE, dtype=np.int64)
-    labels[0, 0, 0] = 2 ** 40
-
-    out_file = tmp_path / "labels.nii.gz"
-    save_image(header_of(np.int64, "nifti"), AFFINE, labels, out_file)
-
-    assert written(out_file).get_data_dtype() == np.dtype(np.int64)
-    assert np.asarray(written(out_file).dataobj).max() == 2 ** 40
 
 
 def test_an_integer_nifti_carries_no_scale_factor(tmp_path):
@@ -271,9 +253,14 @@ def test_fits_dtype():
     assert not fits_dtype(np.zeros(SHAPE, np.float32), np.uint8), "a float would be rounded"
     assert fits_dtype(np.zeros(SHAPE, np.uint8), np.int16), "widening always fits"
     assert fits_dtype(np.zeros(SHAPE, np.int16), np.float32), "a float holds a small integer"
-    assert not fits_dtype(np.full(SHAPE, 2 ** 40, np.int64), np.float32), "but not a large one"
     assert fits_dtype(np.zeros(SHAPE, np.float64), np.float32), "a float may lose only precision"
     assert fits_dtype(np.zeros((0,), np.int16), np.uint8), "an empty array has nothing to clip"
+    assert fits_dtype(np.zeros(SHAPE, bool), np.uint8), "a bool is 0 or 1, so it always fits"
+    # an integer rounded into a float loses its identity, so a float target has a range too
+    exact = np.full(SHAPE, 2 ** 24, dtype=np.int64)
+    assert fits_dtype(exact, np.float32), "float32 counts every integer up to 2**24"
+    assert not fits_dtype(exact + 1, np.float32), "and not the one after it"
+    assert fits_dtype(exact + 1, np.float64), "float64 counts far past it"
 
 
 def test_only_the_type_changes_not_the_rest_of_the_header(tmp_path):
