@@ -25,7 +25,6 @@ import pandas as pd
 import scipy.ndimage.morphology as morphology
 import torch
 from nibabel.filebasedimages import FileBasedHeader as _Header
-from nibabel.freesurfer.mghformat import MGHError, MGHHeader
 from numpy import typing as npt
 from scipy.ndimage import (
     binary_closing,
@@ -43,10 +42,13 @@ from FastSurferCNN.utils import AffineMatrix4x4, Shape1d, logging, nibabelImage
 # Global Vars
 ##
 SUPPORTED_OUTPUT_FILE_FORMATS = ("mgz", "nii", "nii.gz")
-# the integer types to fall back on, narrowest first, so the first that fits is the choice. MGH can
-# also store uint16, but FreeSurfer writes none itself, so int32 is preferred over an odd-looking
-# file; a header that asks for uint16 is still honoured.
-MGH_INT_DTYPES = (np.uint8, np.int16, np.int32)
+# Every type each output format can store. Asking for one outside its own list is refused rather
+# than answered with a substitute, so these have to be complete and not a preference.
+MGH_DTYPES = (np.uint8, np.uint16, np.int16, np.int32, np.float32)
+NIFTI_DTYPES = (
+    np.uint8, np.int8, np.uint16, np.int16, np.uint32, np.int32, np.uint64, np.int64,
+    np.float32, np.float64,
+)
 LOGGER = logging.getLogger(__name__)
 
 ##
@@ -245,10 +247,11 @@ def fits_dtype(array: np.ndarray, dtype: npt.DTypeLike) -> bool:
     """
     Whether every value of `array` survives being stored as `dtype`.
 
-    Only integer targets are checked, since that is where this pipeline loses data: a float rounded
-    into an integer loses its fraction, and a label outside the range is clipped. A floating-point
-    target is reported as fitting, which ignores the precision a very large integer or a float64
-    would lose, because MGH offers nothing wider than float32 to move it to.
+    An integer loses its identity as surely by being rounded into a float as by being clipped, so a
+    float target holds integers only as far as it counts exactly: 2**24 for float32, 2**53 for
+    float64. Narrowing a value that was already floating-point is not counted, because that is a
+    measurement losing digits rather than a label becoming a different label, and it only arises
+    where the output format has left nothing wider to move to.
 
     Parameters
     ----------
@@ -263,67 +266,142 @@ def fits_dtype(array: np.ndarray, dtype: npt.DTypeLike) -> bool:
         False if storing `array` as `dtype` would round or clip a value.
     """
     dtype = np.dtype(dtype)
+    # a bool counts as an integer here: it is 0 or 1, which every numeric type stores exactly
+    array_is_integer = np.issubdtype(array.dtype, np.integer) or array.dtype == np.bool_
+    if np.issubdtype(dtype, np.floating):
+        if not array_is_integer:
+            return True
+        # the mantissa plus its implied leading bit, so every integer up to here is exact
+        exact = 2 ** (np.finfo(dtype).nmant + 1)
+        return array.size == 0 or bool(-exact <= int(array.min()) and int(array.max()) <= exact)
     if not np.issubdtype(dtype, np.integer):
         return True
-    if not np.issubdtype(array.dtype, np.integer):
+    if not array_is_integer:
         return False
     if np.can_cast(array.dtype, dtype):
         return True
     limits = np.iinfo(dtype)
-    return array.size == 0 or bool(limits.min <= array.min() and array.max() <= limits.max)
+    return array.size == 0 or bool(limits.min <= int(array.min()) and int(array.max()) <= limits.max)
 
 
 def choose_dtype(
         array: np.ndarray,
-        header_dtype: npt.DTypeLike,
-        prefer_dtype: npt.DTypeLike | None = None,
+        header: _Header,
+        dtype: npt.DTypeLike | None = None,
+        candidates: tuple[npt.DTypeLike, ...] = MGH_DTYPES,
 ) -> np.dtype:
     """
-    The type to store `array` as, never one that would round or clip a value.
+    The type to store `array` as: `dtype` if the caller gave one, else the header's.
 
-    `header_dtype` is what the header asks for, and is used where it holds the data. Where it does
-    not, the narrowest type MGH can store that does is used instead: widening to the array's own
-    type is not enough, since MGH has no int64 and the write would fall back and clip after all.
+    That type is used or nothing is: it may not lose data, and the output format has to be able to
+    store it. Neither is guessed around. Narrowing that would round or clip is the caller's to do,
+    deliberately and outside, because only the caller knows whether the right answer is to cast, to
+    rescale or to refuse. Substituting a type the format does happen to offer would be a guess of
+    the same kind, and a float answered with an integer is not a smaller version of the request but
+    a different file; `storable_dtype` is how a caller asks for that on purpose.
+
+    The byte order is dropped, because the output format decides it: an MGH file is always
+    big-endian, whatever type it stores.
 
     Parameters
     ----------
     array : np.ndarray
         The data to store.
-    header_dtype : npt.DTypeLike
-        The type the header asks for.
-    prefer_dtype : npt.DTypeLike, optional
-        A narrower type to use if the data fits it, ignored otherwise.
+    header : _Header
+        The header, whose type is used when `dtype` is None.
+    dtype : npt.DTypeLike, optional
+        The type to store, overriding the header's.
+    candidates : tuple of npt.DTypeLike, default=MGH_DTYPES
+        Every type the output format can store.
 
     Returns
     -------
     np.dtype
-        The type to write.
-    """
-    header_dtype = np.dtype(header_dtype)
-    if prefer_dtype is not None and fits_dtype(array, prefer_dtype):
-        return np.dtype(prefer_dtype)
-    if np.issubdtype(array.dtype, np.floating) and np.issubdtype(header_dtype, np.integer):
-        # an integer type would round floating-point data away, as it did to the CC soft labels,
-        # which are probabilities written with the header of the conformed image
-        return np.dtype(np.float32)
-    if fits_dtype(array, header_dtype):
-        return header_dtype
+        The type to write, in native byte order.
 
-    # integer data the header cannot hold; the range is read once, not once per candidate
-    low, high = (int(array.min()), int(array.max())) if array.size else (0, 0)
-    wider = next(
-        (np.dtype(t) for t in MGH_INT_DTYPES if np.iinfo(t).min <= low and high <= np.iinfo(t).max),
-        np.dtype(np.float32),
+    Raises
+    ------
+    ValueError
+        If storing `array` as that type would round or clip a value, or if the output format cannot
+        store it at all.
+    """
+    wanted = np.dtype(header.get_data_dtype() if dtype is None else dtype).newbyteorder("=")
+    if not fits_dtype(array, wanted):
+        source = "requested" if dtype is not None else "carried by the header"
+        raise ValueError(
+            f"Refusing to store {array.dtype} data as the {wanted} {source}, because values would "
+            f"be {_damage(array, wanted)}. Convert the data before saving if that is what you want."
+        )
+    if wanted not in tuple(np.dtype(c) for c in candidates):
+        offered = ", ".join(np.dtype(c).name for c in candidates)
+        raise ValueError(
+            f"The output format cannot store {wanted}, only {offered}. Name a type it can store, "
+            f"write the image in a format that can, or call storable_dtype to pick the closest one."
+        )
+    return wanted
+
+
+def _damage(array: np.ndarray, dtype: np.dtype) -> str:
+    """What storing `array` as `dtype` would do to it, for the message that refuses to."""
+    both_integer = np.issubdtype(array.dtype, np.integer) and np.issubdtype(dtype, np.integer)
+    return "clipped" if both_integer else "rounded"
+
+
+def storable_dtype(
+        array: np.ndarray,
+        candidates: tuple[npt.DTypeLike, ...] = MGH_DTYPES,
+) -> np.dtype:
+    """
+    The array's own type if the output format can store it, else the closest one that holds it.
+
+    For an output whose type is not ours to choose. That is `mri/orig/001.mgz`, the archival copy of
+    whatever the scanner or the conversion tool produced, and nothing else: every other output has a
+    type that belongs to the output rather than to the input, so its caller names it and
+    `choose_dtype` refuses anything that does not fit.
+
+    Closest means the same kind first, so a float is never answered with an integer and signed data
+    stays signed, and within the kind the narrowest that holds every value. An MGH file has no
+    float64, so a float64 input is archived as float32; that loss is the reason a copy of the input
+    is better kept in the format it arrived in, which is a decision above this function.
+
+    Parameters
+    ----------
+    array : np.ndarray
+        The data to store.
+    candidates : tuple of npt.DTypeLike, default=MGH_DTYPES
+        Every type the output format can store.
+
+    Returns
+    -------
+    np.dtype
+        The type to write, in native byte order.
+
+    Raises
+    ------
+    ValueError
+        If nothing the format can store holds `array`.
+    """
+    own = np.dtype(array.dtype).newbyteorder("=")
+    offered = tuple(np.dtype(c) for c in candidates)
+    if own in offered:
+        return own
+    by_width = sorted(offered, key=lambda c: (c.itemsize, c.kind))
+    same_kind = [c for c in by_width if c.kind == own.kind]
+    for group in (same_kind, by_width):
+        for candidate in group:
+            if fits_dtype(array, candidate):
+                return candidate
+    raise ValueError(
+        f"The output format cannot store {own}, and none of the types it does store "
+        f"({', '.join(c.name for c in offered)}) holds this data. Write it in a format that can."
     )
-    LOGGER.warning(f"The data does not fit {header_dtype}, writing {wider} instead to avoid clipping.")
-    return wider
 
 
 def as_mgh_image(
         data: np.ndarray,
         affine: AffineMatrix4x4,
-        header: _Header | None = None,
-        prefer_dtype: npt.DTypeLike | None = None,
+        header: _Header,
+        dtype: npt.DTypeLike | None = None,
 ) -> nib.MGHImage:
     """
     Build an MGHImage from data, affine and header, keeping what the conversion would drop.
@@ -335,22 +413,19 @@ def as_mgh_image(
     which is what FreeSurfer keeps, and deriving it from `data` also gets it right when the header
     is inherited from a volume of a different shape.
 
-    The type is never narrowed past what the data holds: floating-point data is not stored as an
-    integer type, and neither is a value the header's type cannot represent, since both lose data
-    silently. Where the header does not fit, the narrowest type MGH can store that does is used.
-
     Parameters
     ----------
     data : np.ndarray
         An array containing image data.
     affine : AffineMatrix4x4
         Image affine information.
-    header : _Header, optional
-        Image header information; a non-MGH header is converted.
-    prefer_dtype : npt.DTypeLike, optional
-        A narrower type to use if the data fits it, for callers who know what their output should
-        be, such as the uchar aseg files. Ignored when it would round or clip a value, so it cannot
-        be used to force a lossy type; `save_image` takes a `dtype` for that.
+    header : _Header
+        Image header information; a non-MGH header is converted. Required: the affine covers the
+        geometry, but the header is the only carrier of the acquisition parameters and of the type
+        to store, so a caller with no source image has to say so by passing an `MGHHeader()`.
+    dtype : npt.DTypeLike, optional
+        The type to store, overriding the one the header carries. Neither may lose data nor be one
+        MGH cannot store, see `choose_dtype`.
 
     Returns
     -------
@@ -358,21 +433,12 @@ def as_mgh_image(
         The image, with `fov` and the data type set.
     """
     array = np.asanyarray(data)
-    # without a header, nibabel raises while constructing an image whose type MGH cannot store, so
-    # give it a default one and settle the type below, where the fallback is
-    img = nib.MGHImage(array, affine, MGHHeader() if header is None else header)
+    # before building anything, so a request that cannot be honoured fails where it was made
+    wanted = choose_dtype(array, header, dtype, MGH_DTYPES)
+    img = nib.MGHImage(array, affine, header)
     zooms = img.header.get_zooms()
     img.header["fov"] = max(d * z for d, z in zip(img.shape[:3], zooms[:3], strict=True))
-
-    header_dtype = array.dtype if header is None else header.get_data_dtype()
-    data_dtype = choose_dtype(array, header_dtype, prefer_dtype)
-    try:
-        img.set_data_dtype(data_dtype)
-    except MGHError:
-        # MGH stores uint8, uint16, int16, int32 and float32 only
-        LOGGER.warning(
-            f"An MGH file cannot store {data_dtype}, writing {img.get_data_dtype()} instead."
-        )
+    img.set_data_dtype(wanted)
     return img
 
 
@@ -400,38 +466,38 @@ def save_image(
     save_as : Path, str
         Name under which to save prediction; this determines output file format.
     dtype : npt.DTypeLike, optional
-        Image array type; if provided, the image object is explicitly set to match this type.
+        The type to store, overriding the one the header carries. Neither may lose data nor be one
+        the format cannot store, see `choose_dtype`.
+
+    Notes
+    -----
+    The type is decided the same way for every format. The file name only decides which types are
+    available at all: MGH has no float64 and no int64, NIfTI has both.
     """
     save_as = Path(save_as)
     valid_ext = save_as.suffix[1:] in SUPPORTED_OUTPUT_FILE_FORMATS or save_as.suffixes[-2:] == [".nii", ".gz"]
     assert valid_ext, f"Output filename does not contain a supported file format {SUPPORTED_OUTPUT_FILE_FORMATS}!"
 
+    array = np.asanyarray(img_array)
     if save_as.suffix == ".mgz":
-        mgh_img = as_mgh_image(img_array, affine_info, header_info)
+        img = as_mgh_image(array, affine_info, header_info, dtype)
     elif save_as.suffix == ".nii" or save_as.suffixes[-2:] == [".nii", ".gz"]:
-        mgh_img = nib.nifti1.Nifti1Pair(img_array, affine_info, header_info)
+        wanted = choose_dtype(array, header_info, dtype, NIFTI_DTYPES)
+        img = nib.nifti1.Nifti1Pair(array, affine_info, header_info)
+        img.set_data_dtype(wanted)
+        if np.issubdtype(wanted, np.integer):
+            # left free, nibabel is entitled to add a scale factor of its own, and a label read back
+            # through one is no longer the integer it was written as
+            img.header.set_slope_inter(1, 0)
     else:
         raise ValueError(f"Invalid file extension of {save_as}, must be .mgz, .nii or .nii.gz!")
 
-    if dtype is not None:
-        # an explicit dtype is the caller's decision, so it is applied as given even where it loses
-        # data, but it says so, and it falls back like the inferred one rather than aborting the run
-        if not fits_dtype(np.asanyarray(img_array), dtype):
-            LOGGER.warning(f"The data does not fit the requested {np.dtype(dtype)}, values will clip.")
-        try:
-            mgh_img.set_data_dtype(dtype)
-        except MGHError:
-            LOGGER.warning(
-                f"An MGH file cannot store {np.dtype(dtype)}, writing {mgh_img.get_data_dtype()} "
-                f"instead."
-            )
-
     if save_as.suffix in (".mgz", ".nii"):
-        nib.save(mgh_img, save_as)
+        nib.save(img, save_as)
     elif save_as.suffixes[-2:] == [".nii", ".gz"]:
         # For correct outputs, nii.gz files should be saved using the nifti1
         # sub-module's save():
-        nib.nifti1.save(mgh_img, str(save_as))
+        nib.nifti1.save(img, str(save_as))
 
 
 # Transformation for mapping

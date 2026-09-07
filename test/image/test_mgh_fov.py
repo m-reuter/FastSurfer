@@ -81,5 +81,7 @@ def test_as_mgh_image_replaces_a_stale_fov():
 
 def test_fov_is_the_largest_extent_not_the_first():
     """The two candidate rules disagree here, and FreeSurfer's mri_info reports 120 for this .mgz."""
-    img = as_mgh_image(np.zeros((40, 200, 80), dtype=np.uint8), np.diag([2.0, 0.5, 1.5, 1.0]))
+    affine = np.diag([2.0, 0.5, 1.5, 1.0])
+    data = np.zeros((40, 200, 80), dtype=np.uint8)
+    img = as_mgh_image(data, affine, nib.MGHImage(data, affine).header)
     assert float(img.header["fov"]) == pytest.approx(120.0)

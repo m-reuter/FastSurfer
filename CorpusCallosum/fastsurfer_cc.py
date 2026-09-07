@@ -905,7 +905,14 @@ def main(
                 futures.append(
                     thread_executor().submit(
                         nib.save,
-                        as_mgh_image(cc_fn_softlabels[..., i], fsaverage_midslab_vox2ras, orig.header),
+                        # probabilities, written with the header of the conformed image, which is
+                        # uchar and would round them all to 0 or 1
+                        as_mgh_image(
+                            cc_fn_softlabels[..., i],
+                            fsaverage_midslab_vox2ras,
+                            orig.header,
+                            dtype=np.float32,
+                        ),
                         sd.filename_by_attribute(f"cc_softlabels_{attr}"),
                     )
                 )

@@ -34,6 +34,7 @@ from typing import Any, Literal, cast
 
 import numpy as np
 import torch
+from numpy import typing as npt
 from yacs.config import CfgNode
 
 import FastSurferCNN.reduce_to_aseg as rta
@@ -315,7 +316,11 @@ class RunModelOnData:
 
         # Save input image to standard location, but only
         if subject.has_attribute("copy_orig_name") and subject.can_resolve_attribute("copy_orig_name"):
-            self.async_save_img(subject.copy_orig_name, orig_data, orig, orig_data.dtype)
+            # the archival copy of the input, so its type is the input's and not ours to name; a
+            # scaled or float64 NIfTI carries one no .mgz can hold, hence the closest that fits
+            self.async_save_img(
+                subject.copy_orig_name, orig_data, orig, du.storable_dtype(orig_data),
+            )
 
         if not is_conform(orig, **self.__conform_kwargs(verbose=True)):
             if (self.orientation is None or self.orientation == "native") and \
@@ -404,7 +409,7 @@ class RunModelOnData:
         save_as: str | Path,
         data: np.ndarray | torch.Tensor,
         orig: nibabelImage,
-        dtype: type | None = None,
+        dtype: npt.DTypeLike | None = None,
     ) -> None:
         """
         Save image as a file.
@@ -427,12 +432,7 @@ class RunModelOnData:
             save_as.parent.mkdir(parents=True)
 
         np_data = data if isinstance(data, np.ndarray) else data.cpu().numpy()
-        if dtype is not None:
-            _header = orig.header.copy()
-            _header.set_data_dtype(dtype)
-        else:
-            _header = orig.header
-        du.save_image(_header, orig.affine, np_data, save_as, dtype=dtype)
+        du.save_image(orig.header, orig.affine, np_data, save_as, dtype=dtype)
         LOGGER.info(f"Successfully saved image {'asynchronously ' if self._async_io else ''}as {save_as}.")
 
     def async_save_img(
@@ -440,7 +440,7 @@ class RunModelOnData:
         save_as: str | Path,
         data: np.ndarray | torch.Tensor,
         orig: nibabelImage,
-        dtype: type | None = None,
+        dtype: npt.DTypeLike | None = None,
     ) -> Future[None]:
         """
         Save the image asynchronously and return a concurrent.futures.Future to track,

@@ -1,14 +1,20 @@
-"""Regression tests for the data type of the .mgz files FastSurfer writes.
+"""Regression tests for the data type of the image files FastSurfer writes.
 
 `MGHHeader.from_header` does not carry the data type over from a non-MGH header: it returns float32
 whatever the source says. Every .mgz written with a header that came from a .nii was therefore stored
 as float32, which is how the 1mm copy CerebNet conforms for a high-res subject became a float32 file
 four times the size of the uint8 one it asked for, holding nothing but integers.
 
-The rule pinned here is that the written type must not depend on the container the header came from.
+Three rules are pinned here.
 
-The aseg files are the second half of the same problem: they inherit the header of the int16
-segmentation they are reduced from, where FreeSurfer, and FastSurfer up to v2.3.3, write uchar.
+- The written type does not depend on the container the header came from, nor on the container it is
+  written to. Only where a format cannot store the answer, as MGH cannot store float64, does the
+  file name change what is written.
+- A type that would round or clip the data is refused, not quietly replaced. Narrowing is the
+  caller's to do, deliberately and outside, because only the caller knows whether to cast, to
+  rescale or to refuse.
+- The aseg files are written as uchar, as FreeSurfer writes them, rather than inheriting the int16
+  of the segmentation they are reduced from.
 """
 
 import nibabel as nib
@@ -16,128 +22,227 @@ import numpy as np
 import pytest
 
 from FastSurferCNN.data_loader.data_utils import (
-    MGH_INT_DTYPES,
+    MGH_DTYPES,
+    NIFTI_DTYPES,
     as_mgh_image,
     choose_dtype,
     fits_dtype,
     load_maybe_conform,
     save_image,
+    storable_dtype,
 )
 from FastSurferCNN.reduce_to_aseg import create_mask_and_save, reduce_to_aseg_and_save
 
 AFFINE = np.eye(4)
 SHAPE = (8, 8, 8)
+BOTH_FORMATS = pytest.mark.parametrize("suffix", [".mgz", ".nii.gz"], ids=["mgz", "nii.gz"])
 
 
-def headers_of(dtype):
-    """The same image as a NIfTI and as an MGH header, plus no header at all."""
+def header_of(dtype, container="mgh"):
+    """A header of `dtype`, in either container."""
     data = np.zeros(SHAPE, dtype=dtype)
-    return {
-        "nifti": nib.Nifti1Image(data, AFFINE).header,
-        "mgh": nib.MGHImage(data, AFFINE).header,
-        "none": None,
-    }
+    if container == "mgh":
+        return nib.MGHImage(data, AFFINE).header
+    # nibabel refuses to guess int64 from the data, so the type is stated either way
+    return nib.Nifti1Image(data, AFFINE, dtype=dtype).header
+
+
+def written(path):
+    """The image at `path`, reloaded, so the assertions are about the file and not the object."""
+    return nib.load(path)
 
 
 @pytest.mark.parametrize("dtype", [np.uint8, np.int16, np.int32, np.float32], ids=str)
-@pytest.mark.parametrize("source", ["nifti", "mgh", "none"])
-def test_dtype_does_not_depend_on_the_source_container(dtype, source):
-    """The bug: a NIfTI header silently produced float32, an MGH header did not."""
-    data = np.zeros(SHAPE, dtype=dtype)
-    img = as_mgh_image(data, AFFINE, headers_of(dtype)[source])
-    # MGH stores big-endian, so compare in native byte order
-    assert img.get_data_dtype().newbyteorder("=") == np.dtype(dtype)
+@pytest.mark.parametrize("source", ["mgh", "nifti"])
+@BOTH_FORMATS
+def test_dtype_depends_on_neither_container(dtype, source, suffix, tmp_path):
+    """The bug: a NIfTI header silently produced float32, an MGH header did not.
 
-
-@pytest.mark.parametrize("with_header", [True, False], ids=["from a header", "headerless"])
-def test_unstorable_dtype_falls_back_instead_of_raising(with_header, caplog):
-    """MGH has no float64. That must degrade to float32 with a warning, not abort a run.
-
-    The headerless case is the one that bites: nibabel raises while constructing the image, before
-    any fallback of ours could run.
+    Extended to the output side, which was never handled at all: the same data and header written
+    as .mgz and as .nii.gz have to end up with the same type.
     """
+    data = np.zeros(SHAPE, dtype=dtype)
+    out_file = tmp_path / f"x{suffix}"
+    save_image(header_of(dtype, source), AFFINE, data, out_file)
+
+    # MGH stores big-endian, so compare in native byte order
+    assert written(out_file).get_data_dtype().newbyteorder("=") == np.dtype(dtype)
+
+
+def test_float64_survives_where_the_format_allows_it(tmp_path):
+    """NIfTI can store float64, so nothing is degraded there."""
     data = np.zeros(SHAPE, dtype=np.float64)
-    data[0, 0, 0] = 0.37
-    header = nib.Nifti1Image(data, AFFINE).header if with_header else None
+    data[0, 0, 0] = 0.1 + 0.2  # not representable in float32
 
-    img = as_mgh_image(data, AFFINE, header)
+    out_file = tmp_path / "x.nii.gz"
+    save_image(header_of(np.float64, "nifti"), AFFINE, data, out_file)
 
-    assert img.get_data_dtype() == np.dtype(">f4")
-    assert "cannot store" in caplog.text
+    assert written(out_file).get_data_dtype() == np.dtype(np.float64)
+    assert np.asarray(written(out_file).dataobj)[0, 0, 0] == 0.1 + 0.2
 
 
-@pytest.mark.parametrize("header_dtype", [np.uint8, np.int16], ids=["uint8", "int16"])
-@pytest.mark.parametrize("container", ["nifti", "mgh", "none"])
-def test_float_data_is_never_stored_as_an_integer(container, header_dtype, tmp_path):
-    """Probabilities must survive, whatever integer type the header carries.
+@pytest.mark.parametrize("container", ["mgh", "nifti"])
+@BOTH_FORMATS
+def test_float_data_with_an_integer_header_is_refused(container, suffix, tmp_path):
+    """Probabilities must never be rounded into a label type, in either direction.
 
     The CC module writes its soft labels with the header of the conformed image, which is uchar, so
-    0.37 was stored as 0 and the probability map came back as a binary mask. An MGH header is the
-    case that matters: nibabel applies its type while constructing the image, not only afterwards.
+    0.37 was stored as 0 and the probability map came back as a binary mask. The module now says
+    float32 at the call site; anything that does not is a bug, and says so.
     """
     soft_labels = np.zeros(SHAPE, dtype=np.float32)
     soft_labels[0, 0, 0] = 0.37
-    integers = np.zeros(SHAPE, dtype=header_dtype)
-    headers = {
-        "nifti": nib.Nifti1Image(integers, AFFINE).header,
-        "mgh": nib.MGHImage(integers, AFFINE).header,
-        "none": None,
-    }
 
-    out_file = tmp_path / "soft.mgz"
-    nib.save(as_mgh_image(soft_labels, AFFINE, headers[container]), out_file)
-
-    written = nib.load(out_file)
-    assert written.get_data_dtype() == np.dtype(">f4")
-    assert np.asarray(written.dataobj)[0, 0, 0] == pytest.approx(0.37)
+    with pytest.raises(ValueError, match="would be rounded"):
+        save_image(header_of(np.uint8, container), AFFINE, soft_labels, tmp_path / f"soft{suffix}")
 
 
-@pytest.mark.parametrize("container", ["nifti", "mgh"])
-def test_integer_data_wider_than_the_header_is_not_clipped(container, tmp_path):
+@pytest.mark.parametrize("container", ["mgh", "nifti"])
+@BOTH_FORMATS
+def test_integer_data_wider_than_the_header_is_refused(container, suffix, tmp_path):
     """The mirror of the float case: a header narrower than its data must not silently clip it.
 
-    A uchar header with int16 data holding 500 wrote 255, losing the label. The NIfTI path used to
-    escape it only because the type was dropped entirely and everything became float32.
+    A uchar header with int16 data holding 500 wrote 255, losing the label. The NIfTI path escaped
+    the clipping only by rescaling instead, which turns the label into 500.00000059604645.
     """
     labels = np.zeros(SHAPE, dtype=np.int16)
     labels[0, 0, 0] = 500
-    narrow = np.zeros(SHAPE, dtype=np.uint8)
-    header = {
-        "nifti": nib.Nifti1Image(narrow, AFFINE).header,
-        "mgh": nib.MGHImage(narrow, AFFINE).header,
-    }[container]
 
-    out_file = tmp_path / "labels.mgz"
-    nib.save(as_mgh_image(labels, AFFINE, header), out_file)
+    with pytest.raises(ValueError, match="would be clipped"):
+        save_image(header_of(np.uint8, container), AFFINE, labels, tmp_path / f"labels{suffix}")
 
-    written = nib.load(out_file)
-    assert written.get_data_dtype() != np.dtype(np.uint8)
-    assert np.asarray(written.dataobj).max() == 500
+
+def test_explicit_dtype_that_would_lose_data_is_refused(tmp_path):
+    """The knob cannot be used to clip. `data.astype(...)` at the call site is how you ask for that."""
+    labels = np.zeros(SHAPE, dtype=np.int16)
+    labels[0, 0, 0] = 500
+
+    with pytest.raises(ValueError, match="would be clipped"):
+        save_image(header_of(np.int16), AFFINE, labels, tmp_path / "forced.mgz", dtype=np.uint8)
+
+
+def test_explicit_dtype_overrides_the_header(tmp_path):
+    """What the knob is for: the aseg is uchar even though its header says int16."""
+    labels = np.zeros(SHAPE, dtype=np.int16)
+    labels[0, 0, 0] = 42
+
+    out_file = tmp_path / "explicit.mgz"
+    save_image(header_of(np.int16), AFFINE, labels, out_file, dtype=np.uint8)
+
+    assert written(out_file).get_data_dtype() == np.dtype(np.uint8)
+    assert np.asarray(written(out_file).dataobj).max() == 42
 
 
 @pytest.mark.parametrize(
-    "values", [[0, 500], [-1, 500], [0, 2 ** 20]], ids=["positive", "signed", "large"],
+    ("values", "expected"),
+    [([0, 250], np.int16), ([-1, 500], np.int16), ([0, 2 ** 20], np.int32)],
+    ids=["small", "signed", "large"],
 )
-def test_widening_picks_a_type_mgh_can_store(values, tmp_path):
-    """int64 is the default integer width here, and MGH cannot store it.
+def test_storable_dtype_moves_up_one_step_at_a_time(values, expected, tmp_path):
+    """int64 is the default integer width in numpy, and MGH cannot store it.
 
-    Widening to the array's own type therefore hit the MGHError fallback, which handed the type back
-    to the narrow header and clipped after all: 500 was written as 255, with two log lines saying
-    first that clipping had been avoided and then that it had not.
-
-    The assertion is the contract, not which type is preferred: the values survive, and the type is
-    one an MGH file can hold.
+    An archival copy of such data has to land on a type the format has: the narrowest that holds
+    every value, and signed, because the source was. Values in 0 to 250 would fit uchar, but
+    changing the signedness of someone else's data is a bigger liberty than a wider file.
     """
     labels = np.zeros(SHAPE, dtype=np.int64)
     labels[0, 0, 0], labels[0, 0, 1] = values
-    header = nib.MGHImage(np.zeros(SHAPE, dtype=np.uint8), AFFINE).header
-
     out_file = tmp_path / "labels.mgz"
-    nib.save(as_mgh_image(labels, AFFINE, header), out_file)
 
-    written = nib.load(out_file)
-    assert set(np.asarray(written.dataobj).flatten().tolist()) == {0, *values}
-    assert written.get_data_dtype().newbyteorder("=") in [np.dtype(t) for t in MGH_INT_DTYPES]
+    save_image(header_of(np.int64, "nifti"), AFFINE, labels, out_file,
+               dtype=storable_dtype(labels))
+
+    assert set(np.asarray(written(out_file).dataobj).flatten().tolist()) == {0, *values}
+    assert written(out_file).get_data_dtype().newbyteorder("=") == np.dtype(expected)
+
+
+@pytest.mark.parametrize("wanted", [np.int64, np.float64], ids=["int64", "float64"])
+def test_a_type_mgh_cannot_store_is_refused(wanted, tmp_path):
+    """MGH has no int64 and no float64, so it says so rather than picking something else.
+
+    Substituting was the earlier behaviour and it could answer a float64 request with uint8, which
+    is not a narrower version of the request but a different file. Callers that genuinely do not
+    choose their own type ask for `storable_dtype` instead.
+    """
+    data = np.zeros(SHAPE, dtype=wanted)
+
+    with pytest.raises(ValueError, match="cannot store"):
+        save_image(header_of(wanted, "nifti"), AFFINE, data, tmp_path / "x.mgz", dtype=wanted)
+
+
+def test_the_exactness_boundary_is_where_the_float_stops_counting():
+    """An integer rounded into a float loses its identity, so a float target has a range too."""
+    fits = np.full(SHAPE, 2 ** 24, dtype=np.int64)
+    assert fits_dtype(fits, np.float32), "float32 counts every integer up to 2**24"
+    assert not fits_dtype(fits + 1, np.float32), "and not the one after it"
+    assert fits_dtype(fits + 1, np.float64), "float64 counts far past it"
+
+
+def test_storable_dtype_keeps_the_kind_and_the_values():
+    """The archival copy of the input, whose type was chosen by whoever produced the file."""
+    for dtype in (np.uint8, np.int16, np.int32, np.float32):
+        own = np.zeros(SHAPE, dtype)
+        assert storable_dtype(own) == np.dtype(dtype), "a storable type is kept as it is"
+
+    # MGH has no float64, and the answer must still be a float rather than the narrowest that fits
+    assert storable_dtype(np.zeros(SHAPE, np.float64)) == np.dtype(np.float32)
+    # nor is an integer request answered with a float
+    assert np.issubdtype(storable_dtype(np.full(SHAPE, 300, np.int64)), np.integer)
+    assert fits_dtype(np.full(SHAPE, 300, np.int64), storable_dtype(np.full(SHAPE, 300, np.int64)))
+
+    with pytest.raises(ValueError, match="cannot store"):
+        storable_dtype(np.full(SHAPE, 2 ** 40, np.int64))
+
+
+def test_storable_dtype_lets_the_archival_copy_be_written(tmp_path):
+    """The one caller: a float64 or scaled NIfTI input copied to mri/orig/001.mgz."""
+    data = np.zeros(SHAPE, dtype=np.float64)
+    data[0, 0, 0] = 0.1 + 0.2
+
+    out_file = tmp_path / "001.mgz"
+    save_image(header_of(np.float64, "nifti"), AFFINE, data, out_file,
+               dtype=storable_dtype(data))
+
+    assert written(out_file).get_data_dtype() == np.dtype(">f4")
+
+
+def test_int64_survives_where_the_format_allows_it(tmp_path):
+    """NIfTI can store int64, so the same data keeps its type there."""
+    labels = np.zeros(SHAPE, dtype=np.int64)
+    labels[0, 0, 0] = 2 ** 40
+
+    out_file = tmp_path / "labels.nii.gz"
+    save_image(header_of(np.int64, "nifti"), AFFINE, labels, out_file)
+
+    assert written(out_file).get_data_dtype() == np.dtype(np.int64)
+    assert np.asarray(written(out_file).dataobj).max() == 2 ** 40
+
+
+def test_an_integer_nifti_carries_no_scale_factor(tmp_path):
+    """Left free, nibabel may add one, and a label read back through a scale is no longer an integer.
+
+    Pinned rather than assumed, because the slope is only visible in the file: nibabel folds it into
+    the array proxy on load and blanks the header field.
+    """
+    labels = np.zeros(SHAPE, dtype=np.int16)
+    labels[0, 0, 0] = 253
+
+    out_file = tmp_path / "labels.nii.gz"
+    save_image(header_of(np.int16, "nifti"), AFFINE, labels, out_file)
+
+    assert written(out_file).dataobj.slope == 1.0
+    assert written(out_file).dataobj.inter == 0.0
+    assert np.asarray(written(out_file).dataobj)[0, 0, 0] == 253
+
+
+def test_header_is_required():
+    """The affine covers the geometry, but only the header carries the acquisition parameters.
+
+    Every caller has one. Leaving the argument optional meant a headerless call fell through to the
+    data's own type, which for int64 is a type no MGH file can store.
+    """
+    with pytest.raises(TypeError):
+        as_mgh_image(np.zeros(SHAPE, dtype=np.uint8), AFFINE)
 
 
 def test_choose_dtype():
@@ -145,60 +250,34 @@ def test_choose_dtype():
     labels = np.zeros(SHAPE, np.int16)
     probabilities = np.zeros(SHAPE, np.float32)
 
-    assert choose_dtype(labels, np.int16) == np.dtype(np.int16), "the header holds it"
-    assert choose_dtype(labels, np.int16, np.uint8) == np.dtype(np.uint8), "narrowed on request"
-    assert choose_dtype(probabilities, np.uint8) == np.dtype(np.float32), "a float is not rounded"
-    assert choose_dtype(probabilities, np.uint8, np.uint8) == np.dtype(np.float32), "nor on request"
+    assert choose_dtype(labels, header_of(np.int16)) == np.dtype(np.int16), "the header holds it"
+    assert choose_dtype(labels, header_of(np.int16), np.uint8) == np.dtype(np.uint8), "narrowed on request"
+    # the byte order belongs to the format, not to the decision
+    assert choose_dtype(labels, header_of(np.int16)).byteorder in "=|"
 
-    wide = np.full(SHAPE, 500, np.int64)
-    assert choose_dtype(wide, np.uint8) == np.dtype(np.int16), "widened past a header that clips"
-    assert choose_dtype(wide, np.uint8, np.uint8) == np.dtype(np.int16), "a request cannot clip"
-    # narrowest first, so a value needing more range moves up one step at a time
-    assert choose_dtype(np.full(SHAPE, 2 ** 20, np.int64), np.uint8) == np.dtype(np.int32)
-
-
-def test_prefer_dtype_is_ignored_when_it_would_lose_data(tmp_path):
-    """The narrowing knob is a preference, not a force, so it cannot be used to clip."""
-    labels = np.zeros(SHAPE, dtype=np.int16)
-    labels[0, 0, 0] = 500
-    header = nib.MGHImage(labels, AFFINE).header
-
-    fitting = as_mgh_image(np.zeros(SHAPE, dtype=np.int16), AFFINE, header, prefer_dtype=np.uint8)
-    assert fitting.get_data_dtype() == np.dtype(np.uint8), "honoured where the data fits"
-
-    out_file = tmp_path / "labels.mgz"
-    nib.save(as_mgh_image(labels, AFFINE, header, prefer_dtype=np.uint8), out_file)
-    written = nib.load(out_file)
-    assert written.get_data_dtype() != np.dtype(np.uint8)
-    assert np.asarray(written.dataobj).max() == 500
-
-
-def test_explicit_dtype_says_when_it_clips(tmp_path, caplog):
-    """save_image still forces the type, since run_prediction narrows with it, but no longer silently."""
-    labels = np.zeros(SHAPE, dtype=np.int16)
-    labels[0, 0, 0] = 500
-    header = nib.MGHImage(labels, AFFINE).header
-
-    out_file = tmp_path / "forced.mgz"
-    save_image(header, AFFINE, labels, out_file, dtype=np.uint8)
-
-    assert nib.load(out_file).get_data_dtype() == np.dtype(np.uint8), "the caller's decision stands"
-    assert "does not fit" in caplog.text
+    with pytest.raises(ValueError, match="would be rounded"):
+        choose_dtype(probabilities, header_of(np.uint8))
+    with pytest.raises(ValueError, match="would be rounded"):
+        choose_dtype(probabilities, header_of(np.int16), np.uint8)
+    with pytest.raises(ValueError, match="would be clipped"):
+        choose_dtype(np.full(SHAPE, 500, np.int16), header_of(np.uint8))
 
 
 def test_fits_dtype():
-    """The shared rule the writers narrow by."""
+    """The shared rule the writers decide by."""
     assert fits_dtype(np.zeros(SHAPE, np.int16), np.uint8), "in range"
     assert not fits_dtype(np.full(SHAPE, 500, np.int16), np.uint8), "above the range"
     assert not fits_dtype(np.full(SHAPE, -1, np.int16), np.uint8), "below the range"
     assert not fits_dtype(np.zeros(SHAPE, np.float32), np.uint8), "a float would be rounded"
     assert fits_dtype(np.zeros(SHAPE, np.uint8), np.int16), "widening always fits"
-    assert fits_dtype(np.zeros(SHAPE, np.int16), np.float32), "a float target holds any integer"
+    assert fits_dtype(np.zeros(SHAPE, np.int16), np.float32), "a float holds a small integer"
+    assert not fits_dtype(np.full(SHAPE, 2 ** 40, np.int64), np.float32), "but not a large one"
+    assert fits_dtype(np.zeros(SHAPE, np.float64), np.float32), "a float may lose only precision"
     assert fits_dtype(np.zeros((0,), np.int16), np.uint8), "an empty array has nothing to clip"
 
 
 def test_only_the_type_changes_not_the_rest_of_the_header(tmp_path):
-    """Widening the type must not cost the header. Only the type is ours to override."""
+    """Setting the type must not cost the header. Only the type is ours to override."""
     source = nib.MGHImage(np.zeros(SHAPE, dtype=np.uint8), AFFINE)
     # the keys are MGH header field names, hence the ignore for the echo time one
     acquisition = {"tr": 2300.0, "te": 2.98, "ti": 900.0, "flip_angle": 0.15708}  # codespell:ignore te
@@ -208,24 +287,22 @@ def test_only_the_type_changes_not_the_rest_of_the_header(tmp_path):
     soft_labels = np.zeros(SHAPE, dtype=np.float32)
     soft_labels[0, 0, 0] = 0.37
     out_file = tmp_path / "soft.mgz"
-    nib.save(as_mgh_image(soft_labels, AFFINE, source.header), out_file)
+    nib.save(as_mgh_image(soft_labels, AFFINE, source.header, dtype=np.float32), out_file)
 
-    written = nib.load(out_file)
-    assert written.get_data_dtype() == np.dtype(">f4"), "the type is widened"
+    assert written(out_file).get_data_dtype() == np.dtype(">f4"), "the requested type is used"
     for field, value in acquisition.items():
-        assert float(written.header[field]) == pytest.approx(value), f"{field} survives"
-    assert np.allclose(written.affine, AFFINE)
+        assert float(written(out_file).header[field]) == pytest.approx(value), f"{field} survives"
+    assert np.allclose(written(out_file).affine, AFFINE)
 
 
-def test_explicit_dtype_still_wins(tmp_path):
-    """save_image(dtype=...) overrides whatever the header carried."""
-    data = np.zeros(SHAPE, dtype=np.float32)
-    header = nib.Nifti1Image(data, AFFINE).header
+def test_the_caller_header_is_not_modified():
+    """The aseg and the mask are written from one header on two threads, so it must not be touched."""
+    header = header_of(np.uint8)
+    before = (header.get_data_dtype(), float(header["fov"]))
 
-    out_file = tmp_path / "explicit.mgz"
-    save_image(header, AFFINE, data, out_file, dtype=np.uint8)
+    as_mgh_image(np.zeros(SHAPE, dtype=np.uint8), AFFINE, header, dtype=np.int16)
 
-    assert nib.load(out_file).get_data_dtype() == np.dtype(np.uint8)
+    assert (header.get_data_dtype(), float(header["fov"])) == before
 
 
 def dkt_segmentation():
@@ -244,10 +321,9 @@ def test_aseg_is_written_as_uchar(tmp_path):
     out_file = tmp_path / "aseg.auto.mgz"
     reduce_to_aseg_and_save(seg, AFFINE, header, out_file)
 
-    written = nib.load(out_file)
-    assert written.get_data_dtype() == np.dtype(np.uint8)
+    assert written(out_file).get_data_dtype() == np.dtype(np.uint8)
     # the labels survive the narrowing: cortex became 3 and 42, the rest is unchanged
-    assert set(np.unique(np.asarray(written.dataobj))) == {0, 3, 17, 42, 251}
+    assert set(np.unique(np.asarray(written(out_file).dataobj))) == {0, 3, 17, 42, 251}
 
 
 def test_mask_is_written_as_uchar(tmp_path):
@@ -259,46 +335,32 @@ def test_mask_is_written_as_uchar(tmp_path):
     out_file = tmp_path / "mask.mgz"
     create_mask_and_save(seg, AFFINE, header, out_file)
 
-    assert nib.load(out_file).get_data_dtype() == np.dtype(np.uint8)
+    assert written(out_file).get_data_dtype() == np.dtype(np.uint8)
 
 
 def label_above_255():
     seg = dkt_segmentation()
     seg[4] = 500
-    return seg, 500.0
+    return seg
 
 
 def negative_label():
     seg = dkt_segmentation()
     seg[4] = -1
-    return seg, -1.0
+    return seg
 
 
-def fractional_float():
-    # 17.5 is exact in float32, so the assertion tests the narrowing and not float promotion
-    seg = dkt_segmentation().astype(np.float32)
-    seg[4] = 17.5
-    return seg, 17.5
+@pytest.mark.parametrize("case", [label_above_255, negative_label], ids=["above 255", "negative"])
+def test_an_aseg_uchar_would_damage_is_refused(case, tmp_path):
+    """reduce_to_aseg asks for uchar because an aseg has no label outside it.
 
-
-@pytest.mark.parametrize(
-    "case", [label_above_255, negative_label, fractional_float],
-    ids=["above 255", "negative", "fractional float"],
-)
-def test_data_that_uchar_would_damage_is_not_narrowed(case, tmp_path):
-    """Narrowing must never round or clip. Only integer labels within 0 to 255 are eligible.
-
-    Without the range and dtype check, uchar turned 17.6 into 18 and -1 into 0, silently.
+    If one ever appears, that is a bug upstream, and it has to surface rather than be papered over
+    by writing a type FreeSurfer does not expect here.
     """
-    seg, sentinel = case()
-    header = nib.MGHImage(seg, AFFINE).header
+    header = nib.MGHImage(case(), AFFINE).header
 
-    out_file = tmp_path / "wide.mgz"
-    reduce_to_aseg_and_save(seg, AFFINE, header, out_file)
-
-    written = nib.load(out_file)
-    assert written.get_data_dtype() != np.dtype(np.uint8)
-    assert sentinel in np.asarray(written.dataobj)
+    with pytest.raises(ValueError, match="would be clipped"):
+        reduce_to_aseg_and_save(case(), AFFINE, header, tmp_path / "wide.mgz")
 
 
 def test_conformed_copy_of_a_float_input_is_not_float(tmp_path):
@@ -318,4 +380,27 @@ def test_conformed_copy_of_a_float_input_is_not_float(tmp_path):
         dtype=np.uint8,
     )
 
-    assert nib.load(out_file).get_data_dtype() == np.dtype(np.uint8)
+    assert written(out_file).get_data_dtype() == np.dtype(np.uint8)
+
+
+@pytest.mark.parametrize(
+    ("candidates", "container"), [(MGH_DTYPES, nib.MGHImage), (NIFTI_DTYPES, nib.Nifti1Image)],
+    ids=["mgz", "nii.gz"],
+)
+def test_the_dtype_lists_are_what_the_format_really_takes(candidates, container):
+    """The lists decide what is refused, so a missing entry refuses something that would have worked.
+
+    Checked against nibabel rather than trusted, because that is the only authority on it.
+    """
+    every = (np.uint8, np.int8, np.uint16, np.int16, np.uint32, np.int32,
+             np.uint64, np.int64, np.float32, np.float64)
+    accepted = set()
+    for dtype in every:
+        img = container(np.zeros((2, 2, 2), np.uint8), AFFINE)
+        try:
+            img.set_data_dtype(dtype)
+            accepted.add(np.dtype(dtype))
+        except Exception:  # noqa: BLE001  the format refusing is the answer we want
+            pass
+
+    assert {np.dtype(c) for c in candidates} == accepted
