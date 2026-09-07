@@ -58,7 +58,7 @@ _C.VAL_CSV_FILE_PATH = "val_split.csv"
 
 # Default name of original images. FreeSurfer orig.mgz is default (mri/orig.mgz)
 # or native_t1.nii for image in native space
-_C.IMAGE_NAME = "mri/orig/001.mgz"
+_C.IMAGE_NAME = "mri/rawavg.mgz"
 
 # Name of the cerebellum sub-segmentation file,
 # SUIT labels: suit_fs_merged_cleaned.mgz

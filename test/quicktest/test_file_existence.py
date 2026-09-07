@@ -15,7 +15,18 @@ def expected_files() -> set[str]:
         return set(yaml.safe_load(fp)["files"])
 
 
-def test_file_existence(test_subject: SubjectDefinition, expected_files: set[str]):
+@pytest.fixture(scope="session")
+def expected_patterns() -> list[str]:
+    """Globs, for the outputs whose name depends on the input, see the yaml."""
+    with open(Path(__file__).parent / "data/expected-files.yaml") as fp:
+        return list(yaml.safe_load(fp).get("file_patterns", []))
+
+
+def test_file_existence(
+        test_subject: SubjectDefinition,
+        expected_files: set[str],
+        expected_patterns: list[str],
+):
     """
     Test the existence of files for the subject test_subject.
 
@@ -25,6 +36,8 @@ def test_file_existence(test_subject: SubjectDefinition, expected_files: set[str
         Definition of the test subject.
     expected_files : set of str
         The set of files expected to be present in the subject.
+    expected_patterns : list of str
+        Globs that each have to match at least one file in the subject.
 
     Raises
     ------
@@ -41,5 +54,8 @@ def test_file_existence(test_subject: SubjectDefinition, expected_files: set[str
     # Check if each file in the reference list exists in the test list
     missing_files = expected_files - files_for_test_subject
     assert files_for_test_subject >= expected_files, f"Files {tuple(missing_files)} do not exist in test subject."
+
+    unmatched = [p for p in expected_patterns if not any(Path(test_subject.path).glob(p))]
+    assert unmatched == [], f"Patterns {tuple(unmatched)} match no file in test subject."
 
     logger.debug("All files present.")
