@@ -1,10 +1,10 @@
-"""Regression tests for the field-of-view header field of the .mgz files FastSurfer writes.
+"""Tests for the field-of-view header field of the .mgz files FastSurfer writes.
 
-``MGHHeader`` defaults ``fov`` to 0 and a NIfTI header has no ``fov`` at all, so every .mgz written
-from a NIfTI input carried ``fov=0``, while the files FreeSurfer writes carry the real extent. The
-value pinned here is the one FreeSurfer computes for an MGZ, the largest of the three extents, which
-``mri_info`` reports regardless of what the file stores. These tests cover both the header ``conform``
-builds and one inherited from a volume of a different shape.
+``MGHHeader`` defaults ``fov`` to 0 and a NIfTI header has no ``fov`` at all, so ``as_mgh_image``
+sets it from the data rather than leaving it to the conversion. The value is the one FreeSurfer
+keeps, the largest of the three extents, which ``mri_info`` reports regardless of what the file
+stores. These tests cover both the header ``conform`` builds and one inherited from a volume of a
+different shape.
 """
 
 import nibabel as nib
@@ -81,5 +81,7 @@ def test_as_mgh_image_replaces_a_stale_fov():
 
 def test_fov_is_the_largest_extent_not_the_first():
     """The two candidate rules disagree here, and FreeSurfer's mri_info reports 120 for this .mgz."""
-    img = as_mgh_image(np.zeros((40, 200, 80), dtype=np.uint8), np.diag([2.0, 0.5, 1.5, 1.0]))
+    affine = np.diag([2.0, 0.5, 1.5, 1.0])
+    data = np.zeros((40, 200, 80), dtype=np.uint8)
+    img = as_mgh_image(data, affine, nib.MGHImage(data, affine).header)
     assert float(img.header["fov"]) == pytest.approx(120.0)

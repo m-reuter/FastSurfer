@@ -238,7 +238,8 @@ def create_mask_and_save(
     mask_data = create_mask(seg, 5, 4)
     if filename is not None:
         LOGGER.info(f"Outputting mask: {filename}")
-        mask = as_mgh_image(mask_data, seg_affine, seg_header)
+        # a mask is uchar, like the aseg, and not the type of the segmentation it was derived from
+        mask = as_mgh_image(mask_data, seg_affine, seg_header, dtype=np.uint8)
         mask.to_filename(filename)
     return mask_data
 
@@ -254,8 +255,10 @@ def reduce_to_aseg_and_save(
 
     if filename is not None:
         LOGGER.info(f"Outputting aseg: {filename}")
-        mask = as_mgh_image(_data, seg_affine, seg_header)
-        mask.to_filename(filename)
+        # an aseg has no label above 255 and FreeSurfer writes these files as uchar, so ask for it
+        # rather than inheriting the type of the segmentation this was reduced from
+        image = as_mgh_image(_data, seg_affine, seg_header, dtype=np.uint8)
+        image.to_filename(filename)
     return _data
 
 
@@ -270,9 +273,6 @@ if __name__ == "__main__":
     inseg_data = np.asanyarray(inseg.dataobj)
     inseg_header = inseg.header
     inseg_affine = inseg.affine
-
-    # Change datatype to np.uint8
-    inseg_header.set_data_dtype(np.uint8)
 
     # get mask
     if options.output_mask:
@@ -299,7 +299,7 @@ if __name__ == "__main__":
         aseg = flip_wm_islands(aseg)
 
     LOGGER.info(f"Outputting aseg: {options.output_seg}")
-    aseg_fin = as_mgh_image(aseg, inseg_affine, inseg_header)
+    aseg_fin = as_mgh_image(aseg, inseg_affine, inseg_header, dtype=np.uint8)
     aseg_fin.to_filename(options.output_seg)
 
     sys.exit(0)
