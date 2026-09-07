@@ -166,8 +166,10 @@ def test_storable_dtype_writes_the_archival_copy(data, expected, tmp_path):
 def test_a_type_mgh_cannot_store_is_refused(wanted, tmp_path):
     """MGH has no int64 and no float64, so it says so rather than picking something else.
 
-    A float64 request answered with an integer would not be a narrower version of the request but a
-    different file. Callers that do not choose their own type ask for `storable_dtype` instead.
+    The format is asked rather than checked against a list, so this also covers a type nobody
+    thought to enumerate. A float64 request answered with an integer would not be a narrower version
+    of the request but a different file; callers that do not choose their own type ask for
+    `storable_dtype` instead.
     """
     data = np.zeros(SHAPE, dtype=wanted)
 
@@ -189,6 +191,23 @@ def test_storable_dtype_keeps_the_kind_and_the_values():
 
     with pytest.raises(ValueError, match="cannot store"):
         storable_dtype(np.full(SHAPE, 2 ** 40, np.int64))
+
+
+@pytest.mark.parametrize("conf_name", ["orig.mgz", "orig.nii.gz"], ids=["mgz", "nii.gz"])
+def test_the_image_handed_back_is_the_one_written(conf_name, tmp_path):
+    """save_image returns what it wrote, so load_maybe_conform's caller gets the right container."""
+    affine = np.diag([0.8, 0.8, 0.8, 1.0])
+    affine[:3, 3] = -128.0
+    voxels = np.zeros((64, 64, 64), dtype=np.uint8)
+    nib.save(nib.Nifti1Image(voxels, affine), tmp_path / "T1.nii.gz")
+
+    out_file, img, _ = load_maybe_conform(
+        tmp_path / conf_name, tmp_path / "T1.nii.gz",
+        vox_size=1.0, img_size="auto", orientation="lia", order=1, dtype=np.uint8,
+    )
+
+    assert out_file.name.endswith(conf_name.split(".", 1)[1])
+    assert isinstance(img, nib.MGHImage) == conf_name.endswith(".mgz")
 
 
 def test_an_integer_nifti_carries_no_scale_factor(tmp_path):

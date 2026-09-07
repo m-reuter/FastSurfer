@@ -271,8 +271,7 @@ if __name__ == "__main__":
     LOGGER.info(f"Reading in aparc+aseg: {options.input_seg} ...")
     inseg = cast(nibabelImage, nib.load(options.input_seg))
     inseg_data = np.asanyarray(inseg.dataobj)
-    # a copy, since it outlives the load and is handed to a thread below
-    inseg_header = inseg.header.copy()
+    inseg_header = inseg.header
     inseg_affine = inseg.affine
 
     # get mask
