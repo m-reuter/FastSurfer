@@ -18,17 +18,20 @@ Put the input images into the subject directory: an archival copy, and the rawav
 ``mri/orig/001.<ext>`` is a byte-for-byte copy of the input, in the format it arrived in, so no
 header field, scale factor or data type is lost. Nothing in FastSurfer reads it back; it is there so
 the subject directory records what was processed. A T2 is copied the same way, as
-``mri/orig/T2.001.<ext>``.
+``mri/orig/T2raw.<ext>``.
 
 ``mri/rawavg.mgz`` is the copy the tools read. ``pctsurfcon`` builds that path itself and hardcodes
 the name, so it has to be an MGH file whatever the input was. Where the input is already an .mgz it
 is a symlink to the archival copy; otherwise it is converted, through ``save_image`` rather than
 nibabel directly, because a plain nibabel write leaves ``fov`` at 0 and FreeSurfer reports that
-field as the field of view. A T2 gets the same pair, ``mri/T2.rawavg.mgz``.
+field as the field of view. The T2 equivalent is ``mri/orig/T2raw.mgz``, which for an .mgz input is
+the archival copy itself.
 
-The name 001 is historic: 001, 002 and so on were the separate runs of one session, which FreeSurfer
-registered and averaged into rawavg. FastSurfer takes a single input and conforms it instead, so
-rawavg here is that one input rather than an average.
+The names follow recon-all: it converts a ``-T2`` input to ``mri/orig/T2raw.mgz`` with
+``--no_scale 1``, and ``samseg`` and ``-T2pial`` look for it there. 001 is historic, 001, 002 and so
+on being the separate runs of one session that FreeSurfer registered and averaged into rawavg;
+FastSurfer takes a single input and conforms it instead, so rawavg here is that one input rather
+than an average.
 """
 
 import argparse
@@ -45,7 +48,7 @@ from FastSurferCNN.utils import logging
 LOGGER = logging.getLogger(__name__)
 
 RAWAVG_NAME = "rawavg.mgz"
-T2_RAWAVG_NAME = "T2.rawavg.mgz"
+T2_RAWAVG_NAME = "orig/T2raw.mgz"
 
 
 def image_suffix(path: Path) -> str:
@@ -110,6 +113,10 @@ def write_rawavg(source: Path, rawavg: Path) -> None:
         The `mri/rawavg.mgz` to create.
     """
     rawavg.parent.mkdir(parents=True, exist_ok=True)
+    if source.resolve() == rawavg.resolve():
+        # an .mgz T2, whose archival copy is already at the name the tools read
+        LOGGER.info(f"{rawavg} is the archival copy, nothing to convert.")
+        return
     if rawavg.is_symlink() or rawavg.exists():
         rawavg.unlink()
 
@@ -167,7 +174,7 @@ def main(t1: Path, sd: Path, sid: str, t2: Path | None = None) -> int:
     # (modality, source, name for the archival copy, name for the mgz the tools read)
     inputs = [("T1", t1, "001", RAWAVG_NAME)]
     if t2 is not None:
-        inputs.append(("T2", t2, "T2.001", T2_RAWAVG_NAME))
+        inputs.append(("T2", t2, "T2raw", T2_RAWAVG_NAME))
 
     for modality, source, _stem, _rawavg in inputs:
         if not source.is_file():

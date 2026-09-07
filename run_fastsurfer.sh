@@ -692,8 +692,9 @@ if [[ -z "$build_log" ]] ; then build_log="$subject_dir/scripts/build.log" ; fi
 if [[ -n "$t2" ]] && [[ "$run_seg_pipeline" == "true" ]]
 then
   if [[ ! -f "$t2" ]] ; then echo "ERROR: T2 file $t2 does not exist!" ; exit 1 ; fi
-  # written by copy_input.py, which also places the verbatim copy in mri/orig
-  rawavg_name_t2="$subject_dir/mri/T2.rawavg.mgz"
+  # written by copy_input.py, which also places the verbatim copy beside it; recon-all converts a
+  # -T2 input to this same path, so samseg and -T2pial find it where they expect
+  rawavg_name_t2="$subject_dir/mri/orig/T2raw.mgz"
 fi
 
 if [[ -z "$PYTHONUNBUFFERED" ]] ; then export PYTHONUNBUFFERED=0 ; fi

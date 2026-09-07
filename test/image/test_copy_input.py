@@ -108,8 +108,8 @@ def test_rerunning_replaces_an_existing_rawavg(tmp_path):
     assert rawavg.is_symlink()
 
 
-def test_a_t2_gets_the_same_pair(tmp_path):
-    """N4 reads the T2 rawavg, so both halves have to be there."""
+def test_a_nifti_t2_is_archived_and_converted(tmp_path):
+    """N4 reads mri/orig/T2raw.mgz, the path recon-all also converts a -T2 input to."""
     t1 = mgh(tmp_path / "t1.mgz")
     t2 = scaled_nifti(tmp_path / "t2.nii.gz")
 
@@ -117,10 +117,22 @@ def test_a_t2_gets_the_same_pair(tmp_path):
 
     mri = tmp_path / "sub" / "mri"
     assert filecmp.cmp(t1, mri / "orig" / "001.mgz", shallow=False)
-    assert filecmp.cmp(t2, mri / "orig" / "T2.001.nii.gz", shallow=False)
+    assert filecmp.cmp(t2, mri / "orig" / "T2raw.nii.gz", shallow=False)
     assert (mri / RAWAVG_NAME).is_symlink(), "the T1 was an mgz"
-    assert (mri / T2_RAWAVG_NAME).exists() and not (mri / T2_RAWAVG_NAME).is_symlink()
     assert nib.load(mri / T2_RAWAVG_NAME).get_data_dtype() == np.dtype(">f4")
+
+
+def test_an_mgz_t2_needs_only_one_file(tmp_path):
+    """Its archival copy already sits at the name the tools read, so there is nothing to convert."""
+    t1 = scaled_nifti(tmp_path / "t1.nii.gz")
+    t2 = mgh(tmp_path / "t2.mgz")
+
+    assert main(t1=t1, sd=tmp_path, sid="sub", t2=t2) == 0
+
+    t2raw = tmp_path / "sub" / "mri" / T2_RAWAVG_NAME
+    assert t2raw == tmp_path / "sub" / "mri" / "orig" / "T2raw.mgz"
+    assert not t2raw.is_symlink(), "it is the copy, not a link to one"
+    assert filecmp.cmp(t2, t2raw, shallow=False)
 
 
 def test_a_missing_input_is_reported(tmp_path):
@@ -129,5 +141,5 @@ def test_a_missing_input_is_reported(tmp_path):
     assert not (tmp_path / "sub").exists()
 
     t1 = mgh(tmp_path / "t1.mgz")
-    assert main(t1=t1, sd=tmp_path, sid="sub", t2=tmp_path / "absent.nii.gz") == 1
+    assert main(t1=t1, sd=tmp_path, sid="sub", t2=tmp_path / "absent.mgz") == 1
     assert not (tmp_path / "sub").exists(), "the T1 is not copied when the T2 is missing"
