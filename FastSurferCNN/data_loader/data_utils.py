@@ -237,8 +237,8 @@ def load_maybe_conform(
             src_file, logger=logging.getLogger(__name__ + ".conform"), **conform_kwargs,
         )
 
-        # after conforming, save the conformed file; the image returned is the one written, so a
-        # .nii conf_name is not handed back as an MGHImage and the type is decided only once
+        # save the conformed file and hand back the image that was written, so the container
+        # matches the file and the type is decided once
         img = save_image(header, affine, data, dst_file)
     return dst_file, img, data
 
@@ -249,9 +249,8 @@ def fits_dtype(array: np.ndarray, dtype: npt.DTypeLike) -> bool:
 
     An integer loses its identity as surely by being rounded into a float as by being clipped, so a
     float target holds integers only as far as it counts exactly: 2**24 for float32, 2**53 for
-    float64. Narrowing a value that was already floating-point is not counted, because that is a
-    measurement losing digits rather than a label becoming a different label, and it only arises
-    where the output format has left nothing wider to move to.
+    float64. Narrowing a value that was already floating-point counts as fitting, since a
+    measurement losing digits is not a label becoming a different label.
 
     Parameters
     ----------
@@ -294,11 +293,9 @@ def choose_dtype(
     The type to store `array` as: `dtype` if the caller gave one, else the header's.
 
     That type is used or nothing is: it may not lose data, and the output format has to be able to
-    store it. Neither is guessed around. Narrowing that would round or clip is the caller's to do,
-    deliberately and outside, because only the caller knows whether the right answer is to cast, to
-    rescale or to refuse. Substituting a type the format does happen to offer would be a guess of
-    the same kind, and a float answered with an integer is not a smaller version of the request but
-    a different file; `storable_dtype` is how a caller asks for that on purpose.
+    store it. Narrowing that would round or clip is the caller's to do, deliberately and outside,
+    because only the caller knows whether to cast, to rescale or to refuse. `storable_dtype` is how
+    a caller with no type of its own asks for the closest the format offers.
 
     The byte order is dropped, because the output format decides it: an MGH file is always
     big-endian, whatever type it stores.
@@ -350,15 +347,14 @@ def storable_dtype(
     """
     The array's own type if the output format can store it, else the closest one that holds it.
 
-    For an output whose type is not ours to choose. That is `mri/orig/001.mgz`, the archival copy of
-    whatever the scanner or the conversion tool produced, and nothing else: every other output has a
-    type that belongs to the output rather than to the input, so its caller names it and
-    `choose_dtype` refuses anything that does not fit.
+    For an output whose type is not ours to choose: `mri/orig/001.mgz`, the archival copy of
+    whatever the scanner or the conversion tool produced. Every other output has a type that belongs
+    to the output rather than to the input, so its caller names it and `choose_dtype` refuses
+    anything that does not fit.
 
     Closest means the same kind first, so a float is never answered with an integer and signed data
     stays signed, and within the kind the narrowest that holds every value. An MGH file has no
-    float64, so a float64 input is archived as float32; that loss is the reason a copy of the input
-    is better kept in the format it arrived in, which is a decision above this function.
+    float64, so a float64 input is archived as float32.
 
     Parameters
     ----------
@@ -400,14 +396,12 @@ def as_mgh_image(
         dtype: npt.DTypeLike | None = None,
 ) -> nib.MGHImage:
     """
-    Build an MGHImage from data, affine and header, keeping what the conversion would drop.
+    Build an MGHImage from data, affine and header, and set the two fields the conversion drops.
 
     `MGHHeader.from_header` carries neither the field of view nor the data type over from a non-MGH
-    header, so an .mgz written with a header that came from a .nii ended up with `fov=0` and stored
-    as float32, whatever the data or the caller asked for. Both are restored here, so the file does
-    not depend on the container its header came from. The fov is the largest of the three extents,
-    which is what FreeSurfer keeps, and deriving it from `data` also gets it right when the header
-    is inherited from a volume of a different shape.
+    header, so both are set here and the file does not depend on the container its header came from.
+    The fov is the largest of the three extents, as FreeSurfer keeps it, taken from `data` so that
+    it is right even where the header is inherited from a volume of a different shape.
 
     Parameters
     ----------

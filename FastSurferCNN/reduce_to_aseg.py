@@ -255,8 +255,8 @@ def reduce_to_aseg_and_save(
 
     if filename is not None:
         LOGGER.info(f"Outputting aseg: {filename}")
-        # FreeSurfer writes the aseg files as uchar, and an aseg has no label above 255. Without
-        # this, the int16 of the segmentation it is reduced from carries over.
+        # an aseg has no label above 255 and FreeSurfer writes these files as uchar, so ask for it
+        # rather than inheriting the type of the segmentation this was reduced from
         image = as_mgh_image(_data, seg_affine, seg_header, dtype=np.uint8)
         image.to_filename(filename)
     return _data

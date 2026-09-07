@@ -316,8 +316,8 @@ class RunModelOnData:
 
         # Save input image to standard location, but only
         if subject.has_attribute("copy_orig_name") and subject.can_resolve_attribute("copy_orig_name"):
-            # the archival copy of the input, so its type is the input's and not ours to name; a
-            # scaled or float64 NIfTI carries one no .mgz can hold, hence the closest that fits
+            # an archival copy, so the type is the input's rather than one we name; a scaled or
+            # float64 NIfTI carries one no .mgz can hold, hence the closest the format offers
             self.async_save_img(
                 subject.copy_orig_name, orig_data, orig, du.storable_dtype(orig_data),
             )

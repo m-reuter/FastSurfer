@@ -1,10 +1,10 @@
-"""Regression tests for the field-of-view header field of the .mgz files FastSurfer writes.
+"""Tests for the field-of-view header field of the .mgz files FastSurfer writes.
 
-``MGHHeader`` defaults ``fov`` to 0 and a NIfTI header has no ``fov`` at all, so every .mgz written
-from a NIfTI input carried ``fov=0``, while the files FreeSurfer writes carry the real extent. The
-value pinned here is the one FreeSurfer computes for an MGZ, the largest of the three extents, which
-``mri_info`` reports regardless of what the file stores. These tests cover both the header ``conform``
-builds and one inherited from a volume of a different shape.
+``MGHHeader`` defaults ``fov`` to 0 and a NIfTI header has no ``fov`` at all, so ``as_mgh_image``
+sets it from the data rather than leaving it to the conversion. The value is the one FreeSurfer
+keeps, the largest of the three extents, which ``mri_info`` reports regardless of what the file
+stores. These tests cover both the header ``conform`` builds and one inherited from a volume of a
+different shape.
 """
 
 import nibabel as nib

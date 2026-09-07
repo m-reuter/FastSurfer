@@ -1,11 +1,8 @@
-"""Regression tests for the data type of the image files FastSurfer writes.
+"""Tests for the data type of the image files FastSurfer writes.
 
 `MGHHeader.from_header` does not carry the data type over from a non-MGH header: it returns float32
-whatever the source says. Every .mgz written with a header that came from a .nii was therefore stored
-as float32, which is how the 1mm copy CerebNet conforms for a high-res subject became a float32 file
-four times the size of the uint8 one it asked for, holding nothing but integers.
-
-Three rules are pinned here.
+whatever the source says. `as_mgh_image` sets it instead, which is what makes the three rules below
+hold.
 
 - The written type does not depend on the container the header came from, nor on the container it is
   written to. The output format only decides which types are available at all.
@@ -13,8 +10,8 @@ Three rules are pinned here.
   clip the data, nor one the format cannot store. Narrowing is the caller's to do, deliberately and
   outside, because only the caller knows whether to cast, to rescale or to refuse. The single output
   whose type is not ours to choose asks for `storable_dtype` on purpose.
-- The aseg files are written as uchar, as FreeSurfer writes them, rather than inheriting the int16
-  of the segmentation they are reduced from.
+- The aseg files are written as uchar, as FreeSurfer writes them, whatever the type of the
+  segmentation they were reduced from.
 """
 
 import nibabel as nib
@@ -56,11 +53,7 @@ def written(path):
 @pytest.mark.parametrize("source", ["mgh", "nifti"])
 @BOTH_FORMATS
 def test_dtype_depends_on_neither_container(dtype, source, suffix, tmp_path):
-    """The bug: a NIfTI header silently produced float32, an MGH header did not.
-
-    Extended to the output side, which was never handled at all: the same data and header written
-    as .mgz and as .nii.gz have to end up with the same type.
-    """
+    """The same data and header give the same type, whichever container is on either side."""
     data = np.zeros(SHAPE, dtype=dtype)
     out_file = tmp_path / f"x{suffix}"
     save_image(header_of(dtype, source), AFFINE, data, out_file)
@@ -82,14 +75,14 @@ def test_a_wide_type_survives_where_the_format_allows_it(dtype, tmp_path):
 
 
 def probabilities():
-    """The CC soft labels: written with the header of the conformed image, which is uchar."""
+    """Soft labels, as the CC module writes them with the header of the conformed image."""
     data = np.zeros(SHAPE, dtype=np.float32)
     data[0, 0, 0] = 0.37
     return data
 
 
 def label_over_uchar():
-    """A label a uchar cannot hold, which used to be written as 255."""
+    """A label a uchar cannot hold."""
     data = np.zeros(SHAPE, dtype=np.int16)
     data[0, 0, 0] = 500
     return data
@@ -109,10 +102,9 @@ def label_over_uchar():
 def test_a_type_that_would_lose_data_is_refused(data, header_dtype, explicit, damage, suffix, tmp_path):
     """Both axes, both kinds of loss, both formats.
 
-    The header axis is how the bugs arrived: 0.37 stored as 0 turned the CC probability map into a
-    binary mask, and a uchar header with a 500 in it wrote 255. The dtype axis is the same rule
-    applied to what a caller asks for, so the knob cannot be used to clip either. `data.astype(...)`
-    at the call site is how you ask for that on purpose.
+    The rule is the same whether the type came from the header or from the caller, so the `dtype`
+    knob cannot be used to clip either. `data.astype(...)` at the call site is how you ask for that
+    on purpose.
 
     The header's own container is not varied, because `test_dtype_depends_on_neither_container`
     already establishes that it makes no difference.
@@ -174,9 +166,8 @@ def test_storable_dtype_writes_the_archival_copy(data, expected, tmp_path):
 def test_a_type_mgh_cannot_store_is_refused(wanted, tmp_path):
     """MGH has no int64 and no float64, so it says so rather than picking something else.
 
-    Substituting was the earlier behaviour and it could answer a float64 request with uint8, which
-    is not a narrower version of the request but a different file. Callers that genuinely do not
-    choose their own type ask for `storable_dtype` instead.
+    A float64 request answered with an integer would not be a narrower version of the request but a
+    different file. Callers that do not choose their own type ask for `storable_dtype` instead.
     """
     data = np.zeros(SHAPE, dtype=wanted)
 
@@ -220,8 +211,8 @@ def test_an_integer_nifti_carries_no_scale_factor(tmp_path):
 def test_header_is_required():
     """The affine covers the geometry, but only the header carries the acquisition parameters.
 
-    Every caller has one. Leaving the argument optional meant a headerless call fell through to the
-    data's own type, which for int64 is a type no MGH file can store.
+    Every caller has one, so it is required rather than optional and a caller with no source image
+    has to say so by passing an `MGHHeader()`.
     """
     with pytest.raises(TypeError):
         as_mgh_image(np.zeros(SHAPE, dtype=np.uint8), AFFINE)
@@ -300,7 +291,7 @@ def dkt_segmentation():
 
 
 def test_aseg_is_written_as_uchar(tmp_path):
-    """FreeSurfer writes aseg.auto.mgz as uchar, and so did FastSurfer before the int16 carried over."""
+    """FreeSurfer writes aseg.auto.mgz as uchar, so FastSurfer does too."""
     seg = dkt_segmentation()
     header = nib.MGHImage(seg, AFFINE).header
     assert header.get_data_dtype() == np.dtype(">i2"), "the input really is int16"
@@ -341,8 +332,8 @@ def negative_label():
 def test_an_aseg_uchar_would_damage_is_refused(case, tmp_path):
     """reduce_to_aseg asks for uchar because an aseg has no label outside it.
 
-    If one ever appears, that is a bug upstream, and it has to surface rather than be papered over
-    by writing a type FreeSurfer does not expect here.
+    A label that does not fit means something went wrong upstream, so it surfaces rather than being
+    papered over by writing a type FreeSurfer does not expect here.
     """
     header = nib.MGHImage(case(), AFFINE).header
 
@@ -351,7 +342,7 @@ def test_an_aseg_uchar_would_damage_is_refused(case, tmp_path):
 
 
 def test_conformed_copy_of_a_float_input_is_not_float(tmp_path):
-    """The path that produced orig.10mm.mgz: a float NIfTI input, uint8 asked for, uint8 expected."""
+    """The orig.10mm.mgz path: conform is asked for uchar, so a float input still lands as uchar."""
     affine = np.diag([0.8, 0.8, 0.8, 1.0])
     affine[:3, 3] = -128.0
     voxels = np.rint(np.random.default_rng(0).random((64, 64, 64)) * 255).astype(np.float32)
