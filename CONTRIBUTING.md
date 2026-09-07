@@ -138,10 +138,10 @@ Contributing Code
 9. Commit your changes: `git commit -am 'Add some feature'`
 10. Push to the branch to your GitHub: `git push origin my-new-feature`
 
-```bash
-git commit -am 'Add some feature'
-git push origin my-new-feature
-```
+    ```bash
+    git commit -am 'Add some feature'
+    git push origin my-new-feature
+    ```
 
 11. [Create a new pull request on the GitHub web interface](https://github.com/Deep-MI/FastSurfer/compare) from your
     branch into Deep-NI **dev branch** (not into stable): Select "Compare across forks" and then your fork on the right,
@@ -205,7 +205,7 @@ Next time you contribute a feature, steps 1-6 above are simpler as you already h
 - Make sure it is identical to upstream: `git pull upstream dev`
 - Check out a new feature branch and continue from 7. above.
 
-Another good command, if -- for any reason -- your `dev` branch diverged, which should never happen as you never commit
+Another good command, if your `dev` branch diverged for any reason, which should never happen as you never commit
 to it, you can reset it by `git reset --hard upstream/dev`. Make absolutely sure you are in your `dev` branch (not the
 feature branch) and be aware that this will delete any local changes!
 
