@@ -692,7 +692,8 @@ if [[ -z "$build_log" ]] ; then build_log="$subject_dir/scripts/build.log" ; fi
 if [[ -n "$t2" ]] && [[ "$run_seg_pipeline" == "true" ]]
 then
   if [[ ! -f "$t2" ]] ; then echo "ERROR: T2 file $t2 does not exist!" ; exit 1 ; fi
-  copy_name_T2="$subject_dir/mri/orig/T2.001.mgz"
+  # written by copy_input.py, which also places the verbatim copy in mri/orig
+  rawavg_name_t2="$subject_dir/mri/T2.rawavg.mgz"
 fi
 
 if [[ -z "$PYTHONUNBUFFERED" ]] ; then export PYTHONUNBUFFERED=0 ; fi
@@ -1072,6 +1073,27 @@ fi
 
 asegdkt_segfile_manedit=$(add_file_suffix "$asegdkt_segfile" "manedit")
 
+# ============= Copying the input into the subject directory ==================
+# Runs for both pipelines, so that a segmentation-only run leaves behind the rawavg a later
+# surface-only run on the same directory needs.
+if [[ -n "$t1" ]] && [[ -f "$t1" ]]
+then
+  echo "MODULE: Input copy" >> "$exec_time_log"
+  {
+    cmd=($python "${fastsurfercnndir}/copy_input.py" --t1 "$t1" --sd "$sd" --sid "$subject")
+    if [[ -n "$t2" ]] && [[ -f "$t2" ]] ; then cmd+=(--t2 "$t2") ; fi
+    echo "INFO: Copying the input to $subject_dir/mri/orig and creating rawavg..."
+    echo_quoted "${cmd[@]}"
+    "${wrap[@]}" "${cmd[@]}" 2>&1
+    exit $?  # this will only terminate the subshell
+  } | tee -a "$seg_log"
+  if [[ "${PIPESTATUS[0]}" != 0 ]]
+  then
+    echo "ERROR: Copying the input failed!" | tee -a "$seg_log"
+    exit 1
+  fi
+fi
+
 if [[ "$run_seg_pipeline" == "true" ]]
 then
   # ============= Running LIT Inpainting ========================================
@@ -1275,12 +1297,6 @@ then
   then
     echo "MODULE: T2 preprocessing" >> "$exec_time_log"
     {
-      echo "INFO: Copying T2 file to ${copy_name_T2}..."
-      cmd=("nib-convert" "$t2" "$copy_name_T2")
-      echo_quoted "${cmd[@]}"
-      "${wrap[@]}" "${cmd[@]}" 2>&1
-      # do not terminate if this fails
-
       echo "INFO: Robust scaling (partial conforming) of T2 image..."
       cmd=($python "${fastsurfercnndir}/data_loader/conform.py" --orientation native --vox_size any --img_size any
            -i "$t2" -o "$conformed_name_t2")
@@ -1294,7 +1310,7 @@ then
     if [[ "$run_biasfield" == "true" ]]
     then
       # ... we have a t2 image, bias field-correct it (save robustly scaled uchar)
-      cmd=($python "${reconsurfdir}/N4_bias_correct.py" "--in" "$copy_name_T2" --out "$norm_name_t2"
+      cmd=($python "${reconsurfdir}/N4_bias_correct.py" "--in" "$rawavg_name_t2" --out "$norm_name_t2"
            --threads "$threads_seg" --uchar)
       {
         echo "INFO: Running N4 bias-field correction of the t2..."

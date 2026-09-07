@@ -502,10 +502,19 @@ fi
 cmd="mri_convert $asegdkt_segfile $mdir/aparc.DKTatlas+aseg.orig.mgz"
 RunIt "$cmd" "$LF"
 
-# link original T1 input to rawavg (needed by pctsurfcon)
-pushd "$mdir" > /dev/null || ( echo "Could not change to $mdir" ; exit 1 )
-  softlink_or_copy "orig.mgz" "rawavg.mgz" "$LF"
-popd > /dev/null || ( echo "Could not change to subject_dir" ; exit 1 )
+# pctsurfcon reads mri/rawavg.mgz and hardcodes that path. run_fastsurfer.sh writes it from the
+# input, which is the intensity scale FreeSurfer expects there. A subject directory prepared without
+# that step has no rawavg, so fall back to the T1 we were given, which is the conformed image.
+if [[ ! -e "$mdir/rawavg.mgz" ]]
+then
+  {
+    echo "WARNING: $mdir/rawavg.mgz does not exist, linking the passed T1 instead. Gray/white"
+    echo "  contrast (?h.w-g.pct) is then measured on the conformed image rather than on the input."
+  } | tee -a "$LF"
+  pushd "$mdir" > /dev/null || ( echo "Could not change to $mdir" ; exit 1 )
+    softlink_or_copy "orig.mgz" "rawavg.mgz" "$LF"
+  popd > /dev/null || ( echo "Could not change to subject_dir" ; exit 1 )
+fi
 
 
 

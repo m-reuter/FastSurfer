@@ -239,7 +239,6 @@ class SubjectDirectory:
     """
 
     _orig_name: str
-    _copy_orig_name: str
     _conf_name: str
     _segfile: str
     _asegdkt_segfile: str
@@ -425,38 +424,6 @@ class SubjectDirectory:
             The orig name.
         """
         self._orig_name = _orig_name
-
-    @property
-    def copy_orig_name(self) -> Path:
-        """
-        Try to return absolute path.
-
-        If the copy_orig_t1_file is a relative path, it will be interpreted as relative to folder.
-
-        Returns
-        -------
-        Path
-            The copy of orig name.
-        """
-        assert hasattr(self, "_copy_orig_name"), "The copy_orig_name attribute has not been set!"
-        return self.filename_in_subject_folder(self._copy_orig_name)
-
-    @copy_orig_name.setter
-    def copy_orig_name(self, _copy_orig_name: str):
-        """
-        Set the copy of orig name.
-
-        Parameters
-        ----------
-        _copy_orig_name : str
-            The copy of the orig name.
-
-        Returns
-        -------
-        str
-            Original name.
-        """
-        self._copy_orig_name = _copy_orig_name
 
     @property
     def conf_name(self) -> Path:
