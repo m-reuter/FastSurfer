@@ -70,10 +70,11 @@ $FASTSURFER_HOME/run_fastsurfer.sh \
 
 Pass the same `--t1` as the first run. Editing refines results for one image, so the subject
 directory belongs to that image, and FastSurfer stops with an error rather than mixing two inputs
-into one directory. If you no longer have the original, `<subject_dir>/mri/orig/001.<ext>` is a
-byte-for-byte copy of it, under whatever extension you passed, `001.mgz` for an MGH input and
-`001.nii.gz` for a NIfTI one. Processing a genuinely different image, a bias field corrected version
-for instance, is a new run into a new `--sid`.
+into one directory. The surest way to pass the same file is to pass the copy FastSurfer kept,
+`<subject_dir>/mri/orig/001.<ext>`, which is byte for byte the image you originally gave it, under
+whatever extension you gave it in, `001.mgz` for an MGH input and `001.nii.gz` for a NIfTI one.
+Processing a genuinely different image, a bias field corrected version for instance, is a new run
+into a new `--sid`.
 
 Note, a re-run of the segmentation pipeline, as in the command above, should not be harmful, but is only required if the [asegdkt_segfile](#asegdkt_segfile) was edited. Therefore, in most cases, we can skip the segmentation step with
 ```bash

@@ -121,10 +121,11 @@ def archive_input(source: Path, orig_dir: Path, stem: str = "001") -> Path:
     }
     conflicting = sorted(present - unchanged)
     if conflicting:
+        kept = ", ".join(str(orig_dir / name) for name in conflicting)
         raise FileExistsError(
             f"{orig_dir} already holds {', '.join(conflicting)}, which is not {source}. One subject "
-            f"directory belongs to one input: process a different image under a new subject id, or "
-            f"remove the archive to reprocess this directory from scratch."
+            f"directory belongs to one input: to reprocess this one, pass {kept} as the input, and "
+            f"to process a different image, give it a subject id of its own."
         )
 
     for key, part in parts.items():
