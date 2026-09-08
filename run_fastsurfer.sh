@@ -1077,6 +1077,10 @@ asegdkt_segfile_manedit=$(add_file_suffix "$asegdkt_segfile" "manedit")
 # ============= Copying the input into the subject directory ==================
 # Runs for both pipelines, so that a segmentation-only run leaves behind the rawavg a later
 # surface-only run on the same directory needs.
+# This is deliberately before the LIT module, which replaces $t1 with the inpainted image: rawavg
+# feeds the gray/white contrast, and measuring that on inpainted voxels would report synthetic
+# tissue. Sampling the original is the better of the two; masking the lesion out of the contrast
+# computation would be better still and is not done here.
 if [[ -n "$t1" ]] && [[ -f "$t1" ]]
 then
   echo "MODULE: Input copy" >> "$exec_time_log"

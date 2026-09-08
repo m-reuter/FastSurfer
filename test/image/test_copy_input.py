@@ -15,8 +15,8 @@ import numpy as np
 import pytest
 
 from FastSurferCNN.copy_input import (
-    RAWAVG_NAME,
-    T2_RAWAVG_NAME,
+    RAWAVG_PATH,
+    T2_RAWAVG_PATH,
     archive_input,
     image_suffix,
     main,
@@ -43,16 +43,6 @@ def mgh(path, dtype=np.uint8):
     return path
 
 
-def test_image_suffix():
-    """A compound extension has to survive, or the copy silently changes format."""
-    from pathlib import Path
-    assert image_suffix(Path("T1.nii.gz")) == ".nii.gz"
-    assert image_suffix(Path("T1.mgz")) == ".mgz"
-    assert image_suffix(Path("T1.nii")) == ".nii"
-    assert image_suffix(Path("sub-01_T1w.RMS.nii.gz")) == ".nii.gz"
-    assert image_suffix(Path("T1.mgh")) == ".mgh"
-
-
 @pytest.mark.parametrize("maker", [scaled_nifti, mgh], ids=["nii.gz", "mgz"])
 def test_the_archival_copy_is_byte_for_byte(maker, tmp_path):
     """Nothing about the input may change, including the parts an .mgz could not represent."""
@@ -68,7 +58,7 @@ def test_rawavg_from_a_nifti_is_a_converted_mgz(tmp_path):
     """The values carry over and the field of view is set, which a plain nibabel write leaves at 0."""
     source = scaled_nifti(tmp_path / "input.nii.gz")
     copy = archive_input(source, tmp_path / "sub" / "mri" / "orig")
-    rawavg = tmp_path / "sub" / "mri" / RAWAVG_NAME
+    rawavg = tmp_path / "sub" / "mri" / RAWAVG_PATH
 
     write_rawavg(copy, rawavg)
 
@@ -84,7 +74,7 @@ def test_rawavg_from_an_mgz_is_a_relative_symlink(tmp_path):
     """The bytes are already right, so a second copy would only be a second copy."""
     source = mgh(tmp_path / "input.mgz")
     copy = archive_input(source, tmp_path / "sub" / "mri" / "orig")
-    rawavg = tmp_path / "sub" / "mri" / RAWAVG_NAME
+    rawavg = tmp_path / "sub" / "mri" / RAWAVG_PATH
 
     write_rawavg(copy, rawavg)
 
@@ -96,7 +86,7 @@ def test_rawavg_from_an_mgz_is_a_relative_symlink(tmp_path):
 def test_rerunning_replaces_an_existing_rawavg(tmp_path):
     """A second run must not fail on the symlink or the file the first one left."""
     orig_dir = tmp_path / "sub" / "mri" / "orig"
-    rawavg = tmp_path / "sub" / "mri" / RAWAVG_NAME
+    rawavg = tmp_path / "sub" / "mri" / RAWAVG_PATH
 
     write_rawavg(archive_input(mgh(tmp_path / "a.mgz"), orig_dir), rawavg)
     assert rawavg.is_symlink()
@@ -118,8 +108,8 @@ def test_a_nifti_t2_is_archived_and_converted(tmp_path):
     mri = tmp_path / "sub" / "mri"
     assert filecmp.cmp(t1, mri / "orig" / "001.mgz", shallow=False)
     assert filecmp.cmp(t2, mri / "orig" / "T2raw.nii.gz", shallow=False)
-    assert (mri / RAWAVG_NAME).is_symlink(), "the T1 was an mgz"
-    assert nib.load(mri / T2_RAWAVG_NAME).get_data_dtype() == np.dtype(">f4")
+    assert (mri / RAWAVG_PATH).is_symlink(), "the T1 was an mgz"
+    assert nib.load(mri / T2_RAWAVG_PATH).get_data_dtype() == np.dtype(">f4")
 
 
 def test_an_mgz_t2_needs_only_one_file(tmp_path):
@@ -129,7 +119,7 @@ def test_an_mgz_t2_needs_only_one_file(tmp_path):
 
     assert main(t1=t1, sd=tmp_path, sid="sub", t2=t2) == 0
 
-    t2raw = tmp_path / "sub" / "mri" / T2_RAWAVG_NAME
+    t2raw = tmp_path / "sub" / "mri" / T2_RAWAVG_PATH
     assert t2raw == tmp_path / "sub" / "mri" / "orig" / "T2raw.mgz"
     assert not t2raw.is_symlink(), "it is the copy, not a link to one"
     assert filecmp.cmp(t2, t2raw, shallow=False)

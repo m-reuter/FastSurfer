@@ -35,6 +35,7 @@ than an average.
 """
 
 import argparse
+import os
 import shutil
 import sys
 from pathlib import Path
@@ -47,8 +48,9 @@ from FastSurferCNN.utils import logging
 
 LOGGER = logging.getLogger(__name__)
 
-RAWAVG_NAME = "rawavg.mgz"
-T2_RAWAVG_NAME = "orig/T2raw.mgz"
+# both relative to the subject's mri directory, so the shapes match and neither name lies
+RAWAVG_PATH = Path("rawavg.mgz")
+T2_RAWAVG_PATH = Path("orig/T2raw.mgz")
 
 
 def image_suffix(path: Path) -> str:
@@ -101,35 +103,41 @@ def archive_input(source: Path, orig_dir: Path, stem: str = "001") -> Path:
     return destination
 
 
-def write_rawavg(source: Path, rawavg: Path) -> None:
+def write_rawavg(archive: Path, rawavg: Path, source: Path | None = None) -> None:
     """
-    Provide `rawavg` as an MGH file, by symlink where `source` is one already and by conversion else.
+    Provide `rawavg` as an MGH file, by symlink where the input is one already and by conversion else.
 
     Parameters
     ----------
-    source : Path
-        The archival copy of the input.
+    archive : Path
+        The archival copy of the input, which the symlink points at.
     rawavg : Path
         The `mri/rawavg.mgz` to create.
+    source : Path, optional
+        Where to read the voxels from, defaulting to `archive`. Passing the original input avoids
+        reading the copy back, which matters when the subject directory is on slower storage than
+        the input.
     """
+    source = archive if source is None else source
     rawavg.parent.mkdir(parents=True, exist_ok=True)
-    if source.resolve() == rawavg.resolve():
+    if archive.resolve() == rawavg.resolve():
         # an .mgz T2, whose archival copy is already at the name the tools read
         LOGGER.info(f"{rawavg} is the archival copy, nothing to convert.")
         return
     if rawavg.is_symlink() or rawavg.exists():
         rawavg.unlink()
 
-    if image_suffix(source) == ".mgz":
-        # relative, so the subject directory stays movable
-        target = source.relative_to(rawavg.parent)
+    if image_suffix(archive) == ".mgz":
+        # relative, so the subject directory stays movable; relpath rather than relative_to, which
+        # refuses any layout where the archive is not below the link
+        target = Path(os.path.relpath(archive, rawavg.parent))
         try:
             rawavg.symlink_to(target)
             LOGGER.info(f"Linking {rawavg} to {target}")
             return
         except OSError as error:
             LOGGER.info(f"Could not link {rawavg} ({error}), copying instead.")
-            shutil.copyfile(source, rawavg)
+            shutil.copyfile(archive, rawavg)
             return
 
     LOGGER.info(f"Converting {source} to {rawavg}")
@@ -171,10 +179,10 @@ def main(t1: Path, sd: Path, sid: str, t2: Path | None = None) -> int:
         0 on success.
     """
     mri_dir = sd / sid / "mri"
-    # (modality, source, name for the archival copy, name for the mgz the tools read)
-    inputs = [("T1", t1, "001", RAWAVG_NAME)]
+    # (modality, source, name for the archival copy, path of the mgz the tools read)
+    inputs = [("T1", t1, "001", RAWAVG_PATH)]
     if t2 is not None:
-        inputs.append(("T2", t2, "T2raw", T2_RAWAVG_NAME))
+        inputs.append(("T2", t2, "T2raw", T2_RAWAVG_PATH))
 
     for modality, source, _stem, _rawavg in inputs:
         if not source.is_file():
@@ -182,8 +190,8 @@ def main(t1: Path, sd: Path, sid: str, t2: Path | None = None) -> int:
             return 1
 
     for _modality, source, stem, rawavg in inputs:
-        copy = archive_input(source, mri_dir / "orig", stem=stem)
-        write_rawavg(copy, mri_dir / rawavg)
+        archive = archive_input(source, mri_dir / "orig", stem=stem)
+        write_rawavg(archive, mri_dir / rawavg, source=source)
     return 0
 
 

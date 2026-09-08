@@ -27,6 +27,7 @@ See Also
 import argparse
 import sys
 import warnings
+from collections import deque
 from collections.abc import Iterator, Sequence
 from concurrent.futures import Executor, Future, ThreadPoolExecutor
 from pathlib import Path
@@ -207,8 +208,10 @@ class RunModelOnData:
         self._async_io = async_io
         self.orientation = orientation
         self.image_size = image_size
-        # writes started while conforming, for the caller to await; see pending_writes
-        self._pending: list[Future[None]] = []
+        # writes started while conforming, for the caller to await; see pending_writes. A deque
+        # because the pool appends to it while the main thread drains it, and append and popleft
+        # are each atomic, so neither side needs a lock
+        self._pending: deque[Future[None]] = deque()
 
         self.sf = 1.0
 
@@ -466,13 +469,21 @@ class RunModelOnData:
         A write runs in the pool, so its exception only surfaces when someone asks the future for
         its result. Anything not awaited fails silently.
 
+        Draining one at a time rather than swapping the container, because the pool keeps appending
+        to it while this runs: a swap can drop a future that was appended between reading the
+        container and copying out of it, which is the write whose failure would then go unreported.
+
         Returns
         -------
         list of Future
             The futures, which are handed over and no longer tracked here.
         """
-        pending, self._pending = self._pending, []
-        return pending
+        pending = []
+        while True:
+            try:
+                pending.append(self._pending.popleft())
+            except IndexError:
+                return pending
 
     def set_up_model_params(self, plane: Plane, cfg: CfgNode, ckpt: "torch.Tensor") -> None:
         """
