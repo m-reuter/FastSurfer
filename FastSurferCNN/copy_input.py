@@ -17,8 +17,8 @@ Put the input images into the subject directory: an archival copy, and the rawav
 
 ``mri/orig/001.<ext>`` is a byte-for-byte copy of the input, in the format it arrived in, so no
 header field, scale factor or data type is lost. Nothing in FastSurfer reads it back; it is there so
-the subject directory records what was processed. A T2 is copied the same way, as
-``mri/orig/T2raw.<ext>``.
+the subject directory records what was processed, which is also why an archive left by a different
+input stops the run. A T2 is copied the same way, as ``mri/orig/T2raw.<ext>``.
 
 ``mri/rawavg.mgz`` is the copy the tools read. ``pctsurfcon`` builds that path itself and hardcodes
 the name, so it has to be an MGH file whatever the input was. Where the input is already an .mgz it
@@ -35,6 +35,7 @@ than an average.
 """
 
 import argparse
+import filecmp
 import os
 import shutil
 import sys
@@ -77,7 +78,15 @@ def archive_input(source: Path, orig_dir: Path, stem: str = "001") -> Path:
     """
     Copy `source` into `orig_dir` as `stem` plus the source's own extension.
 
-    The copy is byte for byte, so it is the input and not a re-encoding of it.
+    The copy is byte for byte, so it is the input and not a re-encoding of it. Formats that spread
+    one image over several files, such as an Analyze .hdr and .img pair, are copied whole, and every
+    part keeps `stem` so they still find each other.
+
+    An archive already in `orig_dir` is compared with `source` byte for byte. Equal means this is a
+    re-run and the copy is skipped; anything else is a second input arriving in a directory that
+    belongs to the first, which nothing downstream could tell apart, so it raises. Comparing the
+    bytes rather than only the file names catches the case where the extension is the same and the
+    image is not.
 
     Parameters
     ----------
@@ -91,43 +100,67 @@ def archive_input(source: Path, orig_dir: Path, stem: str = "001") -> Path:
     Returns
     -------
     Path
-        The path the copy was written to.
+        The path of the copy, the one nibabel names when it loads the image.
+
+    Raises
+    ------
+    FileExistsError
+        If an archive for `stem` exists and is not this input.
     """
     orig_dir.mkdir(parents=True, exist_ok=True)
-    destination = orig_dir / f"{stem}{image_suffix(source)}"
-    if destination.resolve() == source.resolve():
-        LOGGER.info(f"The input is already at {destination}, not copying it onto itself.")
-        return destination
-    LOGGER.info(f"Copying {source} to {destination}")
-    shutil.copyfile(source, destination)
-    return destination
+    # every file of the image, so a .hdr/.img pair is not split in half
+    file_map = nib.load(source).file_map
+    parts = {key: Path(holder.filename) for key, holder in file_map.items()}
+    destinations = {key: orig_dir / f"{stem}{image_suffix(part)}" for key, part in parts.items()}
+    by_name = {destination.name: key for key, destination in destinations.items()}
+
+    present = {p.name for p in orig_dir.glob(f"{stem}.*")}
+    unchanged = {
+        name for name in present & set(by_name)
+        if filecmp.cmp(parts[by_name[name]], destinations[by_name[name]], shallow=False)
+    }
+    conflicting = sorted(present - unchanged)
+    if conflicting:
+        raise FileExistsError(
+            f"{orig_dir} already holds {', '.join(conflicting)}, which is not {source}. One subject "
+            f"directory belongs to one input: process a different image under a new subject id, or "
+            f"remove the archive to reprocess this directory from scratch."
+        )
+
+    for key, part in parts.items():
+        destination = destinations[key]
+        if destination.name in unchanged:
+            LOGGER.info(f"{destination} is already this input, not copying it again.")
+            continue
+        LOGGER.info(f"Copying {part} to {destination}")
+        shutil.copyfile(part, destination)
+    return destinations["image"]
 
 
-def write_rawavg(archive: Path, rawavg: Path, source: Path | None = None) -> None:
+def write_rawavg(source: Path, rawavg: Path, archive: Path | None = None) -> None:
     """
     Provide `rawavg` as an MGH file, by symlink where the input is one already and by conversion else.
 
     Parameters
     ----------
-    archive : Path
-        The archival copy of the input, which the symlink points at.
+    source : Path
+        The image the user passed, which the voxels are read from. Reading the input rather than the
+        archival copy matters when the subject directory is on slower storage.
     rawavg : Path
         The `mri/rawavg.mgz` to create.
-    source : Path, optional
-        Where to read the voxels from, defaulting to `archive`. Passing the original input avoids
-        reading the copy back, which matters when the subject directory is on slower storage than
-        the input.
+    archive : Path, optional
+        The archival copy of the input, if one was made. An .mgz one is linked to instead of being
+        written a second time.
     """
-    source = archive if source is None else source
     rawavg.parent.mkdir(parents=True, exist_ok=True)
-    if archive.resolve() == rawavg.resolve():
+    if archive is not None and archive.resolve() == rawavg.resolve():
         # an .mgz T2, whose archival copy is already at the name the tools read
         LOGGER.info(f"{rawavg} is the archival copy, nothing to convert.")
         return
     if rawavg.is_symlink() or rawavg.exists():
         rawavg.unlink()
 
-    if image_suffix(archive) == ".mgz":
+    if archive is not None and image_suffix(archive) == ".mgz":
         # relative, so the subject directory stays movable; relpath rather than relative_to, which
         # refuses any layout where the archive is not below the link
         target = Path(os.path.relpath(archive, rawavg.parent))
@@ -139,6 +172,13 @@ def write_rawavg(archive: Path, rawavg: Path, source: Path | None = None) -> Non
             LOGGER.info(f"Could not link {rawavg} ({error}), copying instead.")
             shutil.copyfile(archive, rawavg)
             return
+
+    if image_suffix(source) == ".mgz":
+        # already the right container, and a copy keeps rawavg inside the subject directory rather
+        # than linking out to an input that may not stay where it is
+        LOGGER.info(f"Copying {source} to {rawavg}")
+        shutil.copyfile(source, rawavg)
+        return
 
     LOGGER.info(f"Converting {source} to {rawavg}")
     image = nib.load(source)
@@ -155,10 +195,22 @@ def make_parser() -> argparse.ArgumentParser:
     parser.add_argument("--t2", type=Path, default=None, help="the T2 image, if one was passed")
     parser.add_argument("--sd", type=Path, required=True, help="the subjects directory")
     parser.add_argument("--sid", required=True, help="the subject id")
+    parser.add_argument(
+        "--rawavg_only",
+        action="store_true",
+        help="write rawavg but no archival copy, for an input the pipeline built itself rather than "
+             "one the user passed, such as a longitudinal time point resampled into base space",
+    )
     return parser
 
 
-def main(t1: Path, sd: Path, sid: str, t2: Path | None = None) -> int:
+def main(
+        t1: Path,
+        sd: Path,
+        sid: str,
+        t2: Path | None = None,
+        rawavg_only: bool = False,
+) -> int:
     """
     Copy the inputs into the subject directory and provide rawavg.
 
@@ -172,26 +224,35 @@ def main(t1: Path, sd: Path, sid: str, t2: Path | None = None) -> int:
         The subject id.
     t2 : Path, optional
         The T2 image, if one was passed.
+    rawavg_only : bool, default=False
+        Write rawavg but no archival copy.
 
     Returns
     -------
     int
-        0 on success.
+        0 on success, 1 if an input is missing or an archive of a different image is already there.
     """
+    if not t1.is_file():
+        LOGGER.error(f"The T1 file {t1} does not exist.")
+        return 1
     mri_dir = sd / sid / "mri"
     # (modality, source, name for the archival copy, path of the mgz the tools read)
     inputs = [("T1", t1, "001", RAWAVG_PATH)]
     if t2 is not None:
+        if not t2.is_file():
+            LOGGER.error(f"The T2 file {t2} does not exist.")
+            return 1
         inputs.append(("T2", t2, "T2raw", T2_RAWAVG_PATH))
 
-    for modality, source, _stem, _rawavg in inputs:
-        if not source.is_file():
-            LOGGER.error(f"The {modality} file {source} does not exist.")
-            return 1
-
     for _modality, source, stem, rawavg in inputs:
-        archive = archive_input(source, mri_dir / "orig", stem=stem)
-        write_rawavg(archive, mri_dir / rawavg, source=source)
+        archive = None
+        if not rawavg_only:
+            try:
+                archive = archive_input(source, mri_dir / "orig", stem=stem)
+            except FileExistsError as error:
+                LOGGER.error(str(error))
+                return 1
+        write_rawavg(source, mri_dir / rawavg, archive=archive)
     return 0
 
 

@@ -60,7 +60,7 @@ def test_rawavg_from_a_nifti_is_a_converted_mgz(tmp_path):
     copy = archive_input(source, tmp_path / "sub" / "mri" / "orig")
     rawavg = tmp_path / "sub" / "mri" / RAWAVG_PATH
 
-    write_rawavg(copy, rawavg)
+    write_rawavg(source, rawavg, archive=copy)
 
     written = nib.load(rawavg)
     assert not rawavg.is_symlink(), "a converted rawavg is a real file"
@@ -76,7 +76,7 @@ def test_rawavg_from_an_mgz_is_a_relative_symlink(tmp_path):
     copy = archive_input(source, tmp_path / "sub" / "mri" / "orig")
     rawavg = tmp_path / "sub" / "mri" / RAWAVG_PATH
 
-    write_rawavg(copy, rawavg)
+    write_rawavg(source, rawavg, archive=copy)
 
     assert rawavg.is_symlink()
     assert rawavg.readlink().as_posix() == "orig/001.mgz", "relative, so the directory can move"
@@ -85,17 +85,63 @@ def test_rawavg_from_an_mgz_is_a_relative_symlink(tmp_path):
 
 def test_rerunning_replaces_an_existing_rawavg(tmp_path):
     """A second run must not fail on the symlink or the file the first one left."""
-    orig_dir = tmp_path / "sub" / "mri" / "orig"
+    mgz = mgh(tmp_path / "a.mgz")
+    nifti = scaled_nifti(tmp_path / "b.nii.gz")
     rawavg = tmp_path / "sub" / "mri" / RAWAVG_PATH
 
-    write_rawavg(archive_input(mgh(tmp_path / "a.mgz"), orig_dir), rawavg)
+    write_rawavg(mgz, rawavg, archive=archive_input(mgz, tmp_path / "sub" / "mri" / "orig"))
     assert rawavg.is_symlink()
-    # now the other way round, so the symlink has to give way to a real file
-    write_rawavg(archive_input(scaled_nifti(tmp_path / "b.nii.gz"), orig_dir), rawavg)
+    # a second subject whose input is a NIfTI, so the symlink has to give way to a real file
+    write_rawavg(nifti, rawavg, archive=archive_input(nifti, tmp_path / "other" / "orig"))
     assert not rawavg.is_symlink()
     # and back again
-    write_rawavg(archive_input(mgh(tmp_path / "c.mgz"), orig_dir), rawavg)
+    write_rawavg(mgz, rawavg, archive=archive_input(mgz, tmp_path / "third" / "orig"))
     assert rawavg.is_symlink()
+
+
+def test_a_conflicting_archive_stops_the_run(tmp_path):
+    """Two inputs cannot share one subject directory, and nothing could tell their copies apart."""
+    assert main(t1=mgh(tmp_path / "a.mgz"), sd=tmp_path, sid="sub") == 0
+    assert main(t1=scaled_nifti(tmp_path / "b.nii.gz"), sd=tmp_path, sid="sub") == 1
+
+    orig_dir = tmp_path / "sub" / "mri" / "orig"
+    assert [p.name for p in orig_dir.iterdir()] == ["001.mgz"], "the first archive is untouched"
+    # the same input again is a re-run, not a conflict
+    assert main(t1=tmp_path / "a.mgz", sd=tmp_path, sid="sub") == 0
+
+
+def test_a_different_image_under_the_same_extension_stops_the_run(tmp_path):
+    """The extension says nothing about the image, so the archive is compared byte for byte."""
+    assert main(t1=mgh(tmp_path / "a.mgz"), sd=tmp_path, sid="sub") == 0
+
+    assert main(t1=mgh(tmp_path / "b.mgz", dtype=np.int16), sd=tmp_path, sid="sub") == 1
+    assert filecmp.cmp(tmp_path / "a.mgz", tmp_path / "sub" / "mri" / "orig" / "001.mgz",
+                       shallow=False), "the first archive is untouched"
+
+
+def test_rawavg_only_writes_no_archive(tmp_path):
+    """What --base and --long need: their input is built by the pipeline, not passed by the user."""
+    t1 = scaled_nifti(tmp_path / "t1.nii.gz")
+
+    assert main(t1=t1, sd=tmp_path, sid="sub", rawavg_only=True) == 0
+
+    mri = tmp_path / "sub" / "mri"
+    assert (mri / RAWAVG_PATH).is_file()
+    assert not (mri / "orig").exists()
+
+
+def test_every_part_of_a_multi_file_image_is_copied(tmp_path):
+    """An Analyze .hdr without its .img is not an image, so both are copied and both keep the stem."""
+    data = np.arange(np.prod(SHAPE), dtype=np.int16).reshape(SHAPE)
+    nib.save(nib.Nifti1Pair(data, np.diag([1.0, 1.0, 1.0, 1.0])), tmp_path / "input.img")
+
+    assert main(t1=tmp_path / "input.img", sd=tmp_path, sid="sub") == 0
+
+    orig_dir = tmp_path / "sub" / "mri" / "orig"
+    assert sorted(p.name for p in orig_dir.iterdir()) == ["001.hdr", "001.img"]
+    assert np.array_equal(np.asanyarray(nib.load(orig_dir / "001.img").dataobj), data)
+    # and a second run of the same input recognises both parts rather than reporting a conflict
+    assert main(t1=tmp_path / "input.hdr", sd=tmp_path, sid="sub") == 0
 
 
 def test_a_nifti_t2_is_archived_and_converted(tmp_path):
