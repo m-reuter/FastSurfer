@@ -505,7 +505,8 @@ RunIt "$cmd" "$LF"
 # pctsurfcon reads mri/rawavg.mgz and hardcodes that path. run_fastsurfer.sh writes it from the
 # input, which is the intensity scale FreeSurfer expects there. A subject directory prepared without
 # that step has no rawavg, so fall back to the T1 we were given, which is the conformed image.
-if [[ ! -e "$mdir/rawavg.mgz" ]]
+# --base runs no pctsurfcon, so it needs no rawavg and gets no warning about one.
+if [[ ! -e "$mdir/rawavg.mgz" ]] && [[ "$base" != "true" ]]
 then
   {
     echo "WARNING: $mdir/rawavg.mgz does not exist, linking the passed T1 instead. Gray/white"

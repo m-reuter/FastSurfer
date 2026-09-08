@@ -1081,12 +1081,16 @@ asegdkt_segfile_manedit=$(add_file_suffix "$asegdkt_segfile" "manedit")
 # feeds the gray/white contrast, and measuring that on inpainted voxels would report synthetic
 # tissue. Sampling the original is the better of the two; masking the lesion out of the contrast
 # computation would be better still and is not done here.
-if [[ -n "$t1" ]] && [[ -f "$t1" ]]
+# --base and --long archive nothing: their $t1 is not a user input but an image the pipeline built
+# itself, and long_prepare_template.sh already archived the time point inputs it was built from.
+# --base needs no rawavg either, since it skips pctsurfcon, the one consumer.
+if [[ -n "$t1" ]] && [[ -f "$t1" ]] && [[ "$base" != "true" ]]
 then
   echo "MODULE: Input copy" >> "$exec_time_log"
   {
     cmd=($python "${fastsurfercnndir}/copy_input.py" --t1 "$t1" --sd "$sd" --sid "$subject")
     if [[ -n "$t2" ]] && [[ -f "$t2" ]] ; then cmd+=(--t2 "$t2") ; fi
+    if [[ "$long" == "true" ]] ; then cmd+=(--rawavg_only) ; fi
     echo "INFO: Copying the input to $subject_dir/mri/orig and creating rawavg..."
     echo_quoted "${cmd[@]}"
     "${wrap[@]}" "${cmd[@]}" 2>&1
