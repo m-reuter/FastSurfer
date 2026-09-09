@@ -55,7 +55,11 @@ def test_file_existence(
     missing_files = expected_files - files_for_test_subject
     assert files_for_test_subject >= expected_files, f"Files {tuple(missing_files)} do not exist in test subject."
 
-    unmatched = [p for p in expected_patterns if not any(Path(test_subject.path).glob(p))]
+    # condition again, so a directory or a touch file cannot satisfy a pattern that asks for output
+    unmatched = [
+        pattern for pattern in expected_patterns
+        if not any(condition(match) for match in Path(test_subject.path).glob(pattern))
+    ]
     assert unmatched == [], f"Patterns {tuple(unmatched)} match no file in test subject."
 
     logger.debug("All files present.")
