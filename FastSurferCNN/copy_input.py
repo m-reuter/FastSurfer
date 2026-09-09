@@ -129,19 +129,21 @@ def archive_input(
         name for name in present & set(by_name)
         if filecmp.cmp(parts[by_name[name]], destinations[by_name[name]], shallow=False)
     }
+    derived_name = derived.name if derived is not None and derived.parent == orig_dir else None
     # the archive of this input is already here, so this is a re-run and whatever else the caller
     # derives into the directory is its own output from the previous one, not a competing archive
     rerun = destinations["image"].name in unchanged
-    ignored = set()
-    if rerun and derived is not None and derived.parent == orig_dir:
-        ignored = {derived.name}
+    ignored = {derived_name} if rerun and derived_name is not None else set()
     conflicting = sorted(present - unchanged - ignored)
     if conflicting:
-        kept = ", ".join(str(orig_dir / name) for name in conflicting)
+        # one file to point at, and not the rawavg we write ourselves: it is an output, so passing
+        # it back would leave the archive beside it and fail again. Either half of a pair loads.
+        archived = [name for name in conflicting if name != derived_name] or conflicting
         raise FileExistsError(
             f"{orig_dir} already holds {', '.join(conflicting)}, which is not {source}. One subject "
-            f"directory belongs to one input: to reprocess this one, pass {kept} as the input, and "
-            f"to process a different image, give it a subject id of its own."
+            f"directory belongs to one input: to reprocess the image archived here, pass "
+            f"{orig_dir / archived[0]} as the input, and to process a different image, give it a "
+            f"subject id of its own."
         )
 
     for key, part in parts.items():

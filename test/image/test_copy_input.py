@@ -171,6 +171,8 @@ def test_rerunning_a_nifti_t2_is_not_a_conflict(tmp_path):
     # but a different T2 still is a conflict, and the converted rawavg must not hide the old archive
     assert main(t1=t1, sd=tmp_path, sid="sub", t2=scaled_nifti(tmp_path / "other.nii.gz", slope=0.5)) == 1
     assert filecmp.cmp(t2, orig_dir / "T2raw.nii.gz", shallow=False), "the first archive is intact"
+    # and the archive the error names is one the caller can pass straight back in
+    assert main(t1=t1, sd=tmp_path, sid="sub", t2=orig_dir / "T2raw.nii.gz") == 0
 
 
 def test_an_mgz_t2_needs_only_one_file(tmp_path):
