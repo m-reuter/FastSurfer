@@ -1,3 +1,8 @@
+# Globs, for outputs whose name depends on the input. The archival copy of the input keeps the
+# input's own extension, so it is 001.mgz for an MGH input and 001.nii.gz for a NIfTI one.
+file_patterns:
+  - "mri/orig/001.*"
+
 files:
   - "scripts/deep-seg.log"
   - "scripts/build.log"
@@ -61,7 +66,6 @@ files:
   - "mri/aparc.DKTatlas+aseg.mgz"
   - "mri/aparc+aseg.mgz"
   - "mri/wmparc.mgz"
-  - "mri/orig/001.mgz"
   - "mri/transforms/talairach_avi.log"
   - "mri/transforms/talairach.auto.xfm"
   - "mri/transforms/talairach.auto.xfm.lta"

@@ -356,14 +356,14 @@ def storable_dtype(
     """
     The array's own type if the output format can store it, else the closest one that holds it.
 
-    For an output whose type is not ours to choose: `mri/orig/001.mgz`, the archival copy of
-    whatever the scanner or the conversion tool produced. Every other output has a type that belongs
-    to the output rather than to the input, so its caller names it and `choose_dtype` refuses
-    anything that does not fit.
+    For an output whose type is not ours to choose: `mri/rawavg.mgz`, the MGH copy of whatever the
+    scanner or the conversion tool produced. Every other output has a type that belongs to the
+    output rather than to the input, so its caller names it and `choose_dtype` refuses anything that
+    does not fit.
 
     Closest means the same kind first, so a float is never answered with an integer and signed data
     stays signed, and within the kind the narrowest that holds every value. An MGH file has no
-    float64, so a float64 input is archived as float32.
+    float64, so a float64 input is written as float32.
 
     Parameters
     ----------

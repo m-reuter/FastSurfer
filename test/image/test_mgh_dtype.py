@@ -143,7 +143,7 @@ def int64_of(*values):
     ids=["small", "signed", "large", "float64"],
 )
 def test_storable_dtype_writes_the_archival_copy(data, expected, tmp_path):
-    """mri/orig/001.mgz, whose type belongs to whoever produced the input file.
+    """mri/rawavg.mgz, whose type belongs to whoever produced the input file.
 
     int64 is the default integer width in numpy and float64 is what a scaled NIfTI reads back as,
     and MGH stores neither. Such data has to land on a type the format has: the narrowest that holds

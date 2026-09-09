@@ -171,8 +171,7 @@ class SubjectDirectoryConfig:
     conf_name: str = field(
         default="mri/orig.mgz",
         help="Name under which the conformed input image will be saved, in the same directory as the segmentation (the "
-             "input image is always conformed first, if it is not already conformed). The original input image is "
-             "saved in the output directory as $id/mri/orig/001.mgz. Default: mri/orig.mgz.",
+             "input image is always conformed first, if it is not already conformed). Default: mri/orig.mgz.",
         flags=("--conformed_name",),
     )
 

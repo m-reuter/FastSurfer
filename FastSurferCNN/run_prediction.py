@@ -27,6 +27,7 @@ See Also
 import argparse
 import sys
 import warnings
+from collections import deque
 from collections.abc import Iterator, Sequence
 from concurrent.futures import Executor, Future, ThreadPoolExecutor
 from pathlib import Path
@@ -207,6 +208,10 @@ class RunModelOnData:
         self._async_io = async_io
         self.orientation = orientation
         self.image_size = image_size
+        # writes started while conforming, for the caller to await; see pending_writes. A deque
+        # because the pool appends to it while the main thread drains it, and append and popleft
+        # are each atomic, so neither side needs a lock
+        self._pending: deque[Future[None]] = deque()
 
         self.sf = 1.0
 
@@ -314,14 +319,6 @@ class RunModelOnData:
         orig, orig_data = du.load_image(subject.orig_name, "orig image")
         LOGGER.info(f"Successfully loaded image from {subject.orig_name}.")
 
-        # Save input image to standard location, but only
-        if subject.has_attribute("copy_orig_name") and subject.can_resolve_attribute("copy_orig_name"):
-            # an archival copy, so the type is the input's rather than one we name; a scaled or
-            # float64 NIfTI carries one no .mgz can hold, hence the closest the format offers
-            self.async_save_img(
-                subject.copy_orig_name, orig_data, orig, du.storable_dtype(orig_data),
-            )
-
         if not is_conform(orig, **self.__conform_kwargs(verbose=True)):
             if (self.orientation is None or self.orientation == "native") and \
                     not is_conform(orig, **self.__conform_kwargs(verbose=False, dtype=None, vox_size="min")):
@@ -333,7 +330,8 @@ class RunModelOnData:
 
         # Save conformed input image
         if subject.can_resolve_attribute("conf_name"):
-            self.async_save_img(subject.conf_name, orig_data, orig, dtype=np.uint8)
+            # kept so main can await it; a write that fails in the pool has to reach the exit code
+            self._pending.append(self.async_save_img(subject.conf_name, orig_data, orig, dtype=np.uint8))
             LOGGER.info(f"Saving conformed image to {subject.conf_name}...")
         else:
             raise RuntimeError("Cannot resolve the name to the conformed image, please specify an absolute path.")
@@ -463,6 +461,29 @@ class RunModelOnData:
             A Future object to synchronize (and catch/handle exceptions in the save_img method).
         """
         return self.pool.submit(self.save_img, save_as, data, orig, dtype)
+
+    def pending_writes(self) -> list["Future[None]"]:
+        """
+        The writes started while conforming, so the caller can await them with its own.
+
+        A write runs in the pool, so its exception only surfaces when someone asks the future for
+        its result. Anything not awaited fails silently.
+
+        Draining one at a time rather than swapping the container, because the pool keeps appending
+        to it while this runs: a swap can drop a future that was appended between reading the
+        container and copying out of it, which is the write whose failure would then go unreported.
+
+        Returns
+        -------
+        list of Future
+            The futures, which are handed over and no longer tracked here.
+        """
+        pending = []
+        while True:
+            try:
+                pending.append(self._pending.popleft())
+            except IndexError:
+                return pending
 
     def set_up_model_params(self, plane: Plane, cfg: CfgNode, ckpt: "torch.Tensor") -> None:
         """
@@ -626,9 +647,6 @@ def main(
         out_dir=out_dir,
     )
     slist_kwargs = {"segfile": "pred_name"}
-    if out_dir is not None and out_dir != Path(""):
-        config.copy_orig_name = "mri/orig/001.mgz"
-        slist_kwargs["copy_orig_name"] = "copy_orig_name"
 
     try:
         # Get all subjects of interest
@@ -662,6 +680,8 @@ def main(
     iter_subjects = eval.pipeline_conform_and_save_orig(subjects)
     futures = []
     for subject, (orig_img, data_array) in iter_subjects:
+        # the conformed image is written while the subject is prepared, so pick that write up here
+        futures.extend(eval.pending_writes())
         # Run model
         try:
             # The orig_t1_file is only used to populate verbose messages here

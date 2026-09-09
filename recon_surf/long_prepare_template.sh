@@ -329,10 +329,13 @@ for ((i=0;i<${#tpids[@]};++i)); do
   echo "${tpids[i]} with T1 ${t1s[i]}" | tee -a "$LF"
   mdir="$SUBJECTS_DIR/$tid/long-inputs/${tpids[i]}"
   mkdir -p "$mdir"
-  # Import (copy) raw inputs (convert to extension format)
-  t1input=$mdir/cross_input${extension}
-  cmd="mri_convert ${t1s[i]} $t1input"
-  RunIt "$cmd" "$LF"
+  # Import the raw input. copy_input.py archives it verbatim as mri/orig/001.<ext>, which is the
+  # only copy of a time point input the longitudinal stream keeps, and writes mri/rawavg.mgz beside
+  # it. Everything downstream reads the rawavg, so it is an .mgz whatever arrived.
+  cmda=($python "$fastsurfercnndir/copy_input.py" --t1 "${t1s[i]}"
+        --sd "$SUBJECTS_DIR/$tid/long-inputs" --sid "${tpids[i]}")
+  run_it "$LF" "${cmda[@]}"
+  t1input="$mdir/mri/rawavg.mgz"
   
   # conform !!!!!!! should we conform to some common value, determined from all time points?? !!!!!!
   # this is relevant if input resolutions different (which they should not), currently conform min may not work as expected
@@ -355,10 +358,6 @@ for ((i=0;i<${#tpids[@]};++i)); do
          --seg_log "$seg_log" "${run_pred_flags[@]}")
   run_it "$LF" "${cmda[@]}"
 
-  # remove mri subdirectory (run_prediction creates 001 there)
-  cmda=(rm -rf "$mdir/mri")
-  run_it "$LF" "${cmda[@]}"
-  
   # mask is binary, we need to use on conformed image:
   cmda=(mri_mask "$conformed_name" "$mask_name" "$mdir/cross_brainmask${extension}")
   run_it "$LF" "${cmda[@]}"
@@ -452,7 +451,7 @@ for ((i=0;i<${#tpids[@]};++i))
 do
   mdir="$SUBJECTS_DIR/$tid/long-inputs/${tpids[i]}"
   # map orig to base space
-  cmd="mri_convert -at ${ltaXforms[$i]} -rt $interpol $mdir/cross_input${extension} $mdir/long_conform${extension}"
+  cmd="mri_convert -at ${ltaXforms[$i]} -rt $interpol $mdir/mri/rawavg.mgz $mdir/long_conform${extension}"
   RunIt "$cmd" "$LF"
 done
 
