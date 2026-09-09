@@ -119,7 +119,7 @@ full = [
 
 [project.urls]
 homepage = 'https://fastsurfer.org'
-documentation = 'https://fastsurfer.org'
+documentation = 'https://deep-mi.org/FastSurfer/stable'
 source = 'https://github.com/Deep-MI/FastSurfer'
 tracker = 'https://github.com/Deep-MI/FastSurfer/issues'
 

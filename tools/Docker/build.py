@@ -734,7 +734,8 @@ def main(
     if has_git():
         kwargs["build_arg"].append(f"GIT_HASH={build_info['git_hash']}")
         if build_info["git_branch"] == "stable":
-            kwargs["build_arg"].append("DOC_URL=https://deep-mi.org/fastsurfer/stable")
+            # the path is case sensitive, /fastsurfer/ is a 404
+            kwargs["build_arg"].append("DOC_URL=https://deep-mi.org/FastSurfer/stable")
     kwargs["build_arg"].extend([
         f"FASTSURFER_VERSION={build_info['version_tag']}",
         f"REPOSITORY_URL={repository_url}",
