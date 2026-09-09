@@ -8,6 +8,8 @@
 
 import importlib
 import io
+import os
+import re
 import sys
 from pathlib import Path
 
@@ -135,6 +137,20 @@ html_theme_options = {
         },
     ],
 }
+
+# doc.yml publishes each build to gh-pages under the ref it was built from, so that ref is what
+# says whether this tree documents a release. It is read from the environment rather than from git,
+# because actions/checkout leaves a detached HEAD and `git branch --show-current` is empty there.
+publish_ref = os.environ.get("GITHUB_REF_NAME", branch)
+documents_a_release = publish_ref == "stable" or re.fullmatch(r"v\d+\..+", publish_ref) is not None
+
+# Every other build, the dev tree included, describes code ahead of the newest release, so it says
+# so in a bar above the page content.
+if not documents_a_release:
+    html_theme_options["announcement"] = (
+        "You are reading the documentation of the development version. It may describe features "
+        "and options that are not part of a release yet."
+    )
 
 
 # -- autosummary -------------------------------------------------------------
