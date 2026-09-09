@@ -441,7 +441,8 @@ case $key in
   --sid) subject="$1" ; shift ;;
   --sd) sd="$1" ; shift ;;
   --t1) t1="$1" ; shift ;;
-  --t2) t2="$1" ; shift ;;
+  # not for base: the template has no T2, long_prepare_template.sh rejects --t2 as well
+  --t2) t2="$1" ; warn_base+=("$key" "$1") ; shift ;;
   --lesion_mask) lesion_mask="$1" ; run_lit_module="true" ; shift ;;
   --seg_log) seg_log="$1" ; shift ;;
   --conformed_name) conformed_name="$1" ; warn_seg_only+=("$key" "$1") ; shift ;;
