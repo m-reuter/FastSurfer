@@ -158,11 +158,9 @@ SLURM-related options:
   It is recommended to select nodes/partitions with GPUs for segmentation. default: slurm default partition
 --extra_slurm_options <sbatch options>,
 --extra_slurm_options_seg <sbatch options>, and
---extra_slurm_options_surf <sbatch options>: Extra options passed to the sbatch calls of all or only the
-  segmentation or the surface reconstruction job, respectively, needs to be double quoted, e.g.
-  --extra_slurm_options_seg "--reservation=gpu_nodes --qos=high". Options are split at whitespace, so
-  individual options must not contain spaces (use '--<option>=<value>' rather than '--<option> <value>').
-  The cleanup and copy jobs are not affected (like --partition).
+--extra_slurm_options_surf <sbatch options>: Extra options passed to the sbatch call, needs to be double quoted
+  to allow quoted strings, e.g. --extra_slurm_options_seg "--reservation=my_res --qos=high". Options are split at
+  whitespace, so avoid white spaces! Does not affect cleanup and copy jobs.
 --time_seg <timelimit>, and
 --time_surf <timelimit>: a per-image time limit for individual the segmentation and surface reconstruction steps,
   respectively. <timelimit> must be a number in minutes, default seg: ${timelimit_seg}min, surf: ${timelimit_surf}min.
@@ -253,20 +251,24 @@ case $key in
     ;;
   --partition_seg) partition_seg="$1" ; shift ;;
   --partition_surf) partition_surf="$1" ; shift ;;
-  --extra_slurm_options) extra_slurm_options=$1 ; shift ;;
-  --extra_slurm_options_seg) extra_slurm_options_seg=$1 ; shift ;;
-  --extra_slurm_options_surf) extra_slurm_options_surf=$1 ; shift ;;
+  --extra_slurm_options) extra_slurm_options="$extra_slurm_options $1" ; shift ;;
+  --extra_slurm_options_seg) extra_slurm_options_seg="$extra_slurm_options_seg $1" ; shift ;;
+  --extra_slurm_options_surf) extra_slurm_options_surf="$extra_slurm_options_surf $1" ; shift ;;
   --extra_singularity_options)
     # make key lowercase
     lower_value=$(echo "$1" | tr '[:upper:]' '[:lower:]')
-    if [[ "$lower_value" =~ seg=* ]] ; then extra_singularity_options_seg=${1:4} ; warn_old --extra_singularity_options
-    elif [[ "$lower_value" =~ surf=* ]] ; then extra_singularity_options_surf=${1:5} ; warn_old --extra_singularity_options
-    else extra_singularity_options=$1
+    if [[ "$lower_value" =~ seg=* ]] ; then
+      extra_singularity_options_seg="$extra_singularity_options_seg ${1:4}"
+      warn_old --extra_singularity_options
+    elif [[ "$lower_value" =~ surf=* ]] ; then
+      extra_singularity_options_surf="$extra_singularity_options_surf ${1:5}"
+      warn_old --extra_singularity_options
+    else extra_singularity_options="$extra_singularity_options $1"
     fi
     shift
     ;;
-  --extra_singularity_options_seg) extra_singularity_options_seg=$1 ; shift ;;
-  --extra_singularity_options_surf) extra_singularity_options_surf=$1 ; shift ;;
+  --extra_singularity_options_seg) extra_singularity_options_seg="$extra_singularity_options_seg $1" ; shift ;;
+  --extra_singularity_options_surf) extra_singularity_options_surf="$extra_singularity_options_surf $1" ; shift ;;
   --time)
     # make key lowercase
     lower_value=$(echo "$1" | tr '[:upper:]' '[:lower:]') ; warn_old --time
