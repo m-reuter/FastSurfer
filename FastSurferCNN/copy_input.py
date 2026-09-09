@@ -74,7 +74,12 @@ def image_suffix(path: Path) -> str:
     return path.suffix
 
 
-def archive_input(source: Path, orig_dir: Path, stem: str = "001") -> Path:
+def archive_input(
+        source: Path,
+        orig_dir: Path,
+        stem: str = "001",
+        derived: Path | None = None,
+) -> Path:
     """
     Copy `source` into `orig_dir` as `stem` plus the source's own extension.
 
@@ -96,6 +101,11 @@ def archive_input(source: Path, orig_dir: Path, stem: str = "001") -> Path:
         The `mri/orig` directory of the subject, created if it does not exist.
     stem : str, default="001"
         The name to give the copy, without an extension.
+    derived : Path, optional
+        A file the caller writes into `orig_dir` itself, the T2 rawavg in practice, which shares
+        `stem` and so matches the same names as an archive. It is left out of the check, but only
+        once the archive of this very input has been found unchanged, so that switching to a
+        different input still reports the old copies rather than overwriting them.
 
     Returns
     -------
@@ -119,7 +129,13 @@ def archive_input(source: Path, orig_dir: Path, stem: str = "001") -> Path:
         name for name in present & set(by_name)
         if filecmp.cmp(parts[by_name[name]], destinations[by_name[name]], shallow=False)
     }
-    conflicting = sorted(present - unchanged)
+    # the archive of this input is already here, so this is a re-run and whatever else the caller
+    # derives into the directory is its own output from the previous one, not a competing archive
+    rerun = destinations["image"].name in unchanged
+    ignored = set()
+    if rerun and derived is not None and derived.parent == orig_dir:
+        ignored = {derived.name}
+    conflicting = sorted(present - unchanged - ignored)
     if conflicting:
         kept = ", ".join(str(orig_dir / name) for name in conflicting)
         raise FileExistsError(
@@ -249,7 +265,9 @@ def main(
         archive = None
         if not rawavg_only:
             try:
-                archive = archive_input(source, mri_dir / "orig", stem=stem)
+                archive = archive_input(
+                    source, mri_dir / "orig", stem=stem, derived=mri_dir / rawavg,
+                )
             except FileExistsError as error:
                 LOGGER.error(str(error))
                 return 1

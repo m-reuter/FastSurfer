@@ -158,6 +158,21 @@ def test_a_nifti_t2_is_archived_and_converted(tmp_path):
     assert nib.load(mri / T2_RAWAVG_PATH).get_data_dtype() == np.dtype(">f4")
 
 
+def test_rerunning_a_nifti_t2_is_not_a_conflict(tmp_path):
+    """Its rawavg is written into mri/orig too, so it matches the same names as the archive."""
+    t1 = mgh(tmp_path / "t1.mgz")
+    t2 = scaled_nifti(tmp_path / "t2.nii.gz")
+
+    assert main(t1=t1, sd=tmp_path, sid="sub", t2=t2) == 0
+    orig_dir = tmp_path / "sub" / "mri" / "orig"
+    assert sorted(p.name for p in orig_dir.iterdir()) == ["001.mgz", "T2raw.mgz", "T2raw.nii.gz"]
+
+    assert main(t1=t1, sd=tmp_path, sid="sub", t2=t2) == 0, "the same inputs again is a re-run"
+    # but a different T2 still is a conflict, and the converted rawavg must not hide the old archive
+    assert main(t1=t1, sd=tmp_path, sid="sub", t2=scaled_nifti(tmp_path / "other.nii.gz", slope=0.5)) == 1
+    assert filecmp.cmp(t2, orig_dir / "T2raw.nii.gz", shallow=False), "the first archive is intact"
+
+
 def test_an_mgz_t2_needs_only_one_file(tmp_path):
     """Its archival copy already sits at the name the tools read, so there is nothing to convert."""
     t1 = scaled_nifti(tmp_path / "t1.nii.gz")
