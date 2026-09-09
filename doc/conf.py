@@ -31,7 +31,9 @@ _streambuf = io.StringIO()
 _version_info(file=_streambuf)
 _version_dict = parse_build_file(_streambuf)
 
-branch = _version_dict["git_branch"]
+# the commit, not the branch: `git_branch` needs a non-empty `sections` to be filled in at all, and
+# actions/checkout leaves a detached HEAD where `git branch --show-current` is empty anyway
+commit = _version_dict["git_hash"]
 version = _version_dict["version"]
 
 # -- General configuration ---------------------------------------------------
@@ -141,7 +143,7 @@ html_theme_options = {
 # doc.yml publishes each build to gh-pages under the ref it was built from, so that ref is what
 # says whether this tree documents a release. It is read from the environment rather than from git,
 # because actions/checkout leaves a detached HEAD and `git branch --show-current` is empty there.
-publish_ref = os.environ.get("GITHUB_REF_NAME", branch)
+publish_ref = os.environ.get("GITHUB_REF_NAME", "")
 documents_a_release = publish_ref == "stable" or re.fullmatch(r"v\d+\..+", publish_ref) is not None
 
 # Every other build, the dev tree included, describes code ahead of the newest release, so it says
@@ -251,7 +253,9 @@ def import_from_path(module_name, file_path):
     spec.loader.exec_module(module)
     return module
 
-linkcode_resolve = LinkCodeResolver(gh_url, branch)
+# linking at the commit rather than at a branch keeps the line numbers in each link matching the
+# code that was documented, however far the branch moves afterwards
+linkcode_resolve = LinkCodeResolver(gh_url, commit)
 
 _re_script_dirs = "fastsurfercnn|cerebnet|recon_surf|hypvinn|corpuscallosum"
 _up = "^/\\.\\./"
