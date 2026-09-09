@@ -363,7 +363,7 @@ def storable_dtype(
 
     Closest means the same kind first, so a float is never answered with an integer and signed data
     stays signed, and within the kind the narrowest that holds every value. An MGH file has no
-    float64, so a float64 input is archived as float32.
+    float64, so a float64 input is written as float32.
 
     Parameters
     ----------
