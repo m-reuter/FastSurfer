@@ -158,9 +158,9 @@ SLURM-related options:
   It is recommended to select nodes/partitions with GPUs for segmentation. default: slurm default partition
 --extra_slurm_options <sbatch options>,
 --extra_slurm_options_seg <sbatch options>, and
---extra_slurm_options_surf <sbatch options>: Extra options passed to the sbatch call, needs to be double quoted
-  for multiple arguments, e.g. --extra_slurm_options_seg "--reservation=my_res --qos=high". Option does not support
-  nested quotes and are split at whitespace to separate different parameters! Does not affect cleanup and copy jobs.
+--extra_slurm_options_surf <sbatch options>: Extra options passed to the sbatch call; value needs to be double-quoted
+  for multiple arguments, e.g. --extra_slurm_options_seg "--reservation=my_res --qos=high". These options do not support
+  nested quotes and are split on whitespace to separate parameters. Does not affect cleanup and copy jobs.
 --time_seg <timelimit>, and
 --time_surf <timelimit>: a per-image time limit for individual the segmentation and surface reconstruction steps,
   respectively. <timelimit> must be a number in minutes, default seg: ${timelimit_seg}min, surf: ${timelimit_surf}min.
@@ -602,7 +602,7 @@ then
   if [[ "$cpu_only" == "true" ]] ; then debug "Schedule SLURM job without gpu"
   else seg_slurm_sched+=(--gpus-per-task=1)
   fi
-  # append slurm_extra_seg arguments after fixed one gpu per task, then the script to execute
+  # append slurm_extra_seg arguments after the (optional) GPU request, then the script to execute
   seg_slurm_sched+=("${slurm_extra_seg[@]}" "$seg_cmd_filename")
   log "chmod +x $seg_cmd_filename"
   chmod +x "$seg_cmd_file"
