@@ -7,14 +7,22 @@ _logger = logging.getLogger("fastsurfer.doc.linkcode_resolve")
 
 class LinkCodeResolver:
 
-    def __init__(self, url, branch="dev"):
-        self._gh_url = url
-        self._branch = branch
+    def __init__(self, url, ref="dev"):
+        """
+        Resolve source links into the GitHub repository at `url`.
+
+        `ref` is anything GitHub accepts in a blob path, a branch, a tag or a commit hash. An empty
+        one is rejected rather than silently producing `/blob//...`, which GitHub answers with a 404.
+        """
+        if not ref:
+            raise ValueError("LinkCodeResolver needs a git ref to link to, got an empty one.")
+        self._gh_url = url.rstrip("/")
+        self._ref = ref
 
     @property
     def base_path(self):
         # Base URL to the GitHub repository where the source code is hosted
-        return f"{self._gh_url}/blob/{self._branch}"
+        return f"{self._gh_url}/blob/{self._ref}"
 
     def __call__(self, domain, info):
         # Check if the domain is Python, if not return None
@@ -72,9 +80,6 @@ class LinkCodeResolver:
 
         # Replace "." with "/" in the module name to construct the file path
         filename = quote(info["module"].replace(".", "/"))
-        # If the filename doesn't start with "tests", add a "/" at the beginning
-        if not filename.startswith("tests"):
-            filename = "/" + filename
 
         # Construct the URL that points to the source code of the object on GitHub
-        return f"{self.base_path}{filename}.py#L{first_line}-L{first_line + len(lines) - 1}"
+        return f"{self.base_path}/{filename}.py#L{first_line}-L{first_line + len(lines) - 1}"

@@ -58,7 +58,7 @@
 #   - default: "<no repository set>"
 # - DOC_URL:
 #   The documentation URL of fastsurfer to include in image labels.
-#   - default: "https://fastsurfer.org/fastsurfer/dev"
+#   - default: "https://deep-mi.org/FastSurfer/dev"
 # - VENDOR:
 #   The vendor string to include in image labels.
 #   - default: "Image Analysis Lab, DZNE https://deep-mi.org/"
@@ -98,7 +98,7 @@ ARG FREESURFER_URL="not set"
 ARG FASTSURFER_VERSION="dev"
 ARG GIT_HASH=""
 ARG REPOSITORY_URL="<no repository set>"
-ARG DOC_URL="https://fastsurfer.org/fastsurfer/dev"
+ARG DOC_URL="https://deep-mi.org/FastSurfer/dev"
 ARG VENDOR="Image Analysis Lab, DZNE https://deep-mi.org/"
 ARG AUTHOR="FastSurfer Developers <https://github.com/Deep-MI/FastSurfer>"
 ARG BUILDKIT_SBOM_SCAN_CONTEXT="true"
