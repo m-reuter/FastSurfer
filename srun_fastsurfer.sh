@@ -36,6 +36,9 @@ partition_seg=""
 extra_singularity_options=""
 extra_singularity_options_surf=""
 extra_singularity_options_seg=""
+extra_slurm_options=""
+extra_slurm_options_surf=""
+extra_slurm_options_seg=""
 email=""
 pattern="*.{nii.gz,nii,mgz}"
 subject_list=""
@@ -70,6 +73,8 @@ srun_fastsurfer.sh [--data <directory to search images>]
     [--num_cases_per_task <number>] [--cpu_only] [--num_cpus_per_task <number of cpus to allocate for seg>]
     [--time_seg <timelimit>] [--time_surf <timelimit>] [--mem_seg <number (GB)>] [--mem_surf <number (GB)>]
     [--partition <slurm partition>] [--partition_seg <slurm partition>] [--partition_surf <slurm partition>]
+    [--extra_slurm_options <sbatch options>] [--extra_slurm_options_seg <sbatch options>]
+    [--extra_slurm_options_surf <sbatch options>]
     [--slurm_jobarray <jobarray specification>] [--skip_cleanup] [--email <email address>] [--debug] [--dry] [--help]
     [<additional fastsurfer options>]
 
@@ -151,6 +156,11 @@ SLURM-related options:
 --partition_seg <comma-separated-list-of-partitions>, and
 --partition_surf <...list>: partition(s) to schedule all or only segmentation or surface reconstruction, respectively:
   It is recommended to select nodes/partitions with GPUs for segmentation. default: slurm default partition
+--extra_slurm_options <sbatch options>,
+--extra_slurm_options_seg <sbatch options>, and
+--extra_slurm_options_surf <sbatch options>: Extra options passed to the sbatch call; value needs to be double-quoted
+  for multiple arguments, e.g. --extra_slurm_options_seg "--reservation=my_res --qos=high". These options do not support
+  nested quotes and are split on whitespace to separate parameters. Does not affect cleanup and copy jobs.
 --time_seg <timelimit>, and
 --time_surf <timelimit>: a per-image time limit for individual the segmentation and surface reconstruction steps,
   respectively. <timelimit> must be a number in minutes, default seg: ${timelimit_seg}min, surf: ${timelimit_surf}min.
@@ -241,17 +251,24 @@ case $key in
     ;;
   --partition_seg) partition_seg="$1" ; shift ;;
   --partition_surf) partition_surf="$1" ; shift ;;
+  --extra_slurm_options) extra_slurm_options="$extra_slurm_options $1" ; shift ;;
+  --extra_slurm_options_seg) extra_slurm_options_seg="$extra_slurm_options_seg $1" ; shift ;;
+  --extra_slurm_options_surf) extra_slurm_options_surf="$extra_slurm_options_surf $1" ; shift ;;
   --extra_singularity_options)
     # make key lowercase
     lower_value=$(echo "$1" | tr '[:upper:]' '[:lower:]')
-    if [[ "$lower_value" =~ seg=* ]] ; then extra_singularity_options_seg=${1:4} ; warn_old --extra_singularity_options
-    elif [[ "$lower_value" =~ surf=* ]] ; then extra_singularity_options_surf=${1:5} ; warn_old --extra_singularity_options
-    else extra_singularity_options=$1
+    if [[ "$lower_value" =~ seg=* ]] ; then
+      extra_singularity_options_seg="$extra_singularity_options_seg ${1:4}"
+      warn_old --extra_singularity_options
+    elif [[ "$lower_value" =~ surf=* ]] ; then
+      extra_singularity_options_surf="$extra_singularity_options_surf ${1:5}"
+      warn_old --extra_singularity_options
+    else extra_singularity_options="$extra_singularity_options $1"
     fi
     shift
     ;;
-  --extra_singularity_options_seg) extra_singularity_options_seg=$1 ; shift ;;
-  --extra_singularity_options_surf) extra_singularity_options_surf=$1 ; shift ;;
+  --extra_singularity_options_seg) extra_singularity_options_seg="$extra_singularity_options_seg $1" ; shift ;;
+  --extra_singularity_options_surf) extra_singularity_options_surf="$extra_singularity_options_surf $1" ; shift ;;
   --time)
     # make key lowercase
     lower_value=$(echo "$1" | tr '[:upper:]' '[:lower:]') ; warn_old --time
@@ -518,6 +535,10 @@ then
     slurm_email=("${slurm_email[@]}" --mail-type "END,FAIL,ARRAY_TASKS")
   fi
 fi
+# sbatch only accepts options before the script file, so these are inserted there, splitting
+# the option strings at whitespace into individual sbatch arguments
+read -r -a slurm_extra_seg <<< "$extra_slurm_options $extra_slurm_options_seg"
+read -r -a slurm_extra_surf <<< "$extra_slurm_options $extra_slurm_options_surf"
 jobarray_size="$(($((num_cases - 1)) / num_cases_per_task + 1))"
 real_num_cases_per_task="$(($((num_cases - 1)) / jobarray_size + 1))"
 if [[ "$jobarray_size" -gt 1 ]]
@@ -577,10 +598,12 @@ then
   seg_slurm_sched=("--mem=${mem_seg}G" "--cpus-per-task=$num_cpus_per_task" -J "FastSurfer-Seg-$USER"
                    --time=$((timelimit_seg * real_num_cases_per_task + 5))
                    "${slurm_partition[@]}" "${slurm_email[@]}" "${jobarray_option[@]}"
-                   -o "$hpc_work/logs/seg_%A_%a.log" "$seg_cmd_filename")
+                   -o "$hpc_work/logs/seg_%A_%a.log")
   if [[ "$cpu_only" == "true" ]] ; then debug "Schedule SLURM job without gpu"
   else seg_slurm_sched+=(--gpus-per-task=1)
   fi
+  # append slurm_extra_seg arguments after the (optional) GPU request, then the script to execute
+  seg_slurm_sched+=("${slurm_extra_seg[@]}" "$seg_cmd_filename")
   log "chmod +x $seg_cmd_filename"
   chmod +x "$seg_cmd_file"
   log "sbatch --parsable ${seg_slurm_sched[*]}"
@@ -656,7 +679,8 @@ then
                     "--nodes=1-$real_num_cases_per_task" "--hint=nomultithread"
                     "${jobarray_option[@]}" "$surf_depend"
                     -J "FastSurfer-Surf-$USER" -o "$hpc_work/logs/surf_%A_%a.log"
-                    "${slurm_partition[@]}" "${slurm_email[@]}" "$surf_cmd_filename")
+                    "${slurm_partition[@]}" "${slurm_email[@]}" "${slurm_extra_surf[@]}"
+                    "$surf_cmd_filename")
   chmod +x "$surf_cmd_file"
   log "sbatch --parsable ${surf_slurm_sched[*]}"
   echo "--- sbatch script $surf_cmd_filename ---"
