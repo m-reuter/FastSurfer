@@ -32,8 +32,9 @@ _version_info(file=_streambuf)
 _version_dict = parse_build_file(_streambuf)
 
 # the commit, not the branch: `git_branch` needs a non-empty `sections` to be filled in at all, and
-# actions/checkout leaves a detached HEAD where `git branch --show-current` is empty anyway
-commit = _version_dict["git_hash"]
+# actions/checkout leaves a detached HEAD where `git branch --show-current` is empty anyway. The
+# hash is optional in the version line, so fall back to a ref that exists rather than to nothing.
+commit = _version_dict["git_hash"] or "dev"
 version = _version_dict["version"]
 
 # -- General configuration ---------------------------------------------------
@@ -120,6 +121,7 @@ default_role = "py:obj"
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 html_theme = "furo"
 html_static_path = ["_static"]
+html_js_files = ["doc-version-link.js"]  # points the announcement bar at the sibling doc tree
 html_title = project
 html_show_sphinx = False
 
@@ -143,13 +145,15 @@ html_theme_options = {
 # doc.yml publishes each build to gh-pages under the ref it was built from, so that ref is what
 # says whether this tree documents a release. It is read from the environment rather than from git,
 # because actions/checkout leaves a detached HEAD and `git branch --show-current` is empty there.
+# The tag pattern matches the release tags this project actually uses, all of them X.Y.Z. A tag
+# with a suffix falls through to the development wording, which is the safe way round. doc.yml
+# publishes no tags today, so only "stable" reaches this in practice.
 publish_ref = os.environ.get("GITHUB_REF_NAME", "")
-documents_a_release = publish_ref == "stable" or re.fullmatch(r"v\d+\..+", publish_ref) is not None
+documents_a_release = publish_ref == "stable" or re.fullmatch(r"v\d+\.\d+\.\d+", publish_ref) is not None
 
 # The announcement bar is the only site-wide notice furo offers, so it also carries the link to the
 # other published tree. The href here is a fallback that is only correct at the tree root;
 # doc-version-link.js rewrites it for the page it actually ends up on.
-html_js_files = ["doc-version-link.js"]
 _other_tree = "dev" if documents_a_release else "stable"
 _other_link = (
     f'<a href="../{_other_tree}/" data-doc-tree="{_other_tree}">{_other_tree} documentation</a>'
