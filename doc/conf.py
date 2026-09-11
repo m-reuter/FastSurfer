@@ -146,12 +146,26 @@ html_theme_options = {
 publish_ref = os.environ.get("GITHUB_REF_NAME", "")
 documents_a_release = publish_ref == "stable" or re.fullmatch(r"v\d+\..+", publish_ref) is not None
 
-# Every other build, the dev tree included, describes code ahead of the newest release, so it says
-# so in a bar above the page content.
-if not documents_a_release:
+# The announcement bar is the only site-wide notice furo offers, so it also carries the link to the
+# other published tree. The href here is a fallback that is only correct at the tree root;
+# doc-version-link.js rewrites it for the page it actually ends up on.
+html_js_files = ["doc-version-link.js"]
+_other_tree = "dev" if documents_a_release else "stable"
+_other_link = (
+    f'<a href="../{_other_tree}/" data-doc-tree="{_other_tree}">{_other_tree} documentation</a>'
+)
+
+if documents_a_release:
+    html_theme_options["announcement"] = (
+        f"This documents the latest release. The {_other_link} covers changes that are not "
+        "released yet."
+    )
+else:
+    # Every other build, the dev tree included, describes code ahead of the newest release.
     html_theme_options["announcement"] = (
         "You are reading the documentation of the development version. It may describe features "
-        "and options that are not part of a release yet."
+        f"and options that are not part of a release yet. See the {_other_link} for the latest "
+        "release."
     )
 
 
