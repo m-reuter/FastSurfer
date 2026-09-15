@@ -1,0 +1,266 @@
+name: probe-blas
+
+# Throwaway. Answers one question: does forcing OPENBLAS_CORETYPE make different runners agree on
+# the output of the eigensolver that FastSurfer's spherical projection uses?
+#
+# Background: the first divergence between two quicktest runs is lh.qsphere.nofix, produced by
+# recon_surf/spherically_project_wrapper.py, which calls lapy's Solver.eigs through scipy. The numpy
+# and scipy wheels ship OpenBLAS built with DYNAMIC_ARCH, so it picks a kernel from the CPU at
+# runtime. On one machine, forcing a different core type moved the projection by 5.9e-05, the same
+# order as the 7.2e-05 seen between two runners. What is not yet known is whether forcing the same
+# core type on different machines makes them agree, which is the only thing that would make the fix
+# worth shipping.
+#
+# No FastSurfer image and no brain data: a deterministic synthetic mesh through the same solver call
+# exercises the same path in a couple of minutes.
+#
+# Delete the branch once it has answered. Nothing here is meant to reach dev.
+
+on:
+  push:
+    branches: [probe-blas]
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: 'sample ${{ matrix.sample }}'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        sample: [1, 2, 3, 4, 5, 6, 7, 8]
+
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          # the version the image carries
+          python-version: '3.12'
+
+      - name: Install the numerical stack the image has
+        run: pip install numpy==2.5.3 scipy==1.18.1 nibabel==5.4.2 lapy==1.6.0
+
+      - name: Write the probe
+        shell: bash
+        run: |
+          cat > /tmp/probe.py <<'PY'
+          import hashlib
+          import json
+          import sys
+
+          import numpy as np
+          from lapy import Solver, TriaMesh
+
+
+          def icosphere(subdivisions):
+              """A deterministic mesh, built without transcendentals or BLAS."""
+              t = (1.0 + 5.0 ** 0.5) / 2.0
+              v = np.array([
+                  [-1, t, 0], [1, t, 0], [-1, -t, 0], [1, -t, 0],
+                  [0, -1, t], [0, 1, t], [0, -1, -t], [0, 1, -t],
+                  [t, 0, -1], [t, 0, 1], [-t, 0, -1], [-t, 0, 1],
+              ], dtype=np.float64)
+              f = np.array([
+                  [0, 11, 5], [0, 5, 1], [0, 1, 7], [0, 7, 10], [0, 10, 11],
+                  [1, 5, 9], [5, 11, 4], [11, 10, 2], [10, 7, 6], [7, 1, 8],
+                  [3, 9, 4], [3, 4, 2], [3, 2, 6], [3, 6, 8], [3, 8, 9],
+                  [4, 9, 5], [2, 4, 11], [6, 2, 10], [8, 6, 7], [9, 8, 1],
+              ], dtype=np.int64)
+              for _ in range(subdivisions):
+                  points = list(v)
+                  mid = {}
+                  faces = []
+                  for a, b, c in f:
+                      m = []
+                      for x, y in ((a, b), (b, c), (c, a)):
+                          key = (min(x, y), max(x, y))
+                          if key not in mid:
+                              mid[key] = len(points)
+                              points.append((points[x] + points[y]) / 2.0)
+                          m.append(mid[key])
+                      faces += [[a, m[0], m[2]], [b, m[1], m[0]],
+                                [c, m[2], m[1]], [m[0], m[1], m[2]]]
+                  v = np.array(points, dtype=np.float64)
+                  f = np.array(faces, dtype=np.int64)
+              # normalise without np.linalg.norm, which would go through BLAS and could make the
+              # input itself depend on the kernel
+              v = v / np.sqrt((v * v).sum(axis=1))[:, None]
+              # An exact sphere has repeated eigenvalues, and degenerate eigenvectors are not
+              # unique, so they would vary for reasons that have nothing to do with the kernel.
+              # Break the symmetry with an ellipsoid plus a polynomial bump: multiplies and adds
+              # only, so the mesh is bit identical on every host.
+              v = v * np.array([1.0, 0.82, 0.63])
+              v[:, 2] += 0.07 * (v[:, 0] ** 3 - 0.5 * v[:, 0])
+              return v, f
+
+
+          def digest(a):
+              return hashlib.md5(np.ascontiguousarray(a).tobytes()).hexdigest()[:12]
+
+
+          # 7 subdivisions gives 163842 vertices, the same order as a real cortical surface
+          # (136112 on the quicktest subject). Size matters here: a larger problem accumulates more
+          # rounding, so a small mesh could agree across kernels where the real one does not.
+          points, trias = icosphere(7)
+          mesh = TriaMesh(points, trias)
+
+          # the same call spherically_project.py makes: lump=False, no cholmod (the image has no
+          # scikit-sparse), k=4, seeded
+          fem = Solver(mesh, lump=False, use_cholmod=False)
+          evals, evecs = fem.eigs(k=4, rng=0)
+
+          # Eigenvectors carry a sign ambiguity, so canonicalise before hashing or the fingerprint
+          # would differ for a reason that is not about arithmetic.
+          for i in range(evecs.shape[1]):
+              col = evecs[:, i]
+              if col[np.argmax(np.abs(col))] < 0:
+                  evecs[:, i] = -col
+
+          gaps = np.diff(np.sort(evals))
+          print(json.dumps({
+              "nvert": int(points.shape[0]),
+              "in": digest(points),
+              "evals": [float(x) for x in evals],
+              "evals_digest": digest(evals),
+              "evecs_digest": digest(evecs),
+              # if two eigenvalues are nearly equal their eigenvectors are not well determined and
+              # the comparison below means nothing, so report the separation
+              "min_gap": float(gaps.min()) if gaps.size else 0.0,
+          }))
+          PY
+
+      - name: Probe
+        shell: bash
+        env:
+          SAMPLE: ${{ matrix.sample }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import re
+          import subprocess
+          import sys
+
+
+          def run(**env):
+              p = subprocess.run([sys.executable, "/tmp/probe.py"],
+                                 env={**os.environ, **env}, capture_output=True, text=True)
+              if p.returncode != 0:
+                  raise SystemExit(f"probe failed with {env}:\n{p.stderr}")
+              return json.loads(p.stdout)
+
+
+          def openblas_core(**env):
+              """Which kernel OpenBLAS selects, the analogue of torch's CPU capability line."""
+              p = subprocess.run([sys.executable, "-c", "import numpy"],
+                                 env={**os.environ, "OPENBLAS_VERBOSE": "2", **env},
+                                 capture_output=True, text=True)
+              m = re.search(r"Core:\s*(\S+)", p.stdout + p.stderr)
+              return m.group(1) if m else "unknown"
+
+
+          cpuinfo = open("/proc/cpuinfo").read()
+          result = {
+              "sample": os.environ["SAMPLE"],
+              "cpu": re.search(r"model name\s*:\s*(.+)", cpuinfo).group(1).strip(),
+              "core_default": openblas_core(),
+              "core_forced": openblas_core(OPENBLAS_CORETYPE="Nehalem"),
+              # single threaded throughout, the way the wrapper already pins it, so thread count
+              # cannot be the variable
+              "default": run(OPENBLAS_NUM_THREADS="1", OMP_NUM_THREADS="1"),
+              "nehalem": run(OPENBLAS_NUM_THREADS="1", OMP_NUM_THREADS="1",
+                             OPENBLAS_CORETYPE="Nehalem"),
+              # Haswell too: every runner seen so far supports it, and it would cost far less speed
+              # than a baseline core type if it turns out to be enough
+              "haswell": run(OPENBLAS_NUM_THREADS="1", OMP_NUM_THREADS="1",
+                             OPENBLAS_CORETYPE="Haswell"),
+          }
+          print(json.dumps(result, indent=2))
+          with open("/tmp/result.json", "w") as f:
+              json.dump(result, f)
+          PY
+
+      - name: Upload the result
+        uses: actions/upload-artifact@v7
+        with:
+          name: blas-${{ matrix.sample }}
+          path: /tmp/result.json
+
+  collect:
+    name: 'Collate the samples'
+    needs: probe
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Retrieve every sample
+        uses: actions/download-artifact@v8
+        with:
+          pattern: blas-*
+          path: /tmp/samples
+
+      - name: Collate
+        shell: bash
+        run: |
+          python - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+
+          rows = sorted((json.loads(p.read_text()) for p in Path("/tmp/samples").rglob("result.json")),
+                        key=lambda r: int(r["sample"]))
+          if not rows:
+              raise SystemExit("no samples found")
+
+          print("## OpenBLAS kernel dispatch in the spherical projection's eigensolver\n")
+          print("| # | CPU | default core | forced core | evecs default | evecs Nehalem | evecs Haswell |")
+          print("|---|-----|--------------|-------------|---------------|---------------|---------------|")
+          for r in rows:
+              print(f"| {r['sample']} | {r['cpu']} | {r['core_default']} | {r['core_forced']} "
+                    f"| `{r['default']['evecs_digest']}` | `{r['nehalem']['evecs_digest']}` "
+                    f"| `{r['haswell']['evecs_digest']}` |")
+
+          def verdict(label, ok, yes, no):
+              print(f"\n**{label}:** {yes if ok else no}")
+
+          # 0. the mesh must be identical everywhere, or nothing below means anything
+          meshes = {r["default"]["in"] for r in rows}
+          verdict("Input mesh identical on every runner", len(meshes) == 1,
+                  f"yes, {rows[0]['default']['nvert']} vertices.",
+                  f"NO, {meshes}. Everything below is meaningless.")
+
+          # 1. are the eigenvalues well separated, or is this measuring degeneracy
+          worst = min(r["default"]["min_gap"] for r in rows)
+          verdict("Eigenvalues well separated", worst > 1e-6,
+                  f"yes, smallest gap {worst:.3e}.",
+                  f"NO, smallest gap {worst:.3e}. Eigenvectors are not well determined and the "
+                  "comparison is unreliable; change the mesh deformation.")
+
+          # 2. did forcing the core type actually take effect
+          forced = {r["core_forced"] for r in rows}
+          verdict("OPENBLAS_CORETYPE takes effect", forced == {"Nehalem"},
+                  "yes, every runner reports Nehalem when forced.",
+                  f"NO, runners report {forced}. The variable is being ignored somewhere.")
+
+          # 3. the actual question
+          for name, key in (("default", "default"), ("Nehalem", "nehalem"), ("Haswell", "haswell")):
+              fps = {r[key]["evecs_digest"] for r in rows}
+              cores = {r["core_default"] for r in rows}
+              print(f"\n- **{name}**: {len(fps)} distinct eigenvector fingerprint(s) "
+                    f"across {len(rows)} runners and {len(cores)} distinct default core(s)")
+
+          unpinned = {r["default"]["evecs_digest"] for r in rows}
+          for name, key in (("Nehalem", "nehalem"), ("Haswell", "haswell")):
+              pinned = {r[key]["evecs_digest"] for r in rows}
+              if len({r["core_default"] for r in rows}) < 2:
+                  print(f"\n**{name}:** only one core type sampled, so this run cannot say. "
+                        "Push an empty commit to draw again.")
+              else:
+                  verdict(f"Forcing {name} makes runners agree",
+                          len(pinned) == 1 and len(unpinned) > 1,
+                          f"YES. Pin OPENBLAS_CORETYPE={name} in the block at "
+                          "spherically_project_wrapper.py:64 that already pins the thread counts.",
+                          f"no. {len(unpinned)} unpinned and {len(pinned)} pinned fingerprints.")
+          PY
