@@ -50,6 +50,7 @@ jobs:
           import hashlib
           import json
           import sys
+          import time
 
           import numpy as np
           from lapy import Solver, TriaMesh
@@ -104,13 +105,18 @@ jobs:
           # 7 subdivisions gives 163842 vertices, the same order as a real cortical surface
           # (136112 on the quicktest subject). Size matters here: a larger problem accumulates more
           # rounding, so a small mesh could agree across kernels where the real one does not.
+          t0 = time.perf_counter()
           points, trias = icosphere(7)
+          t_mesh = time.perf_counter() - t0
+
           mesh = TriaMesh(points, trias)
 
           # the same call spherically_project.py makes: lump=False, no cholmod (the image has no
           # scikit-sparse), k=4, seeded
+          t0 = time.perf_counter()
           fem = Solver(mesh, lump=False, use_cholmod=False)
           evals, evecs = fem.eigs(k=4, rng=0)
+          t_solve = time.perf_counter() - t0
 
           # Eigenvectors carry a sign ambiguity, so canonicalise before hashing or the fingerprint
           # would differ for a reason that is not about arithmetic.
@@ -140,6 +146,10 @@ jobs:
               # numpy's own SIMD dispatch from the eigensolver's BLAS dispatch
               "mesh": digest(points),
               "numpy_simd": numpy_simd(),
+              # the solve is what the pin would slow down; the mesh is probe scaffolding but is
+              # still a fair sample of ordinary numpy work
+              "t_mesh": round(t_mesh, 3),
+              "t_solve": round(t_solve, 3),
               "evals": [float(x) for x in evals],
               "evals_digest": digest(evals),
               "evecs_digest": digest(evecs),
@@ -183,25 +193,30 @@ jobs:
           # never the variable
           threads = {"OPENBLAS_NUM_THREADS": "1", "OMP_NUM_THREADS": "1"}
 
-          # numpy dispatches its own ufunc kernels on detected SIMD, separately from BLAS.
-          # Disabling everything it found drops every runner to numpy's compiled-in baseline, which
-          # is the same for one wheel, so this is the numpy counterpart of OPENBLAS_CORETYPE.
+          # Both layers have to be pinned, established in the previous round. The question now is
+          # how gently, and what it costs.
+          #   strict: numpy down to the wheel's baseline, OpenBLAS down to Nehalem
+          #   gentle: numpy left at X86_V3, OpenBLAS at Haswell
+          # Gentle is the level four of the eight runners already sit at natively, so on those it
+          # should be a no-op, and it should reproduce the value they produce unpinned.
           probe_default = run(**threads)
           simd = probe_default["numpy_simd"]
-          no_simd = {"NPY_DISABLE_CPU_FEATURES": " ".join(simd)} if simd else {}
+
+          strict_simd = {"NPY_DISABLE_CPU_FEATURES": " ".join(simd)} if simd else {}
+          keep = "X86_V3"
+          gentle_list = [f for f in simd if f != keep]
+          gentle_simd = {"NPY_DISABLE_CPU_FEATURES": " ".join(gentle_list)} if gentle_list else {}
 
           cpuinfo = open("/proc/cpuinfo").read()
           result = {
               "sample": os.environ["SAMPLE"],
               "cpu": re.search(r"model name\s*:\s*(.+)", cpuinfo).group(1).strip(),
               "core_default": openblas_core(),
-              "core_forced": openblas_core(OPENBLAS_CORETYPE="Nehalem"),
               "simd_found": simd,
-              # four variants, so the two dispatch layers can be told apart rather than confounded
+              "simd_kept_by_gentle": keep if keep in simd else None,
               "default": probe_default,
-              "numpy_only": run(**threads, **no_simd),
-              "blas_only": run(**threads, OPENBLAS_CORETYPE="Nehalem"),
-              "both": run(**threads, **no_simd, OPENBLAS_CORETYPE="Nehalem"),
+              "gentle": run(**threads, **gentle_simd, OPENBLAS_CORETYPE="Haswell"),
+              "strict": run(**threads, **strict_simd, OPENBLAS_CORETYPE="Nehalem"),
           }
           print(json.dumps(result, indent=2))
           with open("/tmp/result.json", "w") as f:
@@ -239,56 +254,63 @@ jobs:
           if not rows:
               raise SystemExit("no samples found")
 
-          VARIANTS = [("nothing pinned", "default"), ("numpy only", "numpy_only"),
-                      ("BLAS only", "blas_only"), ("both", "both")]
+          VARIANTS = [("nothing", "default"), ("gentle", "gentle"), ("strict", "strict")]
 
-          print("## Dispatch in the spherical projection: numpy SIMD and OpenBLAS separately\n")
-          print("| # | CPU | BLAS core | numpy SIMD | mesh (numpy only) | evecs, nothing | evecs, numpy | evecs, BLAS | evecs, both |")
-          print("|---|-----|-----------|------------|-------------------|----------------|--------------|-------------|-------------|")
+          def med(values):
+              v = sorted(values)
+              return v[len(v) // 2]
+
+          print("## How gently can the pin be set, and what does it cost\n")
+          print("| # | CPU | BLAS core | numpy SIMD | evecs nothing | evecs gentle | evecs strict | solve s: none/gentle/strict |")
+          print("|---|-----|-----------|------------|---------------|--------------|--------------|------------------------------|")
           for r in rows:
+              t = "/".join(f"{r[k]['t_solve']:.1f}" for _, k in VARIANTS)
               print(f"| {r['sample']} | {r['cpu']} | {r['core_default']} "
-                    f"| {','.join(r['simd_found']) or 'none'} | `{r['default']['mesh']}` "
-                    + " ".join(f"| `{r[k]['evecs_digest']}`" for _, k in VARIANTS) + " |")
+                    f"| {','.join(r['simd_found']) or 'none'} "
+                    + " ".join(f"| `{r[k]['evecs_digest']}`" for _, k in VARIANTS)
+                    + f" | {t} |")
 
           def verdict(label, ok, yes, no):
               print(f"\n**{label}:** {yes if ok else no}")
 
-          # guards first: if either fails, the rest says nothing
           worst = min(r["default"]["min_gap"] for r in rows)
           verdict("Eigenvalues well separated", worst > 1e-6,
                   f"yes, smallest gap {worst:.3e}.",
-                  f"NO, smallest gap {worst:.3e}. Eigenvectors are not well determined; change the "
-                  "mesh deformation.")
-          forced = {r["core_forced"] for r in rows}
-          verdict("OPENBLAS_CORETYPE takes effect", forced == {"Nehalem"},
-                  "yes, every runner reports Nehalem when forced.",
-                  f"NO, runners report {forced}. The variable is being ignored.")
+                  f"NO, smallest gap {worst:.3e}; the comparison is unreliable.")
 
-          spread = len({r["core_default"] for r in rows}) + len({tuple(r["simd_found"]) for r in rows})
-          if spread < 3:
-              print("\n**Only one hardware class sampled**, so nothing below can be concluded. "
-                    "Push an empty commit to draw again.")
+          classes = {(r["core_default"], tuple(r["simd_found"])) for r in rows}
+          if len(classes) < 2:
+              print(f"\n**Only one hardware class sampled** ({classes}), so agreement below proves "
+                    "nothing. Push an empty commit to draw again.")
 
-          # the mesh is pure numpy, so it isolates numpy's dispatch from BLAS entirely
-          print("\n### The mesh, which never touches BLAS\n")
-          for label, key in VARIANTS:
-              n = len({r[key]["mesh"] for r in rows})
-              print(f"- {label}: **{n}** distinct mesh digest(s)")
-          verdict("Pinning numpy alone makes the mesh agree",
-                  len({r["numpy_only"]["mesh"] for r in rows}) == 1
-                  and len({r["default"]["mesh"] for r in rows}) > 1,
-                  "yes, so NPY_DISABLE_CPU_FEATURES controls numpy's own SIMD dispatch.",
-                  "no, so something other than numpy SIMD is moving the mesh.")
-
-          print("\n### The eigenvectors, which need both layers\n")
+          print("\n### Agreement\n")
           for label, key in VARIANTS:
               n = len({r[key]["evecs_digest"] for r in rows})
-              print(f"- {label}: **{n}** distinct eigenvector fingerprint(s)")
+              print(f"- {label}: **{n}** distinct eigenvector fingerprint(s) across {len(rows)} runners")
 
-          both = len({r["both"]["evecs_digest"] for r in rows}) == 1
-          verdict("Pinning both makes every runner agree", both,
-                  "YES. Set NPY_DISABLE_CPU_FEATURES and OPENBLAS_CORETYPE together in the block "
-                  "at spherically_project_wrapper.py:64 that already pins the thread counts.",
-                  "no. A third dispatch layer remains, most likely inside scipy's own compiled "
-                  "code, which has no equivalent environment control.")
+          gentle_ok = len({r["gentle"]["evecs_digest"] for r in rows}) == 1
+          strict_ok = len({r["strict"]["evecs_digest"] for r in rows}) == 1
+          verdict("Gentle is enough", gentle_ok,
+                  "YES, so there is no reason to go to baseline.",
+                  "no, gentle still splits; strict is needed if it works at all.")
+          verdict("Strict works", strict_ok, "yes.", "NO, a third dispatch layer remains.")
+
+          # gentle should reproduce what the machines already at that level produce unpinned
+          native = {r["default"]["evecs_digest"] for r in rows
+                    if r["simd_kept_by_gentle"] and len(r["simd_found"]) == 1}
+          if gentle_ok and native:
+              g = next(iter({r["gentle"]["evecs_digest"] for r in rows}))
+              verdict("Gentle reproduces the native X86_V3 result", g in native,
+                      "yes, which is the expected cross-check.",
+                      f"no: gentle gives {g}, the native machines give {native}. Unexpected, "
+                      "so treat the agreement above with care.")
+
+          print("\n### Cost, median eigensolve seconds across runners\n")
+          base = med([r["default"]["t_solve"] for r in rows])
+          for label, key in VARIANTS:
+              t = med([r[key]["t_solve"] for r in rows])
+              print(f"- {label}: **{t:.2f}s**" + ("" if key == "default" else
+                    f", {100 * (t - base) / base:+.0f}% against nothing pinned"))
+          print("\nThe projection is documented at about 23 seconds in the pipeline, so scale the "
+                "percentage against that rather than against the probe's absolute numbers.")
           PY
