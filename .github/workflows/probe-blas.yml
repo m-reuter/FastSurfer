@@ -119,10 +119,27 @@ jobs:
               if col[np.argmax(np.abs(col))] < 0:
                   evecs[:, i] = -col
 
+          def numpy_simd():
+              """The SIMD extensions numpy dispatches to, which is separate from BLAS."""
+              import contextlib
+              import io
+              import re
+              buf = io.StringIO()
+              with contextlib.redirect_stdout(buf):
+                  np.show_runtime()
+              m = re.search(r"'found': \[(.*?)\]", buf.getvalue(), re.S)
+              if not m or not m.group(1).strip():
+                  return []
+              return [f.strip().strip("'\"") for f in m.group(1).split(",") if f.strip()]
+
+
           gaps = np.diff(np.sort(evals))
           print(json.dumps({
               "nvert": int(points.shape[0]),
-              "in": digest(points),
+              # the mesh is built with numpy only and never touches BLAS, so this digest isolates
+              # numpy's own SIMD dispatch from the eigensolver's BLAS dispatch
+              "mesh": digest(points),
+              "numpy_simd": numpy_simd(),
               "evals": [float(x) for x in evals],
               "evals_digest": digest(evals),
               "evecs_digest": digest(evecs),
@@ -162,21 +179,29 @@ jobs:
               return m.group(1) if m else "unknown"
 
 
+          # single threaded throughout, the way the wrapper already pins it, so thread count is
+          # never the variable
+          threads = {"OPENBLAS_NUM_THREADS": "1", "OMP_NUM_THREADS": "1"}
+
+          # numpy dispatches its own ufunc kernels on detected SIMD, separately from BLAS.
+          # Disabling everything it found drops every runner to numpy's compiled-in baseline, which
+          # is the same for one wheel, so this is the numpy counterpart of OPENBLAS_CORETYPE.
+          probe_default = run(**threads)
+          simd = probe_default["numpy_simd"]
+          no_simd = {"NPY_DISABLE_CPU_FEATURES": " ".join(simd)} if simd else {}
+
           cpuinfo = open("/proc/cpuinfo").read()
           result = {
               "sample": os.environ["SAMPLE"],
               "cpu": re.search(r"model name\s*:\s*(.+)", cpuinfo).group(1).strip(),
               "core_default": openblas_core(),
               "core_forced": openblas_core(OPENBLAS_CORETYPE="Nehalem"),
-              # single threaded throughout, the way the wrapper already pins it, so thread count
-              # cannot be the variable
-              "default": run(OPENBLAS_NUM_THREADS="1", OMP_NUM_THREADS="1"),
-              "nehalem": run(OPENBLAS_NUM_THREADS="1", OMP_NUM_THREADS="1",
-                             OPENBLAS_CORETYPE="Nehalem"),
-              # Haswell too: every runner seen so far supports it, and it would cost far less speed
-              # than a baseline core type if it turns out to be enough
-              "haswell": run(OPENBLAS_NUM_THREADS="1", OMP_NUM_THREADS="1",
-                             OPENBLAS_CORETYPE="Haswell"),
+              "simd_found": simd,
+              # four variants, so the two dispatch layers can be told apart rather than confounded
+              "default": probe_default,
+              "numpy_only": run(**threads, **no_simd),
+              "blas_only": run(**threads, OPENBLAS_CORETYPE="Nehalem"),
+              "both": run(**threads, **no_simd, OPENBLAS_CORETYPE="Nehalem"),
           }
           print(json.dumps(result, indent=2))
           with open("/tmp/result.json", "w") as f:
@@ -214,53 +239,56 @@ jobs:
           if not rows:
               raise SystemExit("no samples found")
 
-          print("## OpenBLAS kernel dispatch in the spherical projection's eigensolver\n")
-          print("| # | CPU | default core | forced core | evecs default | evecs Nehalem | evecs Haswell |")
-          print("|---|-----|--------------|-------------|---------------|---------------|---------------|")
+          VARIANTS = [("nothing pinned", "default"), ("numpy only", "numpy_only"),
+                      ("BLAS only", "blas_only"), ("both", "both")]
+
+          print("## Dispatch in the spherical projection: numpy SIMD and OpenBLAS separately\n")
+          print("| # | CPU | BLAS core | numpy SIMD | mesh (numpy only) | evecs, nothing | evecs, numpy | evecs, BLAS | evecs, both |")
+          print("|---|-----|-----------|------------|-------------------|----------------|--------------|-------------|-------------|")
           for r in rows:
-              print(f"| {r['sample']} | {r['cpu']} | {r['core_default']} | {r['core_forced']} "
-                    f"| `{r['default']['evecs_digest']}` | `{r['nehalem']['evecs_digest']}` "
-                    f"| `{r['haswell']['evecs_digest']}` |")
+              print(f"| {r['sample']} | {r['cpu']} | {r['core_default']} "
+                    f"| {','.join(r['simd_found']) or 'none'} | `{r['default']['mesh']}` "
+                    + " ".join(f"| `{r[k]['evecs_digest']}`" for _, k in VARIANTS) + " |")
 
           def verdict(label, ok, yes, no):
               print(f"\n**{label}:** {yes if ok else no}")
 
-          # 0. the mesh must be identical everywhere, or nothing below means anything
-          meshes = {r["default"]["in"] for r in rows}
-          verdict("Input mesh identical on every runner", len(meshes) == 1,
-                  f"yes, {rows[0]['default']['nvert']} vertices.",
-                  f"NO, {meshes}. Everything below is meaningless.")
-
-          # 1. are the eigenvalues well separated, or is this measuring degeneracy
+          # guards first: if either fails, the rest says nothing
           worst = min(r["default"]["min_gap"] for r in rows)
           verdict("Eigenvalues well separated", worst > 1e-6,
                   f"yes, smallest gap {worst:.3e}.",
-                  f"NO, smallest gap {worst:.3e}. Eigenvectors are not well determined and the "
-                  "comparison is unreliable; change the mesh deformation.")
-
-          # 2. did forcing the core type actually take effect
+                  f"NO, smallest gap {worst:.3e}. Eigenvectors are not well determined; change the "
+                  "mesh deformation.")
           forced = {r["core_forced"] for r in rows}
           verdict("OPENBLAS_CORETYPE takes effect", forced == {"Nehalem"},
                   "yes, every runner reports Nehalem when forced.",
-                  f"NO, runners report {forced}. The variable is being ignored somewhere.")
+                  f"NO, runners report {forced}. The variable is being ignored.")
 
-          # 3. the actual question
-          for name, key in (("default", "default"), ("Nehalem", "nehalem"), ("Haswell", "haswell")):
-              fps = {r[key]["evecs_digest"] for r in rows}
-              cores = {r["core_default"] for r in rows}
-              print(f"\n- **{name}**: {len(fps)} distinct eigenvector fingerprint(s) "
-                    f"across {len(rows)} runners and {len(cores)} distinct default core(s)")
+          spread = len({r["core_default"] for r in rows}) + len({tuple(r["simd_found"]) for r in rows})
+          if spread < 3:
+              print("\n**Only one hardware class sampled**, so nothing below can be concluded. "
+                    "Push an empty commit to draw again.")
 
-          unpinned = {r["default"]["evecs_digest"] for r in rows}
-          for name, key in (("Nehalem", "nehalem"), ("Haswell", "haswell")):
-              pinned = {r[key]["evecs_digest"] for r in rows}
-              if len({r["core_default"] for r in rows}) < 2:
-                  print(f"\n**{name}:** only one core type sampled, so this run cannot say. "
-                        "Push an empty commit to draw again.")
-              else:
-                  verdict(f"Forcing {name} makes runners agree",
-                          len(pinned) == 1 and len(unpinned) > 1,
-                          f"YES. Pin OPENBLAS_CORETYPE={name} in the block at "
-                          "spherically_project_wrapper.py:64 that already pins the thread counts.",
-                          f"no. {len(unpinned)} unpinned and {len(pinned)} pinned fingerprints.")
+          # the mesh is pure numpy, so it isolates numpy's dispatch from BLAS entirely
+          print("\n### The mesh, which never touches BLAS\n")
+          for label, key in VARIANTS:
+              n = len({r[key]["mesh"] for r in rows})
+              print(f"- {label}: **{n}** distinct mesh digest(s)")
+          verdict("Pinning numpy alone makes the mesh agree",
+                  len({r["numpy_only"]["mesh"] for r in rows}) == 1
+                  and len({r["default"]["mesh"] for r in rows}) > 1,
+                  "yes, so NPY_DISABLE_CPU_FEATURES controls numpy's own SIMD dispatch.",
+                  "no, so something other than numpy SIMD is moving the mesh.")
+
+          print("\n### The eigenvectors, which need both layers\n")
+          for label, key in VARIANTS:
+              n = len({r[key]["evecs_digest"] for r in rows})
+              print(f"- {label}: **{n}** distinct eigenvector fingerprint(s)")
+
+          both = len({r["both"]["evecs_digest"] for r in rows}) == 1
+          verdict("Pinning both makes every runner agree", both,
+                  "YES. Set NPY_DISABLE_CPU_FEATURES and OPENBLAS_CORETYPE together in the block "
+                  "at spherically_project_wrapper.py:64 that already pins the thread counts.",
+                  "no. A third dispatch layer remains, most likely inside scipy's own compiled "
+                  "code, which has no equivalent environment control.")
           PY
